@@ -185,13 +185,15 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
 
     sheet = Image.open(path).convert("RGBA")
 
-    if animation.row is not None:
-        # One row of a shared multi-animation sheet. Every cell must be the same
-        # size, so the grid has to be rigid rather than laid out by eye.
+    if animation.cols is not None or animation.row is not None:
+        # A rigid grid. Every cell must be the same size, so the layout has to be
+        # exact rather than arranged by eye. Naming a row takes just that row;
+        # omitting it reads the whole grid left to right, top to bottom, which is
+        # what a single animation spread over several rows needs.
         cols = animation.cols or animation.cells or animation.expected
         if cols < 1 or animation.rows < 1:
             raise SystemExit(f"--animation {animation.name}: cols/rows must be positive")
-        if not 0 <= animation.row < animation.rows:
+        if animation.row is not None and not 0 <= animation.row < animation.rows:
             raise SystemExit(
                 f"--animation {animation.name}: row {animation.row} is outside "
                 f"0..{animation.rows - 1}"
@@ -201,13 +203,21 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
                 f"--animation {animation.name}: sheet {sheet.width}x{sheet.height} "
                 f"does not divide into {cols}x{animation.rows} cells"
             )
+
         cell_width = sheet.width // cols
         cell_height = sheet.height // animation.rows
-        top = animation.row * cell_height
-        return [
-            sheet.crop((i * cell_width, top, (i + 1) * cell_width, top + cell_height))
-            for i in range(cols)
-        ]
+        wanted = (
+            [animation.row] if animation.row is not None else range(animation.rows)
+        )
+        frames = []
+        for row in wanted:
+            top = row * cell_height
+            for column in range(cols):
+                left = column * cell_width
+                frames.append(
+                    sheet.crop((left, top, left + cell_width, top + cell_height))
+                )
+        return frames
 
     cells = animation.cells or animation.expected
     if cells < 1:
