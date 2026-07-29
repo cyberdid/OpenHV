@@ -184,6 +184,12 @@ Acceptance:
 - changes are kept only when they improve an explicit target without violating
   guardrails.
 
+Status: infrastructure ready; baseline execution active. The generated
+SIM-010 v1 schedule balances all four profiles across 112 map/slot/seed cells.
+The standard-library analyzer rejects incomplete or dirty/mixed-commit runs and
+reports Wilson/bootstrapped uncertainty plus profile, map, faction, and spawn
+sensitivity.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

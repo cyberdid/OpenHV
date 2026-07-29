@@ -319,3 +319,13 @@ integration tests passed. Validated all 24 wiki pages for required
 frontmatter, index coverage, and relative links; checked all four JSON schemas
 against Draft 2020-12; parsed the immutable five-row/30-column lifecycle CSV;
 and schema-validated every final lifecycle result, snapshot, and event.
+
+## [2026-07-29] change | Freeze the SIM-010 baseline suite
+
+Added a deterministic generator for a 112-match held-out matrix: four maps,
+four cyclic profile/slot assignments, and seven seeds per cell. Added a
+standard-library analyzer that rejects incomplete, mixed-commit, dirty, or
+profile-invalid runs; writes match/player observations; and reports profile,
+map, faction, and spawn distributions with Wilson and deterministic
+2,000-resample bootstrap 95% intervals. Three focused tests protect schedule
+balance, bilateral trade reconciliation, and repeatable aggregation.

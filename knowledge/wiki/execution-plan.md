@@ -16,6 +16,9 @@ sources:
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - experiments/2026-07-29-scenario-lifecycle-v1.md
+  - ../../generate-baseline-manifest.py
+  - ../../analyze-baseline.py
+  - ../../batch-manifests/baseline-112-v1.json
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -490,6 +493,13 @@ Gate result:
 ## Phase 5 — Benchmark and balance methodology
 
 Goal: establish a trustworthy baseline before deeper AI changes.
+
+Status: SIM-010 execution is active. The frozen v1 schedule contains 112
+matches: four maps × four profile/slot rotations × seven held-out seeds, with
+12,000 synchronized ticks, 1,000-tick telemetry, advisory-only stalemate,
+four workers, and one retained replay per map. The analyzer requires a single
+clean commit and reports player-, map-, faction-, and spawn-level distributions
+with Wilson and deterministic bootstrap 95% intervals.
 
 ### Test suites
 

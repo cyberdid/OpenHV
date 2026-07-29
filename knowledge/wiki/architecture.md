@@ -24,6 +24,9 @@ sources:
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
   - ../../check-headless-equivalence.sh
   - ../../run-batch.py
+  - ../../generate-baseline-manifest.py
+  - ../../analyze-baseline.py
+  - ../../batch-manifests/baseline-112-v1.json
   - ../../run-simulation.sh
   - ../../run-tournament.sh
   - ../../schemas/simulation-batch-manifest-v1.schema.json
@@ -215,6 +218,23 @@ Failed/interrupted attempts retain their support logs and any replay that
 OpenRA managed to create. Each session records its exit code and active wall
 time; the run summary reports cumulative active runner time across resumes.
 See [Decision 0005](decisions/0005-process-isolated-resumable-batches.md).
+
+## Baseline analysis boundary
+
+`generate-baseline-manifest.py` is the deterministic source for
+`baseline-112-v1.json`. The matrix crosses four held-out maps, four cyclic
+profile-to-slot assignments, and seven seeds, giving every profile exactly
+seven observations in every map/slot cell. `--check` makes generated-manifest
+drift a test failure.
+
+`analyze-baseline.py` refuses incomplete batches, mixed commits, dirty runtime
+trees, or matches without exactly one of each four military profiles. It
+produces match- and player-grain CSV plus a JSON report with profile, map,
+faction, and spawn breakdowns. Binary rates use Wilson 95% intervals;
+continuous means use a deterministic 2,000-resample nonparametric bootstrap.
+Timed score leadership remains separate from natural victory. The full run
+artifacts stay outside Git; compact immutable evidence is compiled into the
+project Wiki.
 
 ## Diplomacy boundary
 
