@@ -57,3 +57,11 @@ economy, research, trade, migration, and dynamic diplomacy as core product
 systems. Warfare remains possible but costly and non-mandatory. See
 [Decision 0003](decisions/0003-living-factions-before-war.md) and
 [Living Factions Design](faction-life.md).
+
+## [2026-07-29] change | Commit and push workflow
+
+The user established a standing delivery rule: meaningful completed work must
+update the project wiki, pass relevant validation, be committed as a focused
+change, and be pushed to the user-owned GitHub feature branch. Pull requests
+remain a separate explicit action. The operational rule is recorded in
+[AGENTS.md](../../AGENTS.md).

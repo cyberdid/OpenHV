@@ -60,6 +60,13 @@ After a meaningful code change:
 2. Update architecture, behavior, roadmap, or decision pages affected by it.
 3. Record test commands and results.
 4. Append a `change` entry to the log.
+5. Stage only the files that belong to the completed change.
+6. Create a focused local commit after validation passes.
+7. Push the current feature branch to the configured user-owned GitHub remote.
+
+Do not leave meaningful completed work only in chat history or an unpushed
+working tree. Do not push failing, secret-bearing, or unrelated changes merely
+to satisfy the publication rule.
 
 ### Experiment
 
@@ -108,3 +115,16 @@ Record lint passes in the log.
   `## [YYYY-MM-DD] operation | title`.
 - Avoid copying large source passages into the wiki. Summarize and link to the
   source.
+
+## Git Publication
+
+- `upstream` is the source project and may be read-only.
+- `origin` should be the user-owned fork used for feature-branch pushes.
+- Keep meaningful work on a named feature branch, not directly on upstream
+  `main`.
+- After relevant checks pass and the wiki is current, commit and push the
+  feature branch.
+- Never force-push or rewrite published history unless the user explicitly
+  authorizes it.
+- Opening or merging a pull request is a separate action and requires an
+  explicit request or an agreed release workflow.
