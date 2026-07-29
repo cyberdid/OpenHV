@@ -40,6 +40,7 @@ namespace OpenRA.Mods.HV
 		readonly Dictionary<string, int> observedStrategySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedPlanSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedPlannerRequestSequences = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedCombatDecisionSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeStatusSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeShipmentSequences = new(StringComparer.Ordinal);
@@ -138,6 +139,7 @@ namespace OpenRA.Mods.HV
 				ObserveTechnologies(world.WorldTick, player);
 				ObserveStrategy(world.WorldTick, player);
 				ObservePlan(world.WorldTick, player);
+				ObserveCombatDecision(world.WorldTick, player);
 			}
 
 			ObserveDiplomacy(world.WorldTick, diplomacy);
@@ -337,6 +339,35 @@ namespace OpenRA.Mods.HV
 				ActorType = player.Civilization.LastPlannerRequestActor,
 				Value = player.Civilization.PlannerRequestSequence,
 				PreviousValue = player.Civilization.LastPlannerRequestTick
+			});
+		}
+
+		void ObserveCombatDecision(int worldTick, SimulationTelemetryPlayer player)
+		{
+			if (player.Civilization.CombatDecisionSequence <= 0 ||
+				(observedCombatDecisionSequences.TryGetValue(
+					player.PlayerName,
+					out var sequence) &&
+					sequence == player.Civilization.CombatDecisionSequence))
+				return;
+
+			observedCombatDecisionSequences[player.PlayerName] =
+				player.Civilization.CombatDecisionSequence;
+			WriteEvent(new SimulationEventRecord
+			{
+				SchemaVersion = SchemaVersion,
+				RecordType = "event",
+				MatchId = config.MatchId,
+				WorldTick = worldTick,
+				EventType = "combat-decision",
+				ReasonCode = player.Civilization.LastCombatDecisionReason,
+				PlayerName = player.PlayerName,
+				CombatDecision = player.Civilization.LastCombatDecision,
+				SquadType = player.Civilization.LastCombatSquadType,
+				ActorId = player.Civilization.LastCombatTargetActorId,
+				UnitCount = player.Civilization.LastCombatUnitCount,
+				Value = player.Civilization.LastCombatOwnValue,
+				PreviousValue = player.Civilization.LastCombatEnemyValue
 			});
 		}
 
@@ -580,5 +611,9 @@ namespace OpenRA.Mods.HV
 		public string Strategy { get; init; }
 		public string Plan { get; init; }
 		public string ActorType { get; init; }
+		public string CombatDecision { get; init; }
+		public string SquadType { get; init; }
+		public int? ActorId { get; init; }
+		public int? UnitCount { get; init; }
 	}
 }

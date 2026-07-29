@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Mods.Common.Traits;
+using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.HV.Traits
@@ -58,7 +59,7 @@ namespace OpenRA.Mods.HV.Traits
 		public override object Create(ActorInitializer init) { return new CivilizationState(init, this); }
 	}
 
-	public sealed class CivilizationState : ITick, ISync
+	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision
 	{
 		public static readonly string[] TechnologyNames =
 		[
@@ -136,6 +137,45 @@ namespace OpenRA.Mods.HV.Traits
 		int plannerRequestCounts;
 
 		[VerifySync]
+		int combatDecision;
+
+		[VerifySync]
+		int combatDecisionReason;
+
+		[VerifySync]
+		int combatSquadType;
+
+		[VerifySync]
+		public int CombatDecisionSequence;
+
+		[VerifySync]
+		public int LastCombatDecisionTick;
+
+		[VerifySync]
+		public int LastCombatUnitCount;
+
+		[VerifySync]
+		public int LastCombatTargetActorId;
+
+		[VerifySync]
+		public int LastCombatOwnValue;
+
+		[VerifySync]
+		public int LastCombatEnemyValue;
+
+		[VerifySync]
+		public int TargetSelectionCount;
+
+		[VerifySync]
+		public int RetreatCount;
+
+		[VerifySync]
+		public int RegroupCount;
+
+		[VerifySync]
+		public int ReengageCount;
+
+		[VerifySync]
 		public int SurvivalUtility;
 
 		[VerifySync]
@@ -183,6 +223,12 @@ namespace OpenRA.Mods.HV.Traits
 			private set => planReason = (int)value;
 		}
 
+		public SquadDecisionType CombatDecision => (SquadDecisionType)combatDecision;
+
+		public SquadDecisionReason CombatDecisionReason => (SquadDecisionReason)combatDecisionReason;
+
+		public SquadType CombatSquadType => (SquadType)combatSquadType;
+
 		public CivilizationState(ActorInitializer init, CivilizationStateInfo info)
 		{
 			Info = info;
@@ -224,6 +270,42 @@ namespace OpenRA.Mods.HV.Traits
 				return 0;
 
 			return plannerRequestCounts >> (actorCode * 4) & 0xF;
+		}
+
+		void INotifySquadDecision.SquadDecision(
+			SquadDecisionType decision,
+			SquadDecisionReason reason,
+			SquadType squadType,
+			int unitCount,
+			uint targetActorId,
+			int ownValue,
+			int enemyValue)
+		{
+			combatDecision = (int)decision;
+			combatDecisionReason = (int)reason;
+			combatSquadType = (int)squadType;
+			CombatDecisionSequence++;
+			LastCombatDecisionTick = owner.PlayerActor.World.WorldTick;
+			LastCombatUnitCount = unitCount;
+			LastCombatTargetActorId = unchecked((int)targetActorId);
+			LastCombatOwnValue = ownValue;
+			LastCombatEnemyValue = enemyValue;
+
+			switch (decision)
+			{
+				case SquadDecisionType.TargetSelected:
+					TargetSelectionCount++;
+					break;
+				case SquadDecisionType.Retreat:
+					RetreatCount++;
+					break;
+				case SquadDecisionType.Regroup:
+					RegroupCount++;
+					break;
+				case SquadDecisionType.Reengage:
+					ReengageCount++;
+					break;
+			}
 		}
 
 		public bool HasTechnology(int index)

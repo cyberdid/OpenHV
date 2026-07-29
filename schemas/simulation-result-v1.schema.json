@@ -348,6 +348,34 @@
         "plannerRequestSequence": { "type": "integer", "minimum": 0 },
         "lastPlannerRequestTick": { "type": "integer", "minimum": 0 },
         "lastPlannerRequestActor": { "type": ["string", "null"] },
+        "combatDecisionSequence": { "type": "integer", "minimum": 0 },
+        "lastCombatDecisionTick": { "type": "integer", "minimum": 0 },
+        "lastCombatDecision": {
+          "enum": ["target-selected", "retreat", "regroup", "reengage", null]
+        },
+        "lastCombatDecisionReason": {
+          "enum": [
+            "nearest-reachable",
+            "strategic-score",
+            "finishing-opportunity",
+            "stock-threat",
+            "low-health-and-power",
+            "retreat-order",
+            "regroup-complete",
+            null
+          ]
+        },
+        "lastCombatSquadType": {
+          "enum": ["assault", "air", "rush", "protection", "naval", null]
+        },
+        "lastCombatUnitCount": { "type": "integer", "minimum": 0 },
+        "lastCombatTargetActorId": { "type": "integer", "minimum": 0 },
+        "lastCombatOwnValue": { "type": "integer", "minimum": 0 },
+        "lastCombatEnemyValue": { "type": "integer", "minimum": 0 },
+        "targetSelectionCount": { "type": "integer", "minimum": 0 },
+        "retreatCount": { "type": "integer", "minimum": 0 },
+        "regroupCount": { "type": "integer", "minimum": 0 },
+        "reengageCount": { "type": "integer", "minimum": 0 },
         "survivalUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "researchUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "tradeUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },

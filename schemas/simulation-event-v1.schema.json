@@ -27,6 +27,7 @@
         "strategy-transition",
         "planner-transition",
         "planner-request",
+        "combat-decision",
         "diplomacy-transition",
         "trade-route-state",
         "trade-shipment",
@@ -60,6 +61,14 @@
       "enum": ["opening", "economy", "technology", "recovery"]
     },
     "actorType": { "type": "string", "minLength": 1 },
+    "combatDecision": {
+      "enum": ["target-selected", "retreat", "regroup", "reengage"]
+    },
+    "squadType": {
+      "enum": ["assault", "air", "rush", "protection", "naval"]
+    },
+    "actorId": { "type": "integer", "minimum": 0 },
+    "unitCount": { "type": "integer", "minimum": 0 },
     "settlementId": { "type": "string", "minLength": 1 },
     "value": { "type": "integer" },
     "previousValue": { "type": "integer" },

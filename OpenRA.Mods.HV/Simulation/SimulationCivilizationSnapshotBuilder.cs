@@ -11,6 +11,7 @@
 
 using System;
 using System.Linq;
+using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Mods.HV.Traits;
 
 namespace OpenRA.Mods.HV
@@ -23,6 +24,7 @@ namespace OpenRA.Mods.HV
 			var settlements = civilization?.Settlements(world, player)
 				.Select(actor => BuildSettlement(player, actor, actor.Trait<SettlementCore>()))
 				.ToArray() ?? [];
+			var hasCombatDecision = civilization != null && civilization.CombatDecisionSequence > 0;
 
 			return new SimulationCivilizationResult
 			{
@@ -69,6 +71,29 @@ namespace OpenRA.Mods.HV
 				PlannerRequestSequence = civilization?.PlannerRequestSequence ?? 0,
 				LastPlannerRequestTick = civilization?.LastPlannerRequestTick ?? 0,
 				LastPlannerRequestActor = civilization?.LastPlannerRequestActor,
+				CombatDecisionSequence = civilization?.CombatDecisionSequence ?? 0,
+				LastCombatDecisionTick = civilization?.LastCombatDecisionTick ?? 0,
+
+				// A faction that never commanded a squad has no last decision. Reporting
+				// the default enum value here would record a target selection that never
+				// happened and inflate any decision distribution built from results.
+				LastCombatDecision = hasCombatDecision
+					? CombatDecisionIdentifier(civilization.CombatDecision)
+					: null,
+				LastCombatDecisionReason = hasCombatDecision
+					? CombatDecisionReasonIdentifier(civilization.CombatDecisionReason)
+					: null,
+				LastCombatSquadType = hasCombatDecision
+					? SquadTypeIdentifier(civilization.CombatSquadType)
+					: null,
+				LastCombatUnitCount = civilization?.LastCombatUnitCount ?? 0,
+				LastCombatTargetActorId = civilization?.LastCombatTargetActorId ?? 0,
+				LastCombatOwnValue = civilization?.LastCombatOwnValue ?? 0,
+				LastCombatEnemyValue = civilization?.LastCombatEnemyValue ?? 0,
+				TargetSelectionCount = civilization?.TargetSelectionCount ?? 0,
+				RetreatCount = civilization?.RetreatCount ?? 0,
+				RegroupCount = civilization?.RegroupCount ?? 0,
+				ReengageCount = civilization?.ReengageCount ?? 0,
 				SurvivalUtility = civilization?.SurvivalUtility ?? 0,
 				ResearchUtility = civilization?.ResearchUtility ?? 0,
 				TradeUtility = civilization?.TradeUtility ?? 0,
@@ -167,6 +192,46 @@ namespace OpenRA.Mods.HV
 				CivilizationPlanReason.EconomistDoctrine => "economist-doctrine",
 				CivilizationPlanReason.ResearchStrategy => "research-strategy",
 				CivilizationPlanReason.DevelopmentDoctrine => "development-doctrine",
+				_ => "unknown"
+			};
+		}
+
+		static string CombatDecisionIdentifier(SquadDecisionType decision)
+		{
+			return decision switch
+			{
+				SquadDecisionType.TargetSelected => "target-selected",
+				SquadDecisionType.Retreat => "retreat",
+				SquadDecisionType.Regroup => "regroup",
+				SquadDecisionType.Reengage => "reengage",
+				_ => "unknown"
+			};
+		}
+
+		static string CombatDecisionReasonIdentifier(SquadDecisionReason reason)
+		{
+			return reason switch
+			{
+				SquadDecisionReason.NearestReachable => "nearest-reachable",
+				SquadDecisionReason.StrategicScore => "strategic-score",
+				SquadDecisionReason.FinishingOpportunity => "finishing-opportunity",
+				SquadDecisionReason.StockThreat => "stock-threat",
+				SquadDecisionReason.LowHealthAndPower => "low-health-and-power",
+				SquadDecisionReason.RetreatOrder => "retreat-order",
+				SquadDecisionReason.RegroupComplete => "regroup-complete",
+				_ => "unknown"
+			};
+		}
+
+		static string SquadTypeIdentifier(SquadType squadType)
+		{
+			return squadType switch
+			{
+				SquadType.Assault => "assault",
+				SquadType.Air => "air",
+				SquadType.Rush => "rush",
+				SquadType.Protection => "protection",
+				SquadType.Naval => "naval",
 				_ => "unknown"
 			};
 		}

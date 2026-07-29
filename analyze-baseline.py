@@ -41,6 +41,10 @@ PLAYER_FIELDS = (
     "warCasualties",
     "activeWars",
     "plannerRequests",
+    "targetSelections",
+    "retreats",
+    "regroups",
+    "reengagements",
 )
 PAIRED_FIELDS = (
     "scoreLead",
@@ -53,6 +57,8 @@ PAIRED_FIELDS = (
     "deathsValue",
     "warCasualties",
     "activeWars",
+    "targetSelections",
+    "retreats",
 )
 
 
@@ -160,6 +166,12 @@ def relation_totals(result: dict[str, Any]) -> dict[str, Counter[str]]:
     return totals
 
 
+def combat_label(civilization: dict[str, Any], field: str) -> str:
+    if field not in civilization:
+        return "unavailable"
+    return civilization[field] or "none"
+
+
 def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
     natural_winners = {
         (winner["playerName"], winner["botType"])
@@ -240,6 +252,20 @@ def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
             "warCasualties": civilization.get("warCasualties", 0),
             "activeWars": relations[player_name]["war"],
             "plannerRequests": civilization.get("plannerRequestSequence", 0),
+            # "unavailable" means a pre-AI-004 artifact without the field at
+            # all; "none" means a current artifact whose faction never
+            # commanded a squad. Both stay sortable strings so decision
+            # distributions never mix null with real labels.
+            "combatDecision": combat_label(
+                civilization, "lastCombatDecision"
+            ),
+            "combatDecisionReason": combat_label(
+                civilization, "lastCombatDecisionReason"
+            ),
+            "targetSelections": civilization.get("targetSelectionCount", 0),
+            "retreats": civilization.get("retreatCount", 0),
+            "regroups": civilization.get("regroupCount", 0),
+            "reengagements": civilization.get("reengageCount", 0),
         }
         rows.append(row)
     return rows
@@ -260,6 +286,14 @@ def aggregate_group(rows: list[dict[str, Any]], seed: int) -> dict[str, Any]:
         "plans": dict(sorted(Counter(row["plan"] for row in rows).items())),
         "planReasons": dict(
             sorted(Counter(row["planReason"] for row in rows).items())
+        ),
+        "combatDecisions": dict(
+            sorted(Counter(row["combatDecision"] for row in rows).items())
+        ),
+        "combatDecisionReasons": dict(
+            sorted(
+                Counter(row["combatDecisionReason"] for row in rows).items()
+            )
         ),
         "metrics": {
             field: summarize_numeric(

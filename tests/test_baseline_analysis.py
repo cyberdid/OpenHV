@@ -78,6 +78,76 @@ class BaselineSuiteTests(unittest.TestCase):
             totals["B"], {"tradeImported": 60, "tradeExported": 15}
         )
 
+    def test_combat_fields_never_invent_a_decision(self) -> None:
+        def result_for(civilization: dict) -> dict:
+            return {
+                "config": {
+                    "mapUid": "uid",
+                    "mapTitle": "Map",
+                    "effectiveRandomSeed": 1,
+                },
+                "worldTick": 12_000,
+                "endReason": "world-tick-limit",
+                "naturalWinners": [],
+                "scoreLeader": None,
+                "players": [
+                    {
+                        "playerName": "A",
+                        "botType": "fortress",
+                        "faction": "sc",
+                        "spawnPoint": 1,
+                        "score": 0,
+                        "armyValue": 0,
+                        "assetsValue": 0,
+                        "killsValue": 0,
+                        "deathsValue": 0,
+                        "civilization": {"settlements": [], **civilization},
+                    }
+                ],
+            }
+
+        # A pre-AI-004 artifact carries no combat fields at all.
+        legacy = analysis.player_rows(result_for({}), "m1")[0]
+        self.assertEqual(legacy["combatDecision"], "unavailable")
+        self.assertEqual(legacy["targetSelections"], 0)
+        self.assertEqual(legacy["retreats"], 0)
+
+        # A current artifact for a faction that never commanded a squad reports
+        # an explicit null rather than the default enum member.
+        quiet = analysis.player_rows(
+            result_for(
+                {
+                    "combatDecisionSequence": 0,
+                    "lastCombatDecision": None,
+                    "lastCombatDecisionReason": None,
+                    "targetSelectionCount": 0,
+                    "retreatCount": 0,
+                }
+            ),
+            "m2",
+        )[0]
+        self.assertEqual(quiet["combatDecision"], "none")
+        self.assertEqual(quiet["combatDecisionReason"], "none")
+        self.assertEqual(quiet["targetSelections"], 0)
+
+        fought = analysis.player_rows(
+            result_for(
+                {
+                    "combatDecisionSequence": 9,
+                    "lastCombatDecision": "retreat",
+                    "lastCombatDecisionReason": "low-health-and-power",
+                    "targetSelectionCount": 7,
+                    "retreatCount": 2,
+                    "regroupCount": 1,
+                    "reengageCount": 1,
+                }
+            ),
+            "m3",
+        )[0]
+        self.assertEqual(fought["combatDecision"], "retreat")
+        self.assertEqual(fought["retreats"], 2)
+        self.assertEqual(fought["reengagements"], 1)
+
     def test_profile_aggregate_is_deterministic(self) -> None:
         rows = []
         for index in range(8):
@@ -97,6 +167,12 @@ class BaselineSuiteTests(unittest.TestCase):
                         if index % 2 == 0
                         else "economist-doctrine"
                     ),
+                    "combatDecision": (
+                        "target-selected" if index % 2 == 0 else "retreat"
+                    ),
+                    "combatDecisionReason": (
+                        "strategic-score" if index % 2 == 0 else "stock-threat"
+                    ),
                 }
             )
             rows.append(row)
@@ -112,6 +188,9 @@ class BaselineSuiteTests(unittest.TestCase):
             first["strategies"], {"mobilization": 4, "research": 4}
         )
         self.assertEqual(first["plans"], {"economy": 4, "technology": 4})
+        self.assertEqual(
+            first["combatDecisions"], {"retreat": 4, "target-selected": 4}
+        )
         self.assertLess(
             first["metrics"]["population"]["meanBootstrap95"][0],
             first["metrics"]["population"]["meanBootstrap95"][1],
@@ -149,12 +228,16 @@ class BaselineSuiteTests(unittest.TestCase):
                 "spawnPoint": profile_index + 1,
                 "plan": "unavailable",
                 "planReason": "unavailable",
+                "combatDecision": "unavailable",
+                "combatDecisionReason": "unavailable",
             }
             for field in comparison.COMPARISON_FIELDS:
                 before[field] = profile_index
             after = dict(before)
             after["plan"] = "technology"
             after["planReason"] = "technologist-doctrine"
+            after["combatDecision"] = "retreat"
+            after["combatDecisionReason"] = "low-health-and-power"
             for field in comparison.COMPARISON_FIELDS:
                 after[field] = before[field] + 2
             baseline.append(before)

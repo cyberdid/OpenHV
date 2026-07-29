@@ -36,6 +36,10 @@ COMPARISON_FIELDS = (
     "warCasualties",
     "activeWars",
     "plannerRequests",
+    "targetSelections",
+    "retreats",
+    "regroups",
+    "reengagements",
 )
 
 
@@ -96,6 +100,19 @@ def compare_rows(
             ),
             "candidatePlanReasons": dict(
                 sorted(Counter(row["planReason"] for row in after).items())
+            ),
+            "baselineFinalCombatDecisions": dict(
+                sorted(Counter(row["combatDecision"] for row in before).items())
+            ),
+            "candidateFinalCombatDecisions": dict(
+                sorted(Counter(row["combatDecision"] for row in after).items())
+            ),
+            "candidateCombatDecisionReasons": dict(
+                sorted(
+                    Counter(
+                        row["combatDecisionReason"] for row in after
+                    ).items()
+                )
             ),
             "candidateMinusBaseline": {
                 field: analysis.summarize_numeric(

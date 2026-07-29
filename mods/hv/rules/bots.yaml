@@ -188,6 +188,18 @@ Player:
 		SquadSizeRandomBonus: 6
 		RushInterval: 250
 		MinimumAttackForceDelay: 100
+		AttackForceInterval: 25
+		DangerScanRadius: 12
+		UseStrategicTargetScoring: true
+		TargetDamageWeight: 24
+		TargetBuildingBonus: 1800
+		TargetConstructionYardBonus: 7000
+		FinishingTargetBonus: 12000
+		FinishingAssetsThreshold: 28000
+		FinishingLossThreshold: 5000
+		RetreatHealthPercentage: 55
+		RetreatRelativeValuePercentage: 130
+		RegroupTicks: 150
 		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee
@@ -199,6 +211,20 @@ Player:
 		SquadSizeRandomBonus: 12
 		RushInterval: 900
 		MinimumAttackForceDelay: 500
+		AttackForceInterval: 25
+		DangerScanRadius: 14
+		UseStrategicTargetScoring: true
+		TargetValueWeight: 2
+		TargetDamageWeight: 18
+		TargetBuildingBonus: 2200
+		TargetConstructionYardBonus: 5500
+		FinishingTargetBonus: 8000
+		FinishingAssetsThreshold: 22000
+		FinishingLossThreshold: 7000
+		TargetDistanceWeight: 2
+		RetreatHealthPercentage: 70
+		RetreatRelativeValuePercentage: 150
+		RegroupTicks: 500
 		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee
@@ -210,6 +236,20 @@ Player:
 		SquadSizeRandomBonus: 10
 		RushInterval: 600
 		MinimumAttackForceDelay: 300
+		AttackForceInterval: 25
+		DangerScanRadius: 14
+		UseStrategicTargetScoring: true
+		TargetValueWeight: 3
+		TargetDamageWeight: 28
+		TargetBuildingBonus: 2000
+		TargetConstructionYardBonus: 6500
+		FinishingTargetBonus: 10000
+		FinishingAssetsThreshold: 25000
+		FinishingLossThreshold: 6000
+		TargetDistanceWeight: 2
+		RetreatHealthPercentage: 75
+		RetreatRelativeValuePercentage: 160
+		RegroupTicks: 600
 		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee
@@ -221,8 +261,22 @@ Player:
 		SquadSizeRandomBonus: 10
 		RushInterval: 1200
 		MinimumAttackForceDelay: 800
+		AttackForceInterval: 25
+		DangerScanRadius: 14
 		ProtectUnitScanRadius: 25
 		ProtectionScanRadius: 14
+		UseStrategicTargetScoring: true
+		TargetValueWeight: 2
+		TargetDamageWeight: 20
+		TargetBuildingBonus: 2600
+		TargetConstructionYardBonus: 6000
+		FinishingTargetBonus: 9000
+		FinishingAssetsThreshold: 24000
+		FinishingLossThreshold: 6000
+		TargetDistanceWeight: 2
+		RetreatHealthPercentage: 65
+		RetreatRelativeValuePercentage: 140
+		RegroupTicks: 750
 		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee

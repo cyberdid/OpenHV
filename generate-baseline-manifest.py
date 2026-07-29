@@ -41,6 +41,11 @@ VARIANTS = {
         "AI-003 consistent military-value candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "ai004-candidate": (
+        "ai004-candidate-112-v1",
+        "AI-004 target-scoring, retreat, and regroup candidate on the exact "
+        "baseline-112-v1 map, slot, profile, and seed schedule.",
+    ),
 }
 
 

@@ -122,6 +122,19 @@ namespace OpenRA.Mods.HV
 		public int PlannerRequestSequence { get; init; }
 		public int LastPlannerRequestTick { get; init; }
 		public string LastPlannerRequestActor { get; init; }
+		public int CombatDecisionSequence { get; init; }
+		public int LastCombatDecisionTick { get; init; }
+		public string LastCombatDecision { get; init; }
+		public string LastCombatDecisionReason { get; init; }
+		public string LastCombatSquadType { get; init; }
+		public int LastCombatUnitCount { get; init; }
+		public int LastCombatTargetActorId { get; init; }
+		public int LastCombatOwnValue { get; init; }
+		public int LastCombatEnemyValue { get; init; }
+		public int TargetSelectionCount { get; init; }
+		public int RetreatCount { get; init; }
+		public int RegroupCount { get; init; }
+		public int ReengageCount { get; init; }
 		public int SurvivalUtility { get; init; }
 		public int ResearchUtility { get; init; }
 		public int TradeUtility { get; init; }
