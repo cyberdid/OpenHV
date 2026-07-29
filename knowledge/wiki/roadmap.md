@@ -13,6 +13,10 @@ tags:
 
 # Roadmap
 
+This page is the compact priority view. See the
+[detailed execution plan](execution-plan.md) for implementation tasks,
+dependency gates, metrics, experiment design, and delivery estimates.
+
 ## P0 — Headless simulation loop
 
 Move autonomous match orchestration and result capture away from the rendered

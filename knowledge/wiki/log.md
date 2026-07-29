@@ -30,3 +30,12 @@ agent-maintained synthesis, an index, an append-only log, and explicit
 maintenance workflows. See
 [Decision 0002](decisions/0002-persistent-project-wiki.md) and the
 [source record](../raw/karpathy-llm-wiki-2026-07-29.md).
+
+## [2026-07-29] query | Detailed execution plan
+
+Expanded the compact roadmap into an evidence-gated plan from deterministic
+headless execution through telemetry, strategic AI, faction identity,
+automated improvement, and a persistent world. Local engine inspection showed
+that the dedicated server does not advance `World` and that the normal client
+loop couples logic and rendering, making a logic-only client runtime the first
+recommended spike. See the [detailed execution plan](execution-plan.md).

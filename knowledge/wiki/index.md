@@ -21,6 +21,8 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [AI profiles](ai-profiles.md) — current strategy personalities and their
   intended behavior.
 - [Roadmap](roadmap.md) — ordered next milestones and acceptance criteria.
+- [Detailed execution plan](execution-plan.md) — phased implementation,
+  experiments, gates, risks, backlog, and delivery sequence.
 
 ## Experiments
 
