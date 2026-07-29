@@ -141,3 +141,26 @@ available workforce while reducing mobilization by 127. Total collapses
 matched baseline and score-lead shares stayed within 10–40%. Technologist and
 Fortress also exposed significant war/casualty/army regressions; these are now
 AI-004 acceptance inputs, not ignored planner results.
+
+## Shared Combat Planner AI-004
+
+Each profile now carries its own target scoring and force-preservation
+thresholds on top of the shared squad manager:
+
+| Profile | Damage weight | Construction-yard bonus | Retreat health | Retreat power ratio | Regroup ticks |
+|---|---|---|---|---|---|
+| Aggressor | 24 | 7,000 | 55% | 130% | 150 |
+| Economist | 18 | 5,500 | 70% | 150% | 500 |
+| Technologist | 28 | 6,500 | 75% | 160% | 600 |
+| Fortress | 20 | 6,000 | 65% | 140% | 750 |
+
+Aggressor commits at the lowest health and returns fastest; Technologist and
+Fortress disengage earliest and hold the longest, matching their measured war
+exposure. Every profile also carries a finishing bonus that raises the score of
+targets whose owner has already lost more than the loss threshold and retains
+less than the assets threshold.
+
+The profiles keep the engine default `DangerScanRadius`. Raising it widens the
+"own building nearby" flee veto and suppresses retreat, which is why the first
+candidate produced zero retreats in 12,000 ticks. See the
+[combat decision boundary](architecture.md#combat-decision-boundary).

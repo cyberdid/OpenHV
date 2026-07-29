@@ -21,6 +21,7 @@ sources:
   - ../../schemas/simulation-event-v1.schema.json
   - ../../apply-engine-patches.sh
   - ../../engine-patches/openra-headless.patch
+  - ../../engine-patches/openra-ai-combat.patch
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
   - ../../check-headless-equivalence.sh
   - ../../run-batch.py
@@ -104,6 +105,7 @@ tags:
 | `schemas/simulation-telemetry-v1.schema.json` | Validates each periodic snapshot record |
 | `schemas/simulation-event-v1.schema.json` | Validates each lifecycle/civil event record |
 | `engine-patches/openra-headless.patch` | Adds the engine runtime flag, fast loop, deterministic local server and RNG streams |
+| `engine-patches/openra-ai-combat.patch` | Adds squad target scoring, retreat/regroup/re-engagement, the defending-squad retreat path, and the decision notification interface |
 | `engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs` | Supplies no-op window, graphics, font, cursor, and sound contracts |
 | `apply-engine-patches.sh` / `.ps1` | Idempotently patches a version-pinned downloaded SDK and routes stock bot modules to `BotRandom` |
 | `run-simulation.sh` | Launches one reproducible simulation |
@@ -313,6 +315,35 @@ the primary settlement. Wars and casualties lower the stability target and
 increase migration pressure. All fields and `strategy-transition` events are
 exported by existing civilization snapshots. See
 [Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
+
+## Combat decision boundary
+
+`SquadManagerBotModule` scores candidate targets from value, damage, distance,
+building and construction-yard bonuses, and a finishing bonus for owners whose
+recorded losses and remaining army/assets fall under the profile thresholds.
+`ShouldRetreat` combines the stock fuzzy attack decision with explicit
+low-health-and-power thresholds. Ground squads that retreat move to an own
+building, regroup for `RegroupTicks`, and then re-engage instead of dissolving.
+
+Defending squads need a separate path. `StateBase.ShouldFlee` refuses to flee
+whenever an own building stands inside the danger radius, which is the
+permanent condition for a protection squad, so `ShouldRetreatUnderThreat`
+skips that veto. It deliberately omits the stock fuzzy decision, leaving only
+the explicit thresholds, and applies only to threat-based retreats: losing the
+target still uses the stock flee state that dissolves the squad and returns its
+units. Raising `DangerScanRadius` above the engine default widens the veto and
+suppresses retreat, so the profiles keep the default.
+
+`CivilizationState` implements `INotifySquadDecision` and stores the last
+decision, reason, squad type, unit count, target actor, own/enemy value, and
+one counter per decision kind as synchronized integers. A faction that never
+commanded a squad exports a null decision rather than the default enum member,
+so decision distributions cannot count selections that never happened.
+
+Result v1 carries the exact counters; `combat-decision` events are sampled at
+the telemetry interval and are therefore a timeline, not a complete log. The
+baseline analyzer separates the null "none" of a current quiet faction from the
+"unavailable" of a pre-AI-004 artifact, and both remain sortable strings.
 
 ## Scenario lifecycle boundary
 
