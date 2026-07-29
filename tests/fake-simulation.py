@@ -20,6 +20,14 @@ def timestamp() -> str:
 def main() -> int:
     map_name = sys.argv[1]
     result_path = Path(os.environ["SIMULATION_RESULT"])
+    support_dir = Path(os.environ["OPENHV_SUPPORT_DIR"])
+    replay_dir = support_dir / "Replays" / "hv" / "test"
+    replay_dir.mkdir(parents=True)
+    (support_dir / "Logs").mkdir()
+    (support_dir / "Logs" / "client.log").write_text(
+        f"Synthetic log for {map_name}.\n", encoding="utf-8"
+    )
+    (replay_dir / f"{map_name}.orarep").write_bytes(b"synthetic replay")
     if map_name == "invalid":
         print(
             "Exception of type `System.ArgumentException`: "

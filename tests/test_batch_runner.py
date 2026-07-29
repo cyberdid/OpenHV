@@ -41,6 +41,7 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
                 "workers": 2,
                 "maxInfrastructureRetries": 1,
                 "processTimeoutGraceSeconds": 5,
+                "successfulReplaySampleEvery": 1,
             },
             "matches": [
                 {"map": "valid", "seed": 10},
@@ -106,15 +107,24 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
             if match["matchId"].startswith("match-0001-")
         ]
         self.assertEqual(len(derived), 1)
+        derived_dir = run_dir / "matches" / derived[0]["matchId"]
         self.assertTrue(
-            (run_dir / "matches" / derived[0]["matchId"] / "result.json").is_file()
+            (derived_dir / "result.json").is_file()
         )
+        self.assertTrue((derived_dir / "attempt-1.orarep").is_file())
+        self.assertFalse((derived_dir / "attempt-1-support").exists())
         flaky_dir = run_dir / "matches" / "flaky-match"
         self.assertTrue((flaky_dir / "attempt-1.json").is_file())
         self.assertTrue((flaky_dir / "attempt-2.json").is_file())
+        self.assertTrue((flaky_dir / "attempt-1.orarep").is_file())
+        self.assertTrue((flaky_dir / "attempt-2.orarep").is_file())
+        self.assertTrue((flaky_dir / "attempt-1-support").is_dir())
+        self.assertFalse((flaky_dir / "attempt-2-support").exists())
         invalid_dir = run_dir / "matches" / "invalid-match"
         self.assertTrue((invalid_dir / "attempt-1.json").is_file())
         self.assertFalse((invalid_dir / "attempt-2.json").exists())
+        self.assertTrue((invalid_dir / "attempt-1.orarep").is_file())
+        self.assertTrue((invalid_dir / "attempt-1-support").is_dir())
 
         attempts_before = sorted(run_dir.glob("matches/*/attempt-*.json"))
         resumed = self.run_batch(
@@ -151,6 +161,36 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
         resumed = self.run_batch("--resume")
         self.assertEqual(resumed.returncode, 2)
         self.assertIn("does not match", resumed.stderr)
+
+    def test_resume_never_reuses_partial_attempt_number(self) -> None:
+        self.manifest["runId"] = "partial-attempt"
+        self.manifest["runner"]["workers"] = 1
+        self.manifest["runner"]["maxInfrastructureRetries"] = 0
+        self.manifest["matches"] = [
+            {"id": "partial", "map": "valid", "seed": 13}
+        ]
+        self.write_manifest()
+
+        first = self.run_batch()
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        match_dir = self.results / "partial-attempt" / "matches" / "partial"
+        first_stdout = (match_dir / "attempt-1.stdout.log").read_text(
+            encoding="utf-8"
+        )
+        (match_dir / "status.json").unlink()
+        (match_dir / "attempt-1.json").unlink()
+
+        resumed = self.run_batch("--resume")
+        self.assertEqual(resumed.returncode, 0, resumed.stdout + resumed.stderr)
+        self.assertEqual(
+            (match_dir / "attempt-1.stdout.log").read_text(encoding="utf-8"),
+            first_stdout,
+        )
+        self.assertTrue((match_dir / "attempt-2.json").is_file())
+        self.assertTrue((match_dir / "attempt-2-prior-result.json").is_file())
+        with (match_dir / "status.json").open(encoding="utf-8") as stream:
+            status = json.load(stream)
+        self.assertEqual(status["lastAttempt"], 2)
 
     def test_manifest_rejects_disabled_batch_watchdog(self) -> None:
         self.manifest["defaults"]["watchdogSeconds"] = 0

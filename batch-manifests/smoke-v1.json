@@ -13,7 +13,8 @@
   "runner": {
     "workers": 1,
     "maxInfrastructureRetries": 1,
-    "processTimeoutGraceSeconds": 30
+    "processTimeoutGraceSeconds": 30,
+    "successfulReplaySampleEvery": 1
   },
   "matches": [
     { "id": "coldrage-424242", "map": "coldrage", "seed": 424242 },

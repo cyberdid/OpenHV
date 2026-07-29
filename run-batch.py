@@ -45,6 +45,7 @@ DEFAULT_RUNNER = {
     "workers": 1,
     "maxInfrastructureRetries": 1,
     "processTimeoutGraceSeconds": 60,
+    "successfulReplaySampleEvery": 0,
 }
 OPTION_KEYS = frozenset(DEFAULT_OPTIONS)
 INFRASTRUCTURE_FAILURES = frozenset(
@@ -304,6 +305,15 @@ class BatchRunner:
                 "resume": self.resume,
                 "retryFailures": self.retry_failures,
                 "workers": self.schedule["runner"]["workers"],
+                "maxInfrastructureRetries": self.schedule["runner"][
+                    "maxInfrastructureRetries"
+                ],
+                "processTimeoutGraceSeconds": self.schedule["runner"][
+                    "processTimeoutGraceSeconds"
+                ],
+                "successfulReplaySampleEvery": self.schedule["runner"][
+                    "successfulReplaySampleEvery"
+                ],
                 "git": git_metadata(self.project_dir),
             },
         )
@@ -396,8 +406,8 @@ class BatchRunner:
     @staticmethod
     def attempt_number(match_dir: Path) -> int:
         numbers = []
-        for path in match_dir.glob("attempt-*.json"):
-            match = re.fullmatch(r"attempt-(\d+)\.json", path.name)
+        for path in match_dir.glob("attempt-*"):
+            match = re.fullmatch(r"attempt-(\d+)(?:[.-].*)?", path.name)
             if match:
                 numbers.append(int(match.group(1)))
         return max(numbers, default=0) + 1
@@ -453,6 +463,7 @@ class BatchRunner:
         stdout_path = match_dir / f"attempt-{attempt}.stdout.log"
         stderr_path = match_dir / f"attempt-{attempt}.stderr.log"
         result_path = match_dir / "result.json"
+        support_dir = match_dir / f"attempt-{attempt}-support"
         self.preserve_prior_result(match_dir, attempt)
 
         env = os.environ.copy()
@@ -469,6 +480,7 @@ class BatchRunner:
                 ),
                 "SIMULATION_MATCH_ID": match["id"],
                 "SIMULATION_RESULT": str(result_path),
+                "OPENHV_SUPPORT_DIR": str(support_dir),
             }
         )
         command = [str(self.simulation_command), match["map"]]
@@ -530,6 +542,13 @@ class BatchRunner:
             stdout_path=stdout_path,
             stderr_path=stderr_path,
         )
+        replays, retained_support, artifact_errors = self.harvest_attempt_artifacts(
+            match=match,
+            attempt=attempt,
+            status=status,
+            support_dir=support_dir,
+            match_dir=match_dir,
+        )
         metadata = {
             "schemaVersion": SCHEMA_VERSION,
             "matchId": match["id"],
@@ -547,6 +566,9 @@ class BatchRunner:
             "stderr": stderr_path.name,
             "command": [self.simulation_command.name, match["map"]],
             "endReason": result.get("endReason") if result else None,
+            "replays": replays,
+            "retainedSupport": retained_support,
+            "artifactErrors": artifact_errors,
         }
         write_json_atomic(match_dir / f"attempt-{attempt}.json", metadata)
         self.log(
@@ -554,6 +576,46 @@ class BatchRunner:
             f"{status}/{classification} in {metadata['wallSeconds']:.3f}s."
         )
         return metadata
+
+    def harvest_attempt_artifacts(
+        self,
+        *,
+        match: dict[str, Any],
+        attempt: int,
+        status: str,
+        support_dir: Path,
+        match_dir: Path,
+    ) -> tuple[list[str], str | None, list[str]]:
+        if not support_dir.exists():
+            return [], None, []
+
+        sample_every = self.schedule["runner"]["successfulReplaySampleEvery"]
+        preserve_replays = status != "completed" or (
+            sample_every > 0 and match["index"] % sample_every == 0
+        )
+        preserved: list[str] = []
+        errors: list[str] = []
+        replay_paths = sorted(support_dir.rglob("*.orarep"))
+        if preserve_replays:
+            for replay_index, replay_path in enumerate(replay_paths, start=1):
+                suffix = "" if len(replay_paths) == 1 else f"-{replay_index}"
+                destination = match_dir / f"attempt-{attempt}{suffix}.orarep"
+                try:
+                    os.replace(replay_path, destination)
+                    preserved.append(destination.name)
+                except OSError as exc:
+                    errors.append(
+                        f"Could not preserve replay {replay_path.name}: {exc}"
+                    )
+
+        if status == "completed":
+            try:
+                shutil.rmtree(support_dir)
+            except OSError as exc:
+                errors.append(f"Could not remove support directory: {exc}")
+
+        retained_support = support_dir.name if support_dir.exists() else None
+        return preserved, retained_support, errors
 
     def run_match(self, match: dict[str, Any]) -> dict[str, Any]:
         match_dir = self.run_dir / "matches" / match["id"]

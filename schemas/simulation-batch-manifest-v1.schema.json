@@ -24,6 +24,11 @@
           "type": "integer",
           "minimum": 5,
           "maximum": 600
+        },
+        "successfulReplaySampleEvery": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         }
       }
     },

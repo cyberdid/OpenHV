@@ -143,6 +143,12 @@ namespace OpenRA.Mods.HV.LoadScreens
 							endDetail,
 							startedUtc);
 
+					// Natural victory already finalizes the World, but artificial
+					// simulation cutoffs must do the same so replay metadata records
+					// the terminal game tick before the connection is disposed.
+					if (!orderManager.World.IsGameOver)
+						orderManager.World.EndGame();
+
 					Console.WriteLine($"Simulation ended: {endReason.ToIdentifier()} ({endDetail}).");
 					Game.Exit();
 				}
