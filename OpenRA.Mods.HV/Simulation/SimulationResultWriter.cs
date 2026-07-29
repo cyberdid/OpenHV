@@ -130,7 +130,8 @@ namespace OpenRA.Mods.HV
 				NaturalWinners = naturalWinners,
 				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
 				Players = players,
-				Diplomacy = SimulationDiplomacySnapshotBuilder.Build(world)
+				Diplomacy = SimulationDiplomacySnapshotBuilder.Build(world),
+				TradeRoutes = SimulationTradeSnapshotBuilder.Build(world)
 			};
 
 			var directory = Path.GetDirectoryName(path);

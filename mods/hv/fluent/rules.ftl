@@ -11,6 +11,11 @@ options-civilization-profile =
     .description = Selects deterministic living-faction production and reserve conditions.
     .balanced = Balanced growth
     .scarcity = Food scarcity
+    .trade = Asymmetric trade
+
+options-living-trade =
+    .label = Living-faction trade
+    .description = Enables synchronized stock-backed trade routes between non-hostile factions.
 
 ### MapBuildRadius
 checkbox-build-radius =

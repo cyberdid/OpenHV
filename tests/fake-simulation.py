@@ -214,6 +214,7 @@ def main() -> int:
             "watchdogSeconds": watchdog,
             "telemetryIntervalTicks": telemetry,
             "civilizationProfile": os.environ["SIMULATION_CIVILIZATION_PROFILE"],
+            "tradeEnabled": os.environ["SIMULATION_TRADE_ENABLED"].lower() == "true",
             "gitCommit": "fake-commit",
             "gitDirty": False,
             "resultPath": str(result_path),

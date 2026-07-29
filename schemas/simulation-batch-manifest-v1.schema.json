@@ -84,7 +84,10 @@
           "maximum": 2147483647
         },
         "civilizationProfile": {
-          "enum": ["balanced", "scarcity"]
+          "enum": ["balanced", "scarcity", "trade"]
+        },
+        "tradeEnabled": {
+          "type": "boolean"
         }
       }
     },
@@ -123,7 +126,10 @@
           "maximum": 2147483647
         },
         "civilizationProfile": {
-          "enum": ["balanced", "scarcity"]
+          "enum": ["balanced", "scarcity", "trade"]
+        },
+        "tradeEnabled": {
+          "type": "boolean"
         }
       }
     }

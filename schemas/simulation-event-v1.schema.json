@@ -25,6 +25,8 @@
         "population-changed",
         "technology-completed",
         "diplomacy-transition",
+        "trade-route-state",
+        "trade-shipment",
         "shortage-started",
         "shortage-resolved"
       ]
@@ -34,6 +36,10 @@
     "otherPlayerName": { "type": "string" },
     "relationId": { "type": "string", "minLength": 1 },
     "relationState": { "enum": ["neutral", "war", "alliance"] },
+    "tradeRouteId": { "type": "string", "minLength": 1 },
+    "routeStatus": { "enum": ["active", "suspended"] },
+    "resourceType": { "enum": ["food", "materials", "energy"] },
+    "amount": { "type": "integer", "minimum": 1 },
     "settlementId": { "type": "string", "minLength": 1 },
     "value": { "type": "integer" },
     "previousValue": { "type": "integer" },

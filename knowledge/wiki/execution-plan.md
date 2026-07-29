@@ -13,6 +13,7 @@ sources:
   - experiments/2026-07-29-batch-runner-v1.md
   - experiments/2026-07-29-civil-research-v1.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
+  - experiments/2026-07-29-stock-backed-trade-v1.md
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -784,7 +785,7 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | LIFE-003 ✅ | Materials, energy, and building jobs | LIFE-001 | resource-flow telemetry |
 | LIFE-004 ✅ | Research and small civil technology graph | LIFE-002–003 | deterministic unlock test |
 | DIP-001 ✅ | Runtime diplomacy manager | LIFE-001 | neutral/war/peace transition tests |
-| DIP-002 | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
+| DIP-002 ✅ | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
 | AI-001 | Shared perception blackboard | SIM-008 | decision/telemetry traces |
 | AI-002 | Strategic state machine | AI-001 | distinct measured transitions |
 | AI-003 | Opening/economy/tech planners | AI-002 | held-out behavior report |
@@ -865,12 +866,13 @@ preserved determinism and passed the overhead gate. Sprint 5 is now active.
 
 Exit: trustworthy evidence about faction life, diplomacy, and warfare costs.
 
-Status: active. LIFE-004 and DIP-001 are complete. Knowledge now unlocks a
+Status: active. LIFE-004 and DIP-001–002 are complete. Knowledge unlocks a
 five-node civil graph; all factions begin neutral; explicit rivalry can set
-native enemy masks; losses drive exhaustion and peace. The neutral control,
-26,000-tick relationship-cycle run, and deterministic repeat all passed.
-DIP-002 stock-backed trade is the next dependency before Civilization AI,
-war-cost coupling, lifecycle work, and baseline experiments.
+native enemy masks; losses drive exhaustion and peace; stock-backed routes
+move complementary resources and suspend at war. The enabled/disabled paired
+trade test, route-flow reconciliation, suspension case, and deterministic
+repeat passed. Civilization AI, war-cost coupling, lifecycle work, and
+baseline experiments are next.
 
 ### Following 4 to 8 weeks
 

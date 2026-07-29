@@ -453,6 +453,7 @@ World:
 		CheckboxDisplayOrder: 8
 	CivilizationScenario:
 	DiplomacyManager:
+	TradeManager:
 	TimeLimitManager:
 	VariedCostManager:
 		Multiplier: 110, 120

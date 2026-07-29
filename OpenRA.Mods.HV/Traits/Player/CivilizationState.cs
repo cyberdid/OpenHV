@@ -176,6 +176,9 @@ namespace OpenRA.Mods.HV.Traits
 		[Desc("Additional energy storage capacity.")]
 		public readonly int EnergyStorage;
 
+		[Desc("Abstract bilateral trade throughput supplied by this building.")]
+		public readonly int TradeCapacity;
+
 		public override object Create(ActorInitializer init) { return new CivilInfrastructure(this); }
 	}
 
@@ -349,6 +352,28 @@ namespace OpenRA.Mods.HV.Traits
 				: Math.Max(0, info.InitialFood);
 			Materials = Math.Max(0, info.InitialMaterials);
 			Energy = Math.Max(0, info.InitialEnergy);
+			if (profile == CivilizationScenarioInfo.Trade)
+			{
+				switch (TradeSpecialization(self.Owner))
+				{
+					case 0:
+						Food = 1200;
+						Materials = 80;
+						Energy = 60;
+						break;
+					case 1:
+						Food = 80;
+						Materials = 1200;
+						Energy = 60;
+						break;
+					default:
+						Food = 80;
+						Materials = 80;
+						Energy = 1000;
+						break;
+				}
+			}
+
 			FoodSatisfaction = 1000;
 			HousingSatisfaction = 1000;
 			EnergySatisfaction = 1000;
@@ -395,6 +420,28 @@ namespace OpenRA.Mods.HV.Traits
 			MaterialsProduction = infrastructure.Sum(i => Math.Max(0, i.Materials));
 			EnergyProduction = infrastructure.Sum(i => Math.Max(0, i.Energy));
 			KnowledgeProduction = infrastructure.Sum(i => Math.Max(0, i.Knowledge));
+			if (profile == CivilizationScenarioInfo.Trade)
+			{
+				switch (TradeSpecialization(self.Owner))
+				{
+					case 0:
+						FoodProduction *= 2;
+						MaterialsProduction /= 4;
+						EnergyProduction /= 4;
+						break;
+					case 1:
+						FoodProduction /= 4;
+						MaterialsProduction *= 2;
+						EnergyProduction /= 4;
+						break;
+					default:
+						FoodProduction /= 4;
+						MaterialsProduction /= 4;
+						EnergyProduction *= 2;
+						break;
+				}
+			}
+
 			var civilization = self.Owner.PlayerActor.TraitOrDefault<CivilizationState>();
 			if (civilization?.HasTechnology(0) == true)
 				FoodProduction = ApplyPercentage(FoodProduction, 125);
@@ -406,6 +453,7 @@ namespace OpenRA.Mods.HV.Traits
 				MaterialsStorage = ApplyPercentage(MaterialsStorage, 125);
 				EnergyStorage = ApplyPercentage(EnergyStorage, 125);
 			}
+
 			if (civilization?.HasTechnology(3) == true)
 				Housing = ApplyPercentage(Housing, 120);
 			if (civilization?.HasTechnology(4) == true)
@@ -507,6 +555,11 @@ namespace OpenRA.Mods.HV.Traits
 		static int ApplyPercentage(int value, int percentage)
 		{
 			return (int)((long)value * percentage / 100);
+		}
+
+		static int TradeSpecialization(Player owner)
+		{
+			return Math.Abs(owner.ClientIndex) % 3;
 		}
 	}
 }

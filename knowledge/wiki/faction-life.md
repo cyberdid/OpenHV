@@ -9,7 +9,9 @@ sources:
   - execution-plan.md
   - ../../engine/OpenRA.Game/Player.cs
   - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
+  - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
+  - experiments/2026-07-29-stock-backed-trade-v1.md
 tags:
   - civilization
   - population
@@ -55,8 +57,8 @@ LIFE-001–003 are implemented and validated:
 Balanced, scarcity, determinism, peaceful-development, and overhead evidence
 is recorded in
 [Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md).
-Trade, migration transfer, and casualty-to-workforce coupling remain planned
-rather than implied.
+Migration transfer and casualty-to-workforce coupling remain planned rather
+than implied.
 
 LIFE-004 is now implemented as a five-node deterministic graph. Knowledge is
 spent in actor-ID order on agricultural systems, energy grid, logistics,
@@ -388,6 +390,29 @@ Trade routes require:
 - security.
 
 Raiding a route generates material gain, grievance, and diplomatic risk.
+
+The first synchronized implementation is now complete. The `trade` scenario
+profile creates food, materials, and energy specializations. Each bilateral
+route:
+
+- operates only while its diplomatic pair is non-hostile;
+- derives throughput from capital and Trader infrastructure;
+- retains a demand-based reserve at the exporter;
+- requires deficit and free storage at the importer;
+- subtracts the exact shipment from one stock and adds it to the other;
+- reduces capacity by capital distance and third-party-war risk;
+- suspends at direct war;
+- records status, risk, capacity, last shipment, directional cumulative flows,
+  and reason-coded events.
+
+The paired control showed food satisfaction 680 and stable deficit-city
+population with trade versus satisfaction 280 and population 984–992 without
+trade. See
+[Stock-Backed Trade v1 Validation](experiments/2026-07-29-stock-backed-trade-v1.md).
+
+This v1 route is strategic rather than a pathfinding cargo actor. Terrain
+passability, interception/escort, prices, negotiated contracts, and
+multi-settlement routing remain planned.
 
 ## Civilization AI
 

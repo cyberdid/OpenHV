@@ -40,6 +40,7 @@ namespace OpenRA.Mods.HV
 		public int WatchdogSeconds { get; init; }
 		public int TelemetryIntervalTicks { get; init; }
 		public string CivilizationProfile { get; init; }
+		public bool TradeEnabled { get; init; }
 		public string GitCommit { get; init; }
 		public bool GitDirty { get; init; }
 		public string ResultPath { get; init; }
@@ -93,10 +94,15 @@ namespace OpenRA.Mods.HV
 				"Launch.SimulationCivilizationProfile",
 				Traits.CivilizationScenarioInfo.Balanced);
 			if (civilizationProfile != Traits.CivilizationScenarioInfo.Balanced &&
-				civilizationProfile != Traits.CivilizationScenarioInfo.Scarcity)
+				civilizationProfile != Traits.CivilizationScenarioInfo.Scarcity &&
+				civilizationProfile != Traits.CivilizationScenarioInfo.Trade)
 				throw new ArgumentException(
-					"Launch.SimulationCivilizationProfile must be 'balanced' or 'scarcity', " +
+					"Launch.SimulationCivilizationProfile must be 'balanced', 'scarcity', or 'trade', " +
 					$"but was '{civilizationProfile}'.");
+			var tradeEnabledText = args.GetValue("Launch.SimulationTradeEnabled", "true");
+			if (!bool.TryParse(tradeEnabledText, out var tradeEnabled))
+				throw new ArgumentException(
+					$"Launch.SimulationTradeEnabled must be 'true' or 'false', but was '{tradeEnabledText}'.");
 
 			var gitDirtyText = args.GetValue("Launch.SimulationGitDirty", "false");
 			if (!bool.TryParse(gitDirtyText, out var gitDirty))
@@ -139,6 +145,7 @@ namespace OpenRA.Mods.HV
 				WatchdogSeconds = watchdogSeconds,
 				TelemetryIntervalTicks = telemetryIntervalTicks,
 				CivilizationProfile = civilizationProfile,
+				TradeEnabled = tradeEnabled,
 				GitCommit = gitCommit,
 				GitDirty = gitDirty,
 				ResultPath = args.GetValue("Launch.SimulationResult", "")

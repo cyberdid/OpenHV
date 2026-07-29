@@ -41,6 +41,7 @@ DEFAULT_OPTIONS = {
     "watchdogSeconds": 120,
     "telemetryIntervalTicks": 0,
     "civilizationProfile": "balanced",
+    "tradeEnabled": True,
 }
 DEFAULT_RUNNER = {
     "workers": 1,
@@ -374,6 +375,7 @@ class BatchRunner:
             "watchdogSeconds": match["watchdogSeconds"],
             "telemetryIntervalTicks": match["telemetryIntervalTicks"],
             "civilizationProfile": match["civilizationProfile"],
+            "tradeEnabled": match["tradeEnabled"],
         }
         for key, expected_value in expected.items():
             if config.get(key) != expected_value:
@@ -485,6 +487,7 @@ class BatchRunner:
                     match["telemetryIntervalTicks"]
                 ),
                 "SIMULATION_CIVILIZATION_PROFILE": match["civilizationProfile"],
+                "SIMULATION_TRADE_ENABLED": str(match["tradeEnabled"]).lower(),
                 "SIMULATION_MATCH_ID": match["id"],
                 "SIMULATION_RESULT": str(result_path),
                 "OPENHV_SUPPORT_DIR": str(support_dir),

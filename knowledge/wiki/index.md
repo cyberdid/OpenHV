@@ -51,6 +51,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Dynamic Diplomacy v1 validation, 2026-07-29](experiments/2026-07-29-dynamic-diplomacy-v1.md)
   — default neutrality, engine-effective war/peace masks, exhaustion,
   reason-coded transitions, and deterministic repeat.
+- [Stock-Backed Trade v1 validation, 2026-07-29](experiments/2026-07-29-stock-backed-trade-v1.md)
+  — real stock transfer, asymmetric production, route capacity/risk, war
+  suspension, paired civil outcomes, and deterministic repeat.
 
 ## Decisions
 

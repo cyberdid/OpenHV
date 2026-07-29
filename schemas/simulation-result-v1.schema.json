@@ -63,6 +63,10 @@
     "diplomacy": {
       "type": "array",
       "items": { "$ref": "#/$defs/diplomaticRelation" }
+    },
+    "tradeRoutes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tradeRoute" }
     }
   },
   "$defs": {
@@ -131,7 +135,8 @@
         "maxWorldTicks": { "type": "integer", "minimum": 1 },
         "watchdogSeconds": { "type": "integer", "minimum": 0 },
         "telemetryIntervalTicks": { "type": "integer", "minimum": 0 },
-        "civilizationProfile": { "enum": ["balanced", "scarcity"] },
+        "civilizationProfile": { "enum": ["balanced", "scarcity", "trade"] },
+        "tradeEnabled": { "type": "boolean" },
         "gitCommit": { "type": "string", "minLength": 1 },
         "gitDirty": { "type": "boolean" },
         "resultPath": { "type": "string" },
@@ -343,6 +348,61 @@
             "faction-collapse"
           ]
         }
+      }
+    },
+    "tradeRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "routeId",
+        "playerA",
+        "playerB",
+        "status",
+        "statusReason",
+        "distanceCells",
+        "capacity",
+        "risk",
+        "statusSequence",
+        "shipmentSequence",
+        "lastTradeTick",
+        "lastResource",
+        "lastAmount",
+        "lastExporter",
+        "foodAToB",
+        "foodBToA",
+        "materialsAToB",
+        "materialsBToA",
+        "energyAToB",
+        "energyBToA"
+      ],
+      "properties": {
+        "routeId": { "type": "string", "minLength": 1 },
+        "playerA": { "type": "string", "minLength": 1 },
+        "playerB": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "suspended"] },
+        "statusReason": {
+          "enum": [
+            "initial-agreement",
+            "war-suspension",
+            "capacity-unavailable",
+            "resumed"
+          ]
+        },
+        "distanceCells": { "type": "integer", "minimum": 0 },
+        "capacity": { "type": "integer", "minimum": 0 },
+        "risk": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "statusSequence": { "type": "integer", "minimum": 0 },
+        "shipmentSequence": { "type": "integer", "minimum": 0 },
+        "lastTradeTick": { "type": "integer", "minimum": 0 },
+        "lastResource": { "enum": ["none", "food", "materials", "energy"] },
+        "lastAmount": { "type": "integer", "minimum": 0 },
+        "lastExporter": { "type": "string", "minLength": 1 },
+        "foodAToB": { "type": "integer", "minimum": 0 },
+        "foodBToA": { "type": "integer", "minimum": 0 },
+        "materialsAToB": { "type": "integer", "minimum": 0 },
+        "materialsBToA": { "type": "integer", "minimum": 0 },
+        "energyAToB": { "type": "integer", "minimum": 0 },
+        "energyBToA": { "type": "integer", "minimum": 0 }
       }
     },
     "settlement": {

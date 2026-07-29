@@ -37,6 +37,7 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
                 "watchdogSeconds": 10,
                 "telemetryIntervalTicks": 0,
                 "civilizationProfile": "balanced",
+                "tradeEnabled": True,
             },
             "runner": {
                 "workers": 2,

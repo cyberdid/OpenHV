@@ -12,6 +12,7 @@ sources:
   - experiments/2026-07-29-living-factions-v1.md
   - experiments/2026-07-29-civil-research-v1.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
+  - experiments/2026-07-29-stock-backed-trade-v1.md
 tags:
   - roadmap
   - planning
@@ -118,8 +119,9 @@ Status: LIFE-001–004 and DIP-001 complete. Four capitals run synchronized civi
 and demographic pulses; balanced growth, shortage mortality, explicit
 building flows, peaceful Steward development, deterministic research unlocks,
 default-neutral diplomacy, explicit war/peace, repeat hashes, and strategic
-telemetry passed. Trade, migration, and military/civilian coupling remain
-open, so the full P0.5 acceptance gate is not yet complete.
+telemetry passed. Stock-backed trade now stabilizes deficit settlements.
+Migration and military/civilian coupling remain open, so the full P0.5
+acceptance gate is not yet complete.
 
 ## P1 — Strategic telemetry
 
@@ -152,11 +154,13 @@ Acceptance:
 - every treaty, grievance, and war transition is recorded;
 - AI can rationally prefer peace, deterrence, or limited war.
 
-Status: DIP-001 complete. Bilateral neutral/war/alliance state is synchronized;
+Status: DIP-001–002 complete. Bilateral neutral/war/alliance state is synchronized;
 neutral is the effective default; rivalry declares war through native OpenRA
 enemy masks; losses drive exhaustion and peace; transition snapshots/events
-validated; repeated inputs produced hash `E5E13643`. DIP-002 stock-backed
-trade is next, followed by richer treaties and Civilization AI utility.
+validated; repeated inputs produced hash `E5E13643`. Trade moves real food,
+materials, and energy under reserve/storage/capacity/risk constraints, and
+war suspends the matching route. The next step is richer Civilization AI
+utility followed by treaties and physical cargo/interception.
 
 ## P1 — Automated experiment loop
 

@@ -29,6 +29,7 @@ namespace OpenRA.Mods.HV
 		public SimulationLeader ScoreLeader { get; init; }
 		public SimulationPlayerResult[] Players { get; init; }
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
+		public SimulationTradeRoute[] TradeRoutes { get; init; }
 	}
 
 	public sealed class SimulationBuildMetadata
@@ -164,5 +165,29 @@ namespace OpenRA.Mods.HV
 		public int TransitionTick { get; init; }
 		public int TransitionSequence { get; init; }
 		public string ReasonCode { get; init; }
+	}
+
+	public sealed class SimulationTradeRoute
+	{
+		public string RouteId { get; init; }
+		public string PlayerA { get; init; }
+		public string PlayerB { get; init; }
+		public string Status { get; init; }
+		public string StatusReason { get; init; }
+		public int DistanceCells { get; init; }
+		public int Capacity { get; init; }
+		public int Risk { get; init; }
+		public int StatusSequence { get; init; }
+		public int ShipmentSequence { get; init; }
+		public int LastTradeTick { get; init; }
+		public string LastResource { get; init; }
+		public int LastAmount { get; init; }
+		public string LastExporter { get; init; }
+		public int FoodAToB { get; init; }
+		public int FoodBToA { get; init; }
+		public int MaterialsAToB { get; init; }
+		public int MaterialsBToA { get; init; }
+		public int EnergyAToB { get; init; }
+		public int EnergyBToA { get; init; }
 	}
 }

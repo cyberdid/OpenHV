@@ -43,6 +43,7 @@ BASE:
 		FoodStorage: 3000
 		MaterialsStorage: 2000
 		EnergyStorage: 1500
+		TradeCapacity: 12
 	BaseProvider:
 		Range: 14c0
 		CircleWidth: 2
@@ -494,6 +495,7 @@ TRADER:
 		Jobs: 120
 		Food: 8
 		Knowledge: 3
+		TradeCapacity: 48
 		EnergyUse: 12
 		MaterialsUse: 2
 		RequiresCondition: !build-incomplete

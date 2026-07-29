@@ -98,6 +98,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 					orderManager.IssueOrder(Order.Command($"option gamespeed {config.GameSpeed}"));
 					orderManager.IssueOrder(
 						Order.Command($"option civilizationprofile {config.CivilizationProfile}"));
+					orderManager.IssueOrder(
+						Order.Command($"option tradeenabled {config.TradeEnabled}"));
 					Game.RunAfterTick(StartSimulation);
 					return;
 				}

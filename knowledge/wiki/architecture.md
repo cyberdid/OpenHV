@@ -12,7 +12,9 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
   - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
+  - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationTradeSnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
   - ../../schemas/simulation-telemetry-v1.schema.json
   - ../../schemas/simulation-event-v1.schema.json
@@ -28,6 +30,7 @@ sources:
   - experiments/2026-07-29-headless-performance-fix.md
   - decisions/0005-process-isolated-resumable-batches.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
+  - experiments/2026-07-29-stock-backed-trade-v1.md
 tags:
   - architecture
   - runtime
@@ -121,10 +124,11 @@ Every result records:
 Telemetry-enabled matches additionally write:
 
 - `telemetry.jsonl`: tick, synchronized hash, battle/economy counters, and
-  complete civilization/settlement and bilateral diplomacy snapshots;
+  complete civilization/settlement, bilateral diplomacy, and trade-route
+  snapshots;
 - `events.jsonl`: match lifecycle, settlement founding, population changes,
   research, shortage start/resolution, and diplomacy transitions with stable
-  reason codes.
+  reason codes, plus route-state and stock-shipment events.
 
 Both streams are line-flushed so a process failure retains complete prior
 records. A retry or resume moves an existing stream to an attempt-qualified
@@ -229,6 +233,25 @@ identifiers for final Result v1, every telemetry snapshot, and
 `diplomacy-transition` events. Result v1 keeps the top-level field optional for
 backward compatibility; current telemetry requires it. See
 [Dynamic Diplomacy v1 Validation](experiments/2026-07-29-dynamic-diplomacy-v1.md).
+
+## Trade boundary
+
+`TradeManager` is a synchronized world trait gated by both deterministic
+simulation mode and the `tradeEnabled` lobby option. It creates one strategic
+route for each diplomacy pair. Every 250 ticks, a non-hostile route selects
+the largest deterministic stock movement across food, materials, and energy:
+source stock above reserve, destination stock below reserve, free destination
+storage, and effective capacity all bound the amount. The manager mutates the
+same `SettlementCore` stock fields consumed by the civil pulse.
+
+Capital and Trader `CivilInfrastructure.TradeCapacity` supply endpoint
+throughput. Manhattan capital distance and wars with third parties contribute
+0–750 operational risk; direct bilateral war sets risk 1000 and capacity zero.
+Routes expose synchronized status/sequence, capacity, risk, last shipment, and
+six directional resource totals. `SimulationTradeSnapshotBuilder` exports
+these to final results and every snapshot; telemetry derives
+`trade-route-state` and `trade-shipment` events. See
+[Stock-Backed Trade v1 Validation](experiments/2026-07-29-stock-backed-trade-v1.md).
 
 ## Current performance boundary
 

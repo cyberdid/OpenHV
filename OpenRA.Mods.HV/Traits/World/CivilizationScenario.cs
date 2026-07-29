@@ -21,6 +21,7 @@ namespace OpenRA.Mods.HV.Traits
 		public const string OptionId = "civilizationprofile";
 		public const string Balanced = "balanced";
 		public const string Scarcity = "scarcity";
+		public const string Trade = "trade";
 
 		[FluentReference]
 		public readonly string Label = "options-civilization-profile.label";
@@ -32,7 +33,8 @@ namespace OpenRA.Mods.HV.Traits
 		public readonly Dictionary<string, string> Values = new()
 		{
 			{ Balanced, "options-civilization-profile.balanced" },
-			{ Scarcity, "options-civilization-profile.scarcity" }
+			{ Scarcity, "options-civilization-profile.scarcity" },
+			{ Trade, "options-civilization-profile.trade" }
 		};
 
 		public readonly string Default = Balanced;
@@ -64,13 +66,17 @@ namespace OpenRA.Mods.HV.Traits
 		[VerifySync]
 		int profile;
 
-		public string Profile =>
-			profile == 1 ? CivilizationScenarioInfo.Scarcity : CivilizationScenarioInfo.Balanced;
+		public string Profile => profile switch
+		{
+			1 => CivilizationScenarioInfo.Scarcity,
+			2 => CivilizationScenarioInfo.Trade,
+			_ => CivilizationScenarioInfo.Balanced
+		};
 
 		public CivilizationScenario(CivilizationScenarioInfo info)
 		{
 			this.info = info;
-			profile = info.Default == CivilizationScenarioInfo.Scarcity ? 1 : 0;
+			profile = ProfileCode(info.Default);
 		}
 
 		void INotifyCreated.Created(Actor self)
@@ -78,7 +84,17 @@ namespace OpenRA.Mods.HV.Traits
 			var selected = self.World.LobbyInfo.GlobalSettings.OptionOrDefault(
 				CivilizationScenarioInfo.OptionId,
 				info.Default);
-			profile = selected == CivilizationScenarioInfo.Scarcity ? 1 : 0;
+			profile = ProfileCode(selected);
+		}
+
+		static int ProfileCode(string selected)
+		{
+			return selected switch
+			{
+				CivilizationScenarioInfo.Scarcity => 1,
+				CivilizationScenarioInfo.Trade => 2,
+				_ => 0
+			};
 		}
 	}
 }

@@ -251,3 +251,22 @@ exhaustion-peace transitions. Two identical 11,000-tick runs matched hash
 `E5E13643`, final relations, transition counts, and combat totals. All
 result/telemetry/event lines passed Schema v1 and all seven batch integration
 tests passed.
+
+## [2026-07-29] change | Stock-backed bilateral trade
+
+Completed DIP-002 with the asymmetric `trade` profile, synchronized trade
+enable/control option, demand reserves, real source subtraction and
+destination addition, storage bounds, infrastructure throughput,
+distance/third-party-war risk, direct-war suspension, directional cumulative
+flows, route snapshots, and reason-coded state/shipment events. Batch
+fingerprints now include `tradeEnabled`. See
+[Stock-Backed Trade v1 Validation](experiments/2026-07-29-stock-backed-trade-v1.md).
+
+## [2026-07-29] experiment | Trade benefit, determinism, and war suspension
+
+Two 4,000-tick enabled runs matched hash `FA34F889` and moved the same 750
+units in 75 reconciled shipments. Trade raised food satisfaction in deficit
+settlements from the disabled control's 280 to 680 and prevented the observed
+population decline from 1,000 to 984–992. A 6,000-tick conflict suspended
+exactly five routes for five bilateral wars. All current artifacts passed
+Schema v1; post-pulse stocks remained within storage.

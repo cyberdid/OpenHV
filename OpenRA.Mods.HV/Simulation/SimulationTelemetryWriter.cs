@@ -37,6 +37,8 @@ namespace OpenRA.Mods.HV
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
 		readonly Dictionary<string, HashSet<string>> observedTechnologies = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedTradeStatusSequences = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedTradeShipmentSequences = new(StringComparer.Ordinal);
 		bool completed;
 
 		public int LastSnapshotTick { get; private set; } = -1;
@@ -105,6 +107,7 @@ namespace OpenRA.Mods.HV
 				})
 				.ToArray();
 			var diplomacy = SimulationDiplomacySnapshotBuilder.Build(world);
+			var tradeRoutes = SimulationTradeSnapshotBuilder.Build(world);
 
 			WriteLine(telemetry, new SimulationTelemetryRecord
 			{
@@ -116,7 +119,8 @@ namespace OpenRA.Mods.HV
 					"X8",
 					CultureInfo.InvariantCulture),
 				Players = players,
-				Diplomacy = diplomacy
+				Diplomacy = diplomacy,
+				TradeRoutes = tradeRoutes
 			});
 
 			foreach (var player in players)
@@ -126,6 +130,7 @@ namespace OpenRA.Mods.HV
 			}
 
 			ObserveDiplomacy(world.WorldTick, diplomacy);
+			ObserveTrade(world.WorldTick, tradeRoutes);
 
 			LastSnapshotTick = world.WorldTick;
 		}
@@ -305,6 +310,56 @@ namespace OpenRA.Mods.HV
 			}
 		}
 
+		void ObserveTrade(int worldTick, SimulationTradeRoute[] routes)
+		{
+			foreach (var route in routes)
+			{
+				if (!observedTradeStatusSequences.TryGetValue(route.RouteId, out var statusSequence) ||
+					statusSequence != route.StatusSequence)
+				{
+					observedTradeStatusSequences[route.RouteId] = route.StatusSequence;
+					WriteEvent(new SimulationEventRecord
+					{
+						SchemaVersion = SchemaVersion,
+						RecordType = "event",
+						MatchId = config.MatchId,
+						WorldTick = worldTick,
+						EventType = "trade-route-state",
+						ReasonCode = route.StatusReason,
+						PlayerName = route.PlayerA,
+						OtherPlayerName = route.PlayerB,
+						TradeRouteId = route.RouteId,
+						RouteStatus = route.Status,
+						Value = route.Risk
+					});
+				}
+
+				if (route.ShipmentSequence <= 0 ||
+					(observedTradeShipmentSequences.TryGetValue(route.RouteId, out var shipmentSequence) &&
+						shipmentSequence == route.ShipmentSequence))
+					continue;
+
+				observedTradeShipmentSequences[route.RouteId] = route.ShipmentSequence;
+				var importer = route.LastExporter == route.PlayerA ? route.PlayerB : route.PlayerA;
+				WriteEvent(new SimulationEventRecord
+				{
+					SchemaVersion = SchemaVersion,
+					RecordType = "event",
+					MatchId = config.MatchId,
+					WorldTick = worldTick,
+					EventType = "trade-shipment",
+					ReasonCode = "stock-surplus-demand",
+					PlayerName = route.LastExporter,
+					OtherPlayerName = importer,
+					TradeRouteId = route.RouteId,
+					RouteStatus = route.Status,
+					ResourceType = route.LastResource,
+					Amount = route.LastAmount,
+					Value = route.ShipmentSequence
+				});
+			}
+		}
+
 		void WriteEvent(SimulationEventRecord record)
 		{
 			WriteLine(events, record);
@@ -358,6 +413,7 @@ namespace OpenRA.Mods.HV
 		public string SynchronizedStateHash { get; init; }
 		public SimulationTelemetryPlayer[] Players { get; init; }
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
+		public SimulationTradeRoute[] TradeRoutes { get; init; }
 	}
 
 	public sealed class SimulationTelemetryPlayer
@@ -395,5 +451,9 @@ namespace OpenRA.Mods.HV
 		public string OtherPlayerName { get; init; }
 		public string RelationId { get; init; }
 		public string RelationState { get; init; }
+		public string TradeRouteId { get; init; }
+		public string RouteStatus { get; init; }
+		public string ResourceType { get; init; }
+		public int? Amount { get; init; }
 	}
 }

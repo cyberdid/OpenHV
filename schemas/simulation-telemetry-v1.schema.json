@@ -11,7 +11,8 @@
     "worldTick",
     "synchronizedStateHash",
     "players",
-    "diplomacy"
+    "diplomacy",
+    "tradeRoutes"
   ],
   "properties": {
     "schemaVersion": { "const": 1 },
@@ -30,6 +31,12 @@
       "type": "array",
       "items": {
         "$ref": "simulation-result-v1.schema.json#/$defs/diplomaticRelation"
+      }
+    },
+    "tradeRoutes": {
+      "type": "array",
+      "items": {
+        "$ref": "simulation-result-v1.schema.json#/$defs/tradeRoute"
       }
     }
   },

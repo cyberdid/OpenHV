@@ -13,6 +13,7 @@ sources:
   - experiments/2026-07-29-living-factions-v1.md
   - experiments/2026-07-29-civil-research-v1.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
+  - experiments/2026-07-29-stock-backed-trade-v1.md
 tags:
   - vision
   - status
@@ -73,6 +74,9 @@ rather than a conventional player-controlled game.
 - Runtime diplomacy begins all active pairs neutral, changes native OpenRA
   targeting masks on explicit war/peace transitions, and exports synchronized
   bilateral state plus reason-coded events.
+- Stock-backed routes transfer food, materials, and energy from real exporter
+  surplus into real importer deficit; infrastructure, distance, third-party
+  conflict, and bilateral war affect capacity and availability.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
@@ -80,9 +84,9 @@ rather than a conventional player-controlled game.
 Late-game memory/performance and natural outcomes still need measurement. The
 initial 30-second tournament used the deprecated wall-clock cutoff and remains
 only a startup/scoring test. Civil telemetry covers the first settlement,
-research, and diplomacy slices, but territory, trade, migration transfer,
-casualty coupling, richer treaties, and Civilization AI utility planning are
-not implemented yet.
+research, diplomacy, and first trade slices, but territory, physical cargo,
+migration transfer, casualty coupling, richer treaties, and Civilization AI
+utility planning are not implemented yet.
 
 ## Success criteria
 
@@ -113,3 +117,4 @@ The simulation becomes useful when it can:
 - [Living Factions and Telemetry v1 validation](experiments/2026-07-29-living-factions-v1.md)
 - [Civil Research v1 validation](experiments/2026-07-29-civil-research-v1.md)
 - [Dynamic Diplomacy v1 validation](experiments/2026-07-29-dynamic-diplomacy-v1.md)
+- [Stock-Backed Trade v1 validation](experiments/2026-07-29-stock-backed-trade-v1.md)
