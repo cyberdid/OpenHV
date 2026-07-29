@@ -9,9 +9,14 @@
  */
 #endregion
 
+using System;
+using System.IO;
+using System.Linq;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.LoadScreens;
+using OpenRA.Network;
 using OpenRA.Primitives;
+using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.LoadScreens
 {
@@ -23,6 +28,58 @@ namespace OpenRA.Mods.HV.LoadScreens
 		Sheet lastSheet;
 		int lastDensity;
 		Size lastResolution;
+
+		public override void StartGame(Arguments args)
+		{
+			if (!args.Contains("Launch.Simulation"))
+			{
+				base.StartGame(args);
+				return;
+			}
+
+			Launch = new LaunchArguments(args);
+			if (string.IsNullOrEmpty(Launch.Map))
+				throw new ArgumentException("Launch.Map must specify a map when Launch.Simulation is enabled.");
+
+			var map = Game.ModData.MapCache.SingleOrDefault(m =>
+				m.Uid == Launch.Map || Path.GetFileName(m.Path) == Launch.Map);
+			if (map == null)
+				throw new ArgumentException($"Could not find simulation map '{Launch.Map}'.");
+
+			var botType = args.GetValue("Launch.SimulationBot", "rogue");
+			var gameSpeed = args.GetValue("Launch.SimulationSpeed", "fastest");
+
+			Ui.ResetAll();
+			Game.Settings.Save();
+
+			OrderManager orderManager = null;
+			void StartSimulation()
+			{
+				if (orderManager?.LocalClient == null || !orderManager.LocalClient.IsAdmin)
+					return;
+
+				Game.LobbyInfoChanged -= StartSimulation;
+
+				var localClientIndex = orderManager.LocalClient.Index;
+				var simulationSlots = orderManager.LobbyInfo.Slots
+					.Where(slot => slot.Value.AllowBots && !slot.Value.Closed)
+					.Select(slot => slot.Key)
+					.ToArray();
+
+				Console.WriteLine(
+					$"Starting autonomous simulation on {map.Title} with {simulationSlots.Length} {botType} bots.");
+
+				orderManager.IssueOrder(Order.Command("spectate"));
+				foreach (var slot in simulationSlots)
+					orderManager.IssueOrder(Order.Command($"slot_bot {slot} {localClientIndex} {botType}"));
+
+				orderManager.IssueOrder(Order.Command($"option gamespeed {gameSpeed}"));
+				orderManager.IssueOrder(Order.Command("startgame"));
+			}
+
+			Game.LobbyInfoChanged += StartSimulation;
+			orderManager = Game.JoinServer(Game.CreateLocalServer(map.Uid), "");
+		}
 
 		public override void DisplayInner(Renderer r, Sheet s, int density)
 		{

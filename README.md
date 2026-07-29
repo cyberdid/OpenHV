@@ -8,6 +8,16 @@ A mod for [OpenRA](https://www.openra.net) based on the [Hard Vacuum](https://lo
 
 To launch the project from the development environment you must first compile the project by running `make.cmd` (Windows), or opening a terminal in the SDK directory and running `make` (Linux / macOS). You can then run `launch-game.cmd` (Windows) or `launch-game.sh` (Linux / macOS) to run the game. More details on [building](https://github.com/OpenHV/OpenHV/wiki/Build) the game are available at the wiki.
 
+## Autonomous Simulation
+
+The local development fork can launch a hands-off AI match with the local client acting only as an observer:
+
+```sh
+./run-simulation.sh coldrage
+```
+
+The first argument is a map folder name. `coldrage` is the default and starts four Rogue AI factions in a free-for-all match at the fastest game speed. The bot type and speed can be overridden with `SIMULATION_BOT` and `SIMULATION_SPEED`.
+
 ![MiniYAML](https://www.openhv.net/images/readme/miniyaml.png)
 
 Game rules are defined in text files using a dialect called `MiniYAML` which has [IDE support in Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=openra.oraide-vscode).
