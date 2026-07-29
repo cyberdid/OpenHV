@@ -10,8 +10,21 @@ SIMULATION_BOT="${SIMULATION_BOT:-rogue}"
 SIMULATION_BOTS="${SIMULATION_BOTS:-${SIMULATION_BOT}}"
 SIMULATION_SPEED="${SIMULATION_SPEED:-fastest}"
 SIMULATION_SEED="${SIMULATION_SEED:-}"
-SIMULATION_DURATION="${SIMULATION_DURATION:-0}"
+SIMULATION_MAX_TICKS="${SIMULATION_MAX_TICKS:-}"
+SIMULATION_DURATION="${SIMULATION_DURATION:-}"
+SIMULATION_WATCHDOG_SECONDS="${SIMULATION_WATCHDOG_SECONDS:-120}"
+SIMULATION_TELEMETRY_INTERVAL_TICKS="${SIMULATION_TELEMETRY_INTERVAL_TICKS:-0}"
+SIMULATION_MATCH_ID="${SIMULATION_MATCH_ID:-simulation}"
 SIMULATION_RESULT="${SIMULATION_RESULT:-}"
+SIMULATION_GIT_COMMIT="${SIMULATION_GIT_COMMIT:-$(git -C "${PROJECT_DIR}" rev-parse --verify HEAD 2>/dev/null || printf unknown)}"
+
+if [ -z "${SIMULATION_GIT_DIRTY:-}" ]; then
+	if [ -n "$(git -C "${PROJECT_DIR}" status --porcelain 2>/dev/null)" ]; then
+		SIMULATION_GIT_DIRTY=true
+	else
+		SIMULATION_GIT_DIRTY=false
+	fi
+fi
 
 if [ ! -x "${DOTNET_DIR}/dotnet" ]; then
 	echo "Local .NET SDK not found at ${DOTNET_DIR}." >&2
@@ -31,5 +44,11 @@ exec "${PROJECT_DIR}/launch-game.sh" \
 	"Launch.SimulationBots=${SIMULATION_BOTS}" \
 	"Launch.SimulationSpeed=${SIMULATION_SPEED}" \
 	"Launch.SimulationSeed=${SIMULATION_SEED}" \
+	"Launch.SimulationMaxTicks=${SIMULATION_MAX_TICKS}" \
 	"Launch.SimulationDuration=${SIMULATION_DURATION}" \
+	"Launch.SimulationWatchdogSeconds=${SIMULATION_WATCHDOG_SECONDS}" \
+	"Launch.SimulationTelemetryIntervalTicks=${SIMULATION_TELEMETRY_INTERVAL_TICKS}" \
+	"Launch.SimulationMatchId=${SIMULATION_MATCH_ID}" \
+	"Launch.SimulationGitCommit=${SIMULATION_GIT_COMMIT}" \
+	"Launch.SimulationGitDirty=${SIMULATION_GIT_DIRTY}" \
 	"Launch.SimulationResult=${SIMULATION_RESULT}"

@@ -29,9 +29,9 @@ namespace OpenRA.Mods.HV
 		public static void Write(
 			string path,
 			World world,
-			string mapTitle,
-			int? randomSeed,
-			bool timedOut,
+			SimulationConfig config,
+			SimulationEndReason endReason,
+			string endDetail,
 			DateTime startedUtc)
 		{
 			var players = world.Players
@@ -40,6 +40,7 @@ namespace OpenRA.Mods.HV
 				{
 					var stats = player.PlayerActor.TraitOrDefault<PlayerStatistics>();
 					var resources = player.PlayerActor.TraitOrDefault<PlayerResources>();
+					var client = world.LobbyInfo.ClientWithIndex(player.ClientIndex);
 					var score = (stats?.KillsCost ?? 0) -
 						(stats?.DeathsCost ?? 0) +
 						(stats?.ArmyValue ?? 0) +
@@ -47,12 +48,18 @@ namespace OpenRA.Mods.HV
 						(resources?.GetCashAndResources() ?? 0) +
 						(stats?.Experience ?? 0) * 100;
 
-					return new
+					return new SimulationPlayerResult
 					{
-						Name = player.ResolvedPlayerName,
+						PlayerName = player.ResolvedPlayerName,
+						Slot = client?.Slot,
 						BotType = player.BotType,
 						Faction = player.Faction.InternalName,
-						Outcome = player.WinState.ToString(),
+						Team = client?.Team ?? 0,
+						Color = player.Color.ToString(),
+						SpawnPoint = player.SpawnPoint,
+						HomeCellX = player.HomeLocation.X,
+						HomeCellY = player.HomeLocation.Y,
+						Outcome = player.WinState.ToString().ToLowerInvariant(),
 						Score = score,
 						Experience = stats?.Experience ?? 0,
 						KillsValue = stats?.KillsCost ?? 0,
@@ -68,21 +75,56 @@ namespace OpenRA.Mods.HV
 						Spent = resources?.Spent ?? 0
 					};
 				})
-				.OrderByDescending(player => player.Outcome == WinState.Won.ToString())
+				.OrderByDescending(player => player.Outcome == WinState.Won.ToString().ToLowerInvariant())
 				.ThenByDescending(player => player.Score)
+				.ThenBy(player => player.PlayerName, StringComparer.Ordinal)
 				.ToArray();
 
-			var winner = players.FirstOrDefault();
-			var result = new
+			config.Players = players
+				.OrderBy(player => player.Slot, StringComparer.Ordinal)
+				.Select(player => new SimulationPlayerConfig
+				{
+					Slot = player.Slot,
+					PlayerName = player.PlayerName,
+					BotType = player.BotType,
+					Faction = player.Faction,
+					Team = player.Team,
+					Color = player.Color,
+					SpawnPoint = player.SpawnPoint,
+					HomeCellX = player.HomeCellX,
+					HomeCellY = player.HomeCellY
+				})
+				.ToArray();
+
+			var naturalWinners = players
+				.Where(player => player.Outcome == WinState.Won.ToString().ToLowerInvariant())
+				.Select(ToLeader)
+				.ToArray();
+			var scoreLeader = players
+				.OrderByDescending(player => player.Score)
+				.ThenBy(player => player.PlayerName, StringComparer.Ordinal)
+				.FirstOrDefault();
+			var result = new SimulationResult
 			{
-				Map = mapTitle,
-				RandomSeed = randomSeed,
-				TimedOut = timedOut,
+				SchemaVersion = SimulationConfig.CurrentSchemaVersion,
+				Build = new SimulationBuildMetadata
+				{
+					EngineVersion = Game.EngineVersion,
+					ModId = Game.ModData.Manifest.Id,
+					ModVersion = Game.ModData.Manifest.Metadata.Version,
+					GitCommit = config.GitCommit,
+					GitDirty = config.GitDirty
+				},
+				Config = config,
+				EndReason = endReason.ToIdentifier(),
+				EndDetail = endDetail,
 				StartedUtc = startedUtc,
 				EndedUtc = DateTime.UtcNow,
 				WorldTick = world.WorldTick,
 				SimulatedSeconds = world.WorldTick * world.Timestep / 1000d,
-				Winner = winner?.BotType,
+				SynchronizedStateHash = unchecked((uint)world.SyncHash()).ToString("X8"),
+				NaturalWinners = naturalWinners,
+				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
 				Players = players
 			};
 
@@ -90,8 +132,29 @@ namespace OpenRA.Mods.HV
 			if (!string.IsNullOrEmpty(directory))
 				Directory.CreateDirectory(directory);
 
-			File.WriteAllText(path, JsonSerializer.Serialize(result, JsonOptions));
+			var temporaryPath = path + $".tmp-{Environment.ProcessId}-{Guid.NewGuid():N}";
+			try
+			{
+				File.WriteAllText(temporaryPath, JsonSerializer.Serialize(result, JsonOptions));
+				File.Move(temporaryPath, path, true);
+			}
+			finally
+			{
+				if (File.Exists(temporaryPath))
+					File.Delete(temporaryPath);
+			}
+
 			Console.WriteLine($"Simulation result written to {path}.");
+		}
+
+		static SimulationLeader ToLeader(SimulationPlayerResult player)
+		{
+			return new SimulationLeader
+			{
+				PlayerName = player.PlayerName,
+				BotType = player.BotType,
+				Faction = player.Faction
+			};
 		}
 	}
 }

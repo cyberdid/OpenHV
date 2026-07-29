@@ -30,6 +30,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 
 - [Baseline tournament, 2026-07-29](experiments/2026-07-29-baseline-tournament.md)
   — first ten-match timed comparison of four AI profiles.
+- [Simulation contract v1 validation, 2026-07-29](experiments/2026-07-29-simulation-contract-v1.md)
+  — exact tick cutoff, repeat hash/metrics, schema validation, and invalid-input
+  evidence.
 
 ## Decisions
 

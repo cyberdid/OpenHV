@@ -18,14 +18,28 @@ The local development fork can launch a hands-off AI match with the local client
 
 The first argument is a map folder name. `coldrage` is the default and starts four AI factions in a free-for-all match at the fastest game speed.
 
-Four strategy profiles are available: `aggressor`, `economist`, `technologist`, and `fortress`. A mixed match that stops after 30 real-time seconds and writes a machine-readable result can be launched with:
+Four strategy profiles are available: `aggressor`, `economist`, `technologist`, and `fortress`. A mixed match that stops after 1,500 synchronized world ticks (30 simulated seconds at the `fastest` 20 ms timestep) and writes a versioned result can be launched with:
 
 ```sh
 SIMULATION_BOTS=aggressor,economist,technologist,fortress \
-SIMULATION_DURATION=30 \
+SIMULATION_MAX_TICKS=1500 \
+SIMULATION_WATCHDOG_SECONDS=120 \
 SIMULATION_SEED=42 \
 SIMULATION_RESULT=/tmp/openhv-match.json \
 ./run-simulation.sh coldrage
+```
+
+The wall-clock watchdog only detects a stuck process; it does not define the
+simulation horizon. `SIMULATION_DURATION` remains a deprecated compatibility
+input and is converted to simulated ticks. Results follow
+[`simulation-result-v1.schema.json`](schemas/simulation-result-v1.schema.json)
+and distinguish `naturalWinners` from the composite `scoreLeader`.
+
+Verify tick cutoff, schema validity, deterministic reruns, and invalid-bot
+rejection with:
+
+```sh
+./check-simulation-determinism.sh coldrage
 ```
 
 Run a ten-match tournament across several maps with:
@@ -34,7 +48,7 @@ Run a ten-match tournament across several maps with:
 ./run-tournament.sh
 ```
 
-The tournament writes each match and an aggregate `tournament.json` under `../tournament-results`. `MATCH_COUNT`, `MATCH_DURATION`, `TOURNAMENT_SEED`, `TOURNAMENT_BOTS`, `TOURNAMENT_MAPS`, and `TOURNAMENT_RESULTS_DIR` can be overridden through the environment.
+The tournament writes each match and an aggregate `tournament.json` under `../tournament-results`. `MATCH_COUNT`, `MATCH_MAX_TICKS`, `MATCH_WATCHDOG_SECONDS`, `TOURNAMENT_SEED`, `TOURNAMENT_BOTS`, `TOURNAMENT_MAPS`, and `TOURNAMENT_RESULTS_DIR` can be overridden through the environment.
 
 Project architecture, experiments, decisions, and the current roadmap are
 maintained in the persistent [project wiki](knowledge/wiki/index.md).

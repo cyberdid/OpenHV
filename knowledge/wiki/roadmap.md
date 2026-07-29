@@ -17,6 +17,20 @@ This page is the compact priority view. See the
 [detailed execution plan](execution-plan.md) for implementation tasks,
 dependency gates, metrics, experiment design, and delivery estimates.
 
+## Completed foundation
+
+Simulation contract v1 and its deterministic graphical lifecycle are complete:
+
+- versioned config/result DTOs and JSON Schema;
+- exact synchronized world-tick cutoff with a separate wall-clock watchdog;
+- pre-match map, bot, speed, seed, and limit validation;
+- deterministic slot colors plus recorded faction, team, spawn, and home cell;
+- atomic artifacts with separate natural winners and score leaders;
+- paired-run, schema, and invalid-input validation.
+
+See
+[Simulation Contract v1 Validation](experiments/2026-07-29-simulation-contract-v1.md).
+
 ## P0 — Headless simulation loop
 
 Move autonomous match orchestration and result capture away from the rendered
@@ -40,6 +54,11 @@ Acceptance:
   crash, and invalid-map outcomes are distinct;
 - final world tick and the scenario-specific outcome are recorded;
 - timed leaders are never labeled as natural winners.
+
+Status: the v1 identifiers, natural victory, tick limit, watchdog, and invalid
+configuration paths exist. Faction-collapse, observation-horizon, stalemate,
+desync, crash artifact, and external-cancel detectors remain part of the
+headless/scenario lifecycle work.
 
 ## P0.5 — Living Factions vertical slice
 

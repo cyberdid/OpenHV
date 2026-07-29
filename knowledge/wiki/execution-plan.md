@@ -7,6 +7,7 @@ sources:
   - architecture.md
   - roadmap.md
   - experiments/2026-07-29-baseline-tournament.md
+  - experiments/2026-07-29-simulation-contract-v1.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
 tags:
@@ -53,12 +54,15 @@ because the civil model also needs fast, reproducible experiments.
 
 - The autonomous launcher can populate a match with four AI profiles and make
   the local client spectate.
-- Map, bot composition, seed, wall-clock duration, and output path are
-  configurable.
+- Map, bot composition, seed, synchronized tick horizon, watchdog, telemetry
+  interval, match ID, and output path are configurable and validated.
+- Result contract v1 records build/map/slot metadata, synchronized state hash,
+  explicit end reason, natural winners, score leader, and final metrics.
+- Paired runs with the same seed and tick cutoff reached identical tick 50,
+  hash `4F20B62A`, lobby assignments, and metrics.
 - Ten timed matches completed without manual intervention.
 - Current matches initialize SDL, OpenGL, and audio.
-- Current timeout uses wall-clock time, so machine load affects the number of
-  simulated ticks.
+- The primary cutoff is `WorldTick`; wall clock is only a deadlock watchdog.
 - `OpenRA.Server` coordinates lobby/network state but does not advance the game
   `World`; a dedicated server alone is not a headless simulator.
 - `Game.Loop` currently couples logic advancement to rendering and forces
@@ -105,6 +109,9 @@ because the civil model also needs fast, reproducible experiments.
 
 Goal: remove ambiguity before changing the engine.
 
+Status: complete on 2026-07-29 for the graphical reference runtime. Evidence:
+[Simulation Contract v1 Validation](experiments/2026-07-29-simulation-contract-v1.md).
+
 ### Work
 
 1. Define a versioned `SimulationConfig`:
@@ -138,12 +145,28 @@ Goal: remove ambiguity before changing the engine.
 5. Add `schemaVersion`, `engineVersion`, `modVersion`, and Git commit to every
    result.
 
+Implementation notes:
+
+- The serialized contract is
+  `schemas/simulation-result-v1.schema.json`.
+- `watchdog-timeout` was added to the original reason list so infrastructure
+  failure cannot be confused with a synchronized observation horizon.
+- The mod checks the completed `WorldTick` before allowing the next logic tick
+  and locally pauses the world before result capture.
+- Bot colors are explicitly assigned from a deterministic map-valid preset
+  sequence; the stock server otherwise chooses them from cosmetic RNG.
+- Atomic writes use a same-directory temporary file followed by replace.
+
 ### Acceptance gate
 
 - The same maximum tick is reached under different rendering frame rates.
 - A natural win and tick limit produce distinct, tested JSON.
 - Invalid map and invalid bot inputs fail before the match begins.
 - The current graphical mode remains usable for visual inspection.
+
+Gate result: passed for exact cutoff, paired repeat, JSON Schema, invalid bot,
+and graphical usability. A dedicated natural-victory fixture will be added to
+the scenario suite when long-running headless tests are affordable.
 
 ## Phase 1 — Headless execution spike
 
@@ -651,10 +674,12 @@ versioned data rather than temporary fields.
 
 ## Immediate backlog
 
+Status marker: ✅ means implemented and validated on the feature branch.
+
 | ID | Work item | Depends on | Completion evidence |
 |---|---|---|---|
-| SIM-001 | Versioned config/result contract | — | schemas and validation tests |
-| SIM-002 | Tick-based end conditions | SIM-001 | deterministic cutoff tests |
+| SIM-001 ✅ | Versioned config/result contract | — | schema v1 and paired validation |
+| SIM-002 ✅ | Tick-based end conditions | SIM-001 | exact tick/hash repeat evidence |
 | SIM-003 | Logic-only engine spike | SIM-002 | one no-window match |
 | SIM-004 | Disable renderer/audio initialization | SIM-003 | process inspection and logs |
 | SIM-005 | Headless/reference equivalence | SIM-003 | matching hashes/metrics |
@@ -692,6 +717,8 @@ estimates because it tests the deepest engine coupling.
 - headless dependency trace.
 
 Exit: deterministic graphical simulation with correct outcome semantics.
+
+Status: complete on 2026-07-29. The next active gate is Sprint 2 / SIM-003.
 
 ### Sprint 2 — 4 to 8 focused days
 

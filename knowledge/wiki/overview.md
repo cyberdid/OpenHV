@@ -6,6 +6,7 @@ sources:
   - ../../README.md
   - ../../run-simulation.sh
   - experiments/2026-07-29-baseline-tournament.md
+  - experiments/2026-07-29-simulation-contract-v1.md
 tags:
   - vision
   - status
@@ -33,18 +34,23 @@ rather than a conventional player-controlled game.
   participant.
 - Four AI profiles are selectable: aggressor, economist, technologist, and
   fortress.
-- Match composition, map, speed, seed, duration, and result path are
-  configurable.
-- Matches write JSON statistics; a tournament runner rotates maps and seeds and
-  produces aggregate standings.
+- Match composition, map, speed, seed, synchronized world-tick horizon,
+  watchdog, telemetry interval, and result path are configurable and validated.
+- Matches atomically write schema-versioned JSON with build/map/slot metadata,
+  synchronized hash, explicit end reason, natural winners, score leader, and
+  statistics.
+- A tournament runner rotates maps and seeds and aggregates end reasons,
+  natural wins, score leads, and per-profile metrics.
+- Paired reference runs reach the same cutoff with identical normalized config,
+  synchronized hash, and final metrics.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-The runner still opens the graphical client. The initial 30-second tournament
-is a startup and scoring test, not evidence of full strategic combat:
-approximately 24 simulated seconds elapsed per match and all matches ended on
-the configured time limit.
+The runner still opens the graphical client and initializes audio. The initial
+30-second tournament used the deprecated wall-clock cutoff and remains only a
+startup/scoring test. Current runs use exact world ticks, but fast large batches
+still require the headless runtime.
 
 ## Success criteria
 
@@ -68,3 +74,4 @@ The simulation becomes useful when it can:
 - [Living factions](faction-life.md)
 - [Roadmap](roadmap.md)
 - [Baseline tournament](experiments/2026-07-29-baseline-tournament.md)
+- [Simulation contract v1 validation](experiments/2026-07-29-simulation-contract-v1.md)

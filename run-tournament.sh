@@ -4,7 +4,8 @@ set -e
 
 PROJECT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 MATCH_COUNT="${MATCH_COUNT:-10}"
-MATCH_DURATION="${MATCH_DURATION:-30}"
+MATCH_MAX_TICKS="${MATCH_MAX_TICKS:-1500}"
+MATCH_WATCHDOG_SECONDS="${MATCH_WATCHDOG_SECONDS:-120}"
 TOURNAMENT_SEED="${TOURNAMENT_SEED:-20260729}"
 TOURNAMENT_BOTS="${TOURNAMENT_BOTS:-aggressor,economist,technologist,fortress}"
 TOURNAMENT_MAPS="${TOURNAMENT_MAPS:-coldrage doubles tournament-island abwinter}"
@@ -29,7 +30,9 @@ while [ "${match}" -le "${MATCH_COUNT}" ]; do
 		"${match}" "${MATCH_COUNT}" "${match_map}" "${match_seed}"
 
 	SIMULATION_BOTS="${TOURNAMENT_BOTS}" \
-	SIMULATION_DURATION="${MATCH_DURATION}" \
+	SIMULATION_MAX_TICKS="${MATCH_MAX_TICKS}" \
+	SIMULATION_WATCHDOG_SECONDS="${MATCH_WATCHDOG_SECONDS}" \
+	SIMULATION_MATCH_ID="$(printf "match-%02d" "${match}")" \
 	SIMULATION_SEED="${match_seed}" \
 	SIMULATION_RESULT="${result_file}" \
 	"${PROJECT_DIR}/run-simulation.sh" "${match_map}"
@@ -41,7 +44,17 @@ if command -v jq >/dev/null 2>&1; then
 	jq -s \
 		'. as $matches | {
 			matchCount: length,
-			wins: (group_by(.winner) | map({bot: .[0].winner, wins: length})),
+			endReasons: (group_by(.endReason) | map({reason: .[0].endReason, matches: length})),
+			naturalWins: (
+				[.[].naturalWinners[].botType]
+				| group_by(.)
+				| map({bot: .[0], wins: length})
+			),
+			scoreLeads: (
+				[.[].scoreLeader.botType]
+				| group_by(.)
+				| map({bot: .[0], leads: length})
+			),
 			standings: (
 				[.[].players[]]
 				| group_by(.botType)
@@ -49,7 +62,18 @@ if command -v jq >/dev/null 2>&1; then
 					.[0].botType as $bot
 					| {
 						bot: $bot,
-						wins: ($matches | map(select(.winner == $bot)) | length),
+						naturalWins: (
+							$matches
+							| [.[].naturalWinners[].botType]
+							| map(select(. == $bot))
+							| length
+						),
+						scoreLeads: (
+							$matches
+							| [.[].scoreLeader.botType]
+							| map(select(. == $bot))
+							| length
+						),
 						averageScore: ((map(.score) | add) / length | round),
 						averageArmyValue: ((map(.armyValue) | add) / length | round),
 						averageAssetsValue: ((map(.assetsValue) | add) / length | round),
@@ -57,7 +81,7 @@ if command -v jq >/dev/null 2>&1; then
 						averageSpent: ((map(.spent) | add) / length | round)
 					}
 				)
-				| sort_by(-.wins, -.averageScore)
+				| sort_by(-.naturalWins, -.scoreLeads, -.averageScore)
 			),
 			matches: .
 		}' \

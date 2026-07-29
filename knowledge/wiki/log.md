@@ -65,3 +65,24 @@ update the project wiki, pass relevant validation, be committed as a focused
 change, and be pushed to the user-owned GitHub feature branch. Pull requests
 remain a separate explicit action. The operational rule is recorded in
 [AGENTS.md](../../AGENTS.md).
+
+## [2026-07-29] change | Simulation contract v1 and deterministic cutoff
+
+Completed Sprint 1 / SIM-001–002. Added strongly typed versioned
+configuration/results, stable end reasons, JSON Schema, atomic output,
+pre-match input validation, build/map/slot metadata, synchronized state hash,
+and separate natural-winner/score-leader semantics. Replaced the primary
+wall-clock duration with an exact `WorldTick` horizon; wall clock is now only a
+deadlock watchdog. Deterministic lobby colors remove the remaining cosmetic
+configuration drift between paired runs. The tournament aggregate now reports
+end reasons, natural wins, and score leads separately. See
+[Architecture](architecture.md) and
+[Simulation Contract v1 Validation](experiments/2026-07-29-simulation-contract-v1.md).
+
+## [2026-07-29] experiment | Contract v1 repeat and failure paths
+
+Two graphical matches with map Cold Rage, seed 424242, and a 50-tick horizon
+both stopped at tick 50 with sync hash `4F20B62A`. Normalized artifacts matched,
+both passed JSON Schema v1, and an unknown bot failed before the match with a
+non-zero process result. Compact evidence is preserved in
+[the experiment record](experiments/2026-07-29-simulation-contract-v1.md).

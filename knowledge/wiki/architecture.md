@@ -4,7 +4,11 @@ status: current
 updated: 2026-07-29
 sources:
   - ../../OpenRA.Mods.HV/LoadScreens/PanelLoadScreen.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationConfig.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationEndReason.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationResult.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationResultWriter.cs
+  - ../../schemas/simulation-result-v1.schema.json
   - ../../run-simulation.sh
   - ../../run-tournament.sh
 tags:
@@ -18,45 +22,85 @@ tags:
 
 1. `run-tournament.sh` selects a map and deterministic seed for each match.
 2. `run-simulation.sh` translates environment variables into OpenRA launch
-   arguments.
-3. `PanelLoadScreen` starts a local server and joins the local client as a
+   arguments and records Git commit/dirty metadata.
+3. `SimulationConfig.Parse` resolves the map and rejects unknown bots, game
+   speeds, malformed seeds, negative limits, and unavailable maps.
+4. `PanelLoadScreen` starts a local server and joins the local client as a
    spectator.
-4. Empty combat slots are populated by cycling through the requested bot types.
-5. OpenRA executes the normal synchronized game loop.
-6. Natural game-over or the configured duration calls
+5. Empty combat slots are populated by cycling through the requested bot
+   types. A second lobby phase assigns deterministic, map-valid preset colors
+   before starting the match.
+6. OpenRA executes the normal synchronized game loop. A mod-owned callback
+   checks `WorldTick` before each following logic tick.
+7. Natural game-over, the synchronized tick limit, or the deadlock watchdog
+   calls
    `SimulationResultWriter`.
-7. Each match writes JSON; the tournament runner aggregates match leaders and
-   per-profile averages with `jq`.
+8. Each match is atomically renamed into place; the tournament runner
+   aggregates end reasons, natural wins, score leads, and per-profile averages
+   with `jq`.
 
 ## Components
 
 | Component | Responsibility |
 |---|---|
 | `mods/hv/rules/bots.yaml` | Defines bot types and strategy-specific modules |
-| `PanelLoadScreen.cs` | Constructs and starts autonomous lobbies |
-| `SimulationResultWriter.cs` | Captures player statistics and ranks results |
+| `SimulationConfig.cs` | Parses and validates versioned match inputs |
+| `SimulationEndReason.cs` | Defines stable machine-readable lifecycle outcomes |
+| `PanelLoadScreen.cs` | Deterministically constructs, starts, monitors, and stops autonomous lobbies |
+| `SimulationResult.cs` | Defines the strongly typed result contract |
+| `SimulationResultWriter.cs` | Captures synchronized state/statistics and atomically writes JSON |
+| `schemas/simulation-result-v1.schema.json` | Validates serialized result artifacts |
 | `run-simulation.sh` | Launches one reproducible simulation |
 | `run-tournament.sh` | Runs a map/seed series and creates standings |
+| `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
 
-## Result scoring
+## Result contract v1
 
-For a timed match, the current composite score is:
+Every result records:
+
+- schema, engine, mod, Git commit, and dirty-tree state;
+- map request, UID/content hash, title, speed, timestep, requested/effective
+  seed, maximum tick, watchdog, and telemetry interval;
+- ordered slots with bot, resolved faction, team, deterministic color, spawn,
+  and home cell;
+- end reason/detail, final world tick, simulated seconds, and synchronized
+  state hash;
+- natural winners and score leader as separate fields;
+- final per-player combat and economy statistics.
+
+The current composite score is:
 
 `kills value - deaths value + army value + assets value + cash/resources + experience × 100`
 
-A natural OpenRA win state takes ordering priority. If nobody has won when the
-timer expires, the top composite score is stored in the `winner` field. Reports
-must identify this as a timed score leader, not proof of annihilation.
+`naturalWinners` contains only OpenRA players whose synchronized `WinState` is
+`Won`. `scoreLeader` is the top composite score regardless of outcome. A
+tick-limited match can therefore have a score leader and no natural winner.
 
 ## Reproducibility boundary
 
-The match seed, map, bots, duration, and code commit are required experiment
-inputs. GPU/audio warnings and wall-clock loading time are environmental noise;
-game-state comparisons should use synchronized world ticks and recorded
-statistics.
+The match seed, map UID/hash, ordered bots, deterministic lobby assignments,
+maximum world tick, options, and code commit define the synchronized
+experiment. GPU/audio warnings, timestamps, output paths, and wall-clock
+loading time are environmental. Comparisons remove those environmental fields
+and require identical synchronized state hashes and final metrics.
 
-## Known architectural gap
+`SIMULATION_DURATION` is legacy-only and converts simulated seconds to ticks
+using the selected game timestep. `SIMULATION_WATCHDOG_SECONDS` never defines a
+valid experimental horizon.
 
-Rendering and audio are still initialized for every match. A dedicated
-headless host or server-side result hook is required to make large experiment
-batches efficient.
+## Headless dependency trace
+
+Rendering and audio are still initialized for every match:
+
+- the normal client startup creates SDL, a renderer, a window, and audio before
+  `PanelLoadScreen.StartGame`;
+- `Game.Loop` schedules logic and rendering together;
+- `OpenRA.Server` owns lobby/network coordination but does not construct or
+  advance a gameplay `World`;
+- the SDK `engine/` tree is downloaded and ignored by this repository, so a
+  durable engine seam must be carried as a reproducible SDK patch or upstream
+  engine revision, not an untracked local edit.
+
+The next spike must isolate the minimum client services required by
+`World`, `OrderManager`, bot orders, and result capture while bypassing
+renderer, window, and audio initialization.

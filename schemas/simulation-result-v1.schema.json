@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/simulation-result-v1.schema.json",
+  "title": "Universe simulation result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "build",
+    "config",
+    "endReason",
+    "endDetail",
+    "startedUtc",
+    "endedUtc",
+    "worldTick",
+    "simulatedSeconds",
+    "synchronizedStateHash",
+    "naturalWinners",
+    "scoreLeader",
+    "players"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "build": { "$ref": "#/$defs/build" },
+    "config": { "$ref": "#/$defs/config" },
+    "endReason": {
+      "enum": [
+        "natural-victory",
+        "faction-collapse",
+        "observation-horizon",
+        "world-tick-limit",
+        "stalemate",
+        "invalid-configuration",
+        "desync",
+        "crash",
+        "external-cancel",
+        "watchdog-timeout"
+      ]
+    },
+    "endDetail": { "type": "string" },
+    "startedUtc": { "type": "string", "format": "date-time" },
+    "endedUtc": { "type": "string", "format": "date-time" },
+    "worldTick": { "type": "integer", "minimum": 0 },
+    "simulatedSeconds": { "type": "number", "minimum": 0 },
+    "synchronizedStateHash": {
+      "type": "string",
+      "pattern": "^[0-9A-F]{8}$"
+    },
+    "naturalWinners": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/leader" }
+    },
+    "scoreLeader": {
+      "oneOf": [
+        { "$ref": "#/$defs/leader" },
+        { "type": "null" }
+      ]
+    },
+    "players": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/playerResult" }
+    }
+  },
+  "$defs": {
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineVersion",
+        "modId",
+        "modVersion",
+        "gitCommit",
+        "gitDirty"
+      ],
+      "properties": {
+        "engineVersion": { "type": "string", "minLength": 1 },
+        "modId": { "type": "string", "minLength": 1 },
+        "modVersion": { "type": "string", "minLength": 1 },
+        "gitCommit": { "type": "string", "minLength": 1 },
+        "gitDirty": { "type": "boolean" }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "matchId",
+        "mapRequest",
+        "mapUid",
+        "mapTitle",
+        "mapHash",
+        "botTypes",
+        "gameSpeed",
+        "gameTimestepMilliseconds",
+        "requestedRandomSeed",
+        "effectiveRandomSeed",
+        "maxWorldTicks",
+        "watchdogSeconds",
+        "telemetryIntervalTicks",
+        "gitCommit",
+        "gitDirty",
+        "resultPath",
+        "players"
+      ],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "matchId": { "type": "string", "minLength": 1 },
+        "mapRequest": { "type": "string", "minLength": 1 },
+        "mapUid": { "type": "string", "minLength": 1 },
+        "mapTitle": { "type": "string", "minLength": 1 },
+        "mapHash": { "type": "string", "minLength": 1 },
+        "botTypes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "gameSpeed": { "type": "string", "minLength": 1 },
+        "gameTimestepMilliseconds": { "type": "integer", "minimum": 1 },
+        "requestedRandomSeed": {
+          "type": ["integer", "null"]
+        },
+        "effectiveRandomSeed": { "type": "integer" },
+        "maxWorldTicks": { "type": "integer", "minimum": 1 },
+        "watchdogSeconds": { "type": "integer", "minimum": 0 },
+        "telemetryIntervalTicks": { "type": "integer", "minimum": 0 },
+        "gitCommit": { "type": "string", "minLength": 1 },
+        "gitDirty": { "type": "boolean" },
+        "resultPath": { "type": "string" },
+        "players": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/playerConfig" }
+        }
+      }
+    },
+    "leader": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["playerName", "botType", "faction"],
+      "properties": {
+        "playerName": { "type": "string" },
+        "botType": { "type": "string" },
+        "faction": { "type": "string" }
+      }
+    },
+    "playerConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "playerName",
+        "botType",
+        "faction",
+        "team",
+        "color",
+        "spawnPoint",
+        "homeCellX",
+        "homeCellY"
+      ],
+      "properties": {
+        "slot": { "type": "string" },
+        "playerName": { "type": "string" },
+        "botType": { "type": "string" },
+        "faction": { "type": "string" },
+        "team": { "type": "integer", "minimum": 0 },
+        "color": {
+          "type": "string",
+          "pattern": "^[0-9A-F]{6}([0-9A-F]{2})?$"
+        },
+        "spawnPoint": { "type": "integer", "minimum": 0 },
+        "homeCellX": { "type": "integer" },
+        "homeCellY": { "type": "integer" }
+      }
+    },
+    "playerResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+            "slot",
+            "playerName",
+            "botType",
+            "faction",
+            "team",
+            "color",
+            "spawnPoint",
+            "homeCellX",
+            "homeCellY",
+            "outcome",
+            "score",
+            "experience",
+            "killsValue",
+            "deathsValue",
+            "unitsKilled",
+            "unitsLost",
+            "buildingsKilled",
+            "buildingsLost",
+            "armyValue",
+            "assetsValue",
+            "cashAndResources",
+            "earned",
+            "spent"
+      ],
+      "properties": {
+            "slot": { "type": "string" },
+            "playerName": { "type": "string" },
+            "botType": { "type": "string" },
+            "faction": { "type": "string" },
+            "team": { "type": "integer", "minimum": 0 },
+            "color": { "type": "string" },
+            "spawnPoint": { "type": "integer", "minimum": 0 },
+            "homeCellX": { "type": "integer" },
+            "homeCellY": { "type": "integer" },
+            "outcome": {
+              "enum": ["undefined", "won", "lost"]
+            },
+            "score": { "type": "integer" },
+            "experience": { "type": "integer", "minimum": 0 },
+            "killsValue": { "type": "integer", "minimum": 0 },
+            "deathsValue": { "type": "integer", "minimum": 0 },
+            "unitsKilled": { "type": "integer", "minimum": 0 },
+            "unitsLost": { "type": "integer", "minimum": 0 },
+            "buildingsKilled": { "type": "integer", "minimum": 0 },
+            "buildingsLost": { "type": "integer", "minimum": 0 },
+            "armyValue": { "type": "integer", "minimum": 0 },
+            "assetsValue": { "type": "integer", "minimum": 0 },
+            "cashAndResources": { "type": "integer", "minimum": 0 },
+            "earned": { "type": "integer", "minimum": 0 },
+            "spent": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

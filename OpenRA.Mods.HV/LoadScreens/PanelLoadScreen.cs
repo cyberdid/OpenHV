@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.LoadScreens;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Network;
 using OpenRA.Primitives;
 using OpenRA.Widgets;
@@ -46,18 +47,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 			if (map == null)
 				throw new ArgumentException($"Could not find simulation map '{Launch.Map}'.");
 
-			var botType = args.GetValue("Launch.SimulationBot", "rogue");
-			var botTypes = args.GetValue("Launch.SimulationBots", botType)
-				.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-			if (botTypes.Length == 0)
-				throw new ArgumentException("Launch.SimulationBots must specify at least one bot type.");
-
-			var gameSpeed = args.GetValue("Launch.SimulationSpeed", "fastest");
-			var resultPath = args.GetValue("Launch.SimulationResult", "");
-			var durationSeconds = int.TryParse(args.GetValue("Launch.SimulationDuration", "0"), out var duration) ?
-				Math.Max(0, duration) : 0;
-			var randomSeed = int.TryParse(args.GetValue("Launch.SimulationSeed", ""), out var seed) ?
-				seed : (int?)null;
+			var config = SimulationConfig.Parse(args, map);
 			var startedUtc = DateTime.UtcNow;
 			var simulationComplete = false;
 
@@ -65,64 +55,145 @@ namespace OpenRA.Mods.HV.LoadScreens
 			Game.Settings.Save();
 
 			OrderManager orderManager = null;
+			string[] simulationSlots = null;
+			Color[] deterministicColors = null;
+			var lobbyConfigurationIssued = false;
+			var colorConfigurationIssued = false;
 			void StartSimulation()
 			{
 				if (orderManager?.LocalClient == null || !orderManager.LocalClient.IsAdmin)
 					return;
 
-				Game.LobbyInfoChanged -= StartSimulation;
-
 				var localClientIndex = orderManager.LocalClient.Index;
-				var simulationSlots = orderManager.LobbyInfo.Slots
-					.Where(slot => slot.Value.AllowBots && !slot.Value.Closed)
-					.Select(slot => slot.Key)
-					.ToArray();
+				if (!lobbyConfigurationIssued)
+				{
+					lobbyConfigurationIssued = true;
+					simulationSlots = orderManager.LobbyInfo.Slots
+						.Where(slot => slot.Value.AllowBots && !slot.Value.Closed)
+						.Select(slot => slot.Key)
+						.ToArray();
+					if (simulationSlots.Length == 0)
+						throw new InvalidOperationException(
+							$"Simulation map '{map.Title}' does not contain any open bot-compatible slots.");
 
+					if (config.RequestedRandomSeed.HasValue)
+					{
+						orderManager.LobbyInfo.GlobalSettings.RandomSeed = config.RequestedRandomSeed.Value;
+						orderManager.IssueOrder(Order.Command($"sync_lobby {orderManager.LobbyInfo.Serialize()}"));
+					}
+
+					orderManager.IssueOrder(Order.Command("spectate"));
+					for (var i = 0; i < simulationSlots.Length; i++)
+					{
+						var slotBotType = config.BotTypes[i % config.BotTypes.Length];
+						orderManager.IssueOrder(
+							Order.Command($"slot_bot {simulationSlots[i]} {localClientIndex} {slotBotType}"));
+					}
+
+					orderManager.IssueOrder(Order.Command($"option gamespeed {config.GameSpeed}"));
+					return;
+				}
+
+				var simulationClients = simulationSlots
+					.Select(orderManager.LobbyInfo.ClientInSlot)
+					.ToArray();
+				if (simulationClients.Any(client => client == null))
+					return;
+
+				for (var i = 0; i < simulationClients.Length; i++)
+				{
+					var expectedBotType = config.BotTypes[i % config.BotTypes.Length];
+					if (simulationClients[i].Bot != expectedBotType)
+						return;
+				}
+
+				if (!colorConfigurationIssued)
+				{
+					colorConfigurationIssued = true;
+					var colorManager = map.WorldActorInfo.TraitInfo<ColorPickerManagerInfo>();
+					var blockedColors = Game.ModData.DefaultTerrainInfo[map.TileSet].RestrictedPlayerColors
+						.Concat(map.Players.Players.Values.Select(player => player.Color))
+						.ToList();
+					deterministicColors = colorManager.PresetColors
+						.Where(color =>
+						{
+							if (colorManager.IsInvalidColor(color, blockedColors))
+								return false;
+
+							blockedColors.Add(color);
+							return true;
+						})
+						.Take(simulationClients.Length)
+						.ToArray();
+					if (deterministicColors.Length != simulationClients.Length)
+						throw new InvalidOperationException(
+							$"Map '{map.Title}' does not provide enough valid preset colors for " +
+							$"{simulationClients.Length} simulation players.");
+
+					for (var i = 0; i < simulationClients.Length; i++)
+						orderManager.IssueOrder(
+							Order.Command($"color {simulationClients[i].Index} {deterministicColors[i]}"));
+
+					return;
+				}
+
+				if (simulationClients.Where((client, i) => client.Color != deterministicColors[i]).Any())
+					return;
+
+				Game.LobbyInfoChanged -= StartSimulation;
+				config.EffectiveRandomSeed = orderManager.LobbyInfo.GlobalSettings.RandomSeed;
 				Console.WriteLine(
 					$"Starting autonomous simulation on {map.Title} with {simulationSlots.Length} bots: " +
-					string.Join(", ", simulationSlots.Select((_, i) => botTypes[i % botTypes.Length])) + ".");
+					string.Join(", ", simulationSlots.Select((_, i) =>
+						config.BotTypes[i % config.BotTypes.Length])) + ".");
 
-				if (randomSeed.HasValue)
-				{
-					orderManager.LobbyInfo.GlobalSettings.RandomSeed = randomSeed.Value;
-					orderManager.IssueOrder(Order.Command($"sync_lobby {orderManager.LobbyInfo.Serialize()}"));
-				}
-
-				orderManager.IssueOrder(Order.Command("spectate"));
-				for (var i = 0; i < simulationSlots.Length; i++)
-				{
-					var slotBotType = botTypes[i % botTypes.Length];
-					orderManager.IssueOrder(Order.Command($"slot_bot {simulationSlots[i]} {localClientIndex} {slotBotType}"));
-				}
-
-				orderManager.IssueOrder(Order.Command($"option gamespeed {gameSpeed}"));
-
-				void FinishSimulation(bool timedOut)
+				void FinishSimulation(SimulationEndReason endReason, string endDetail)
 				{
 					if (simulationComplete)
 						return;
 
 					simulationComplete = true;
-					if (!string.IsNullOrEmpty(resultPath))
+					orderManager.World.SetLocalPauseState(true);
+
+					if (!string.IsNullOrEmpty(config.ResultPath))
 						SimulationResultWriter.Write(
-							resultPath,
+							config.ResultPath,
 							orderManager.World,
-							map.Title,
-							randomSeed,
-							timedOut,
+							config,
+							endReason,
+							endDetail,
 							startedUtc);
 
-					Console.WriteLine(timedOut ? "Simulation time limit reached." : "Simulation completed naturally.");
+					Console.WriteLine($"Simulation ended: {endReason.ToIdentifier()} ({endDetail}).");
 					Game.Exit();
 				}
 
 				void GameStarted()
 				{
 					Game.AfterGameStart -= GameStarted;
-					orderManager.World.GameOver += () => FinishSimulation(false);
+					orderManager.World.GameOver += () =>
+						FinishSimulation(SimulationEndReason.NaturalVictory, "The engine declared the match complete.");
 
-					if (durationSeconds > 0)
-						Game.RunAfterDelay(durationSeconds * 1000, () => FinishSimulation(true));
+					void CheckWorldTick()
+					{
+						if (simulationComplete)
+							return;
+
+						if (orderManager.World.WorldTick >= config.MaxWorldTicks)
+							FinishSimulation(
+								SimulationEndReason.WorldTickLimit,
+								$"Reached configured world tick limit {config.MaxWorldTicks}.");
+						else
+							Game.RunAfterTick(CheckWorldTick);
+					}
+
+					Game.RunAfterTick(CheckWorldTick);
+
+					if (config.WatchdogSeconds > 0)
+						Game.RunAfterDelay(config.WatchdogSeconds * 1000, () =>
+							FinishSimulation(
+								SimulationEndReason.WatchdogTimeout,
+								$"Exceeded wall-clock watchdog of {config.WatchdogSeconds} seconds."));
 				}
 
 				Game.AfterGameStart += GameStarted;

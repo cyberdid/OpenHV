@@ -1,0 +1,6 @@
+test,map,seed,max_world_ticks,observed_world_tick,end_reason,synchronized_state_hash,observed,result
+tick-limit-run-a,Cold Rage,424242,50,50,world-tick-limit,4F20B62A,exact tick reached,pass
+tick-limit-run-b,Cold Rage,424242,50,50,world-tick-limit,4F20B62A,exact tick reached,pass
+normalized-repeat,Cold Rage,424242,50,50,world-tick-limit,4F20B62A,normalized JSON identical including slots factions spawns and colors,pass
+json-schema-v1,Cold Rage,424242,50,50,world-tick-limit,4F20B62A,both results valid against simulation-result-v1.schema.json,pass
+invalid-bot,Cold Rage,,1,,,,"does-not-exist rejected before match; exit code 255",pass
