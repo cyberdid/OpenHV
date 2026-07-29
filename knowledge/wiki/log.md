@@ -233,3 +233,21 @@ Implemented LIFE-004 knowledge spending and five technology unlocks with
 food, energy, storage, housing, and research modifiers. Four Steward factions
 completed agricultural systems at tick 5,250 and emitted reason-coded events.
 See [Civil Research v1 Validation](experiments/2026-07-29-civil-research-v1.md).
+
+## [2026-07-29] change | Engine-effective dynamic diplomacy
+
+Completed DIP-001 with one synchronized relation per active faction pair,
+default-neutral native OpenRA masks, grievance-driven war, loss-driven
+exhaustion and peace, cooldowns, collapse handling, final/snapshot state, and
+reason-coded transition events. Result Schema v1 remains backward compatible;
+current telemetry and event schemas validate the new records. See
+[Dynamic Diplomacy v1 Validation](experiments/2026-07-29-dynamic-diplomacy-v1.md).
+
+## [2026-07-29] experiment | Neutral, war, peace, and repeat validation
+
+Four Steward factions stayed neutral through tick 6,000 with zero combat. A
+26,000-tick Rogue/Fortress run produced 11 rivalry wars and 11
+exhaustion-peace transitions. Two identical 11,000-tick runs matched hash
+`E5E13643`, final relations, transition counts, and combat totals. All
+result/telemetry/event lines passed Schema v1 and all seven batch integration
+tests passed.

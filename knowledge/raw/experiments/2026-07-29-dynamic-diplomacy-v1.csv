@@ -1,0 +1,5 @@
+date,purpose,base_commit,tree_state,map,bots,seed,max_ticks,telemetry_interval,world_tick,sync_hash,initial_neutral_events,war_events,peace_exhaustion_events,faction_collapse_events,final_neutral_relations,transition_sequence_sum,total_kills_value,total_deaths_value,notes
+2026-07-29,peaceful-neutral-control,0a5e5535,sprint-5-working-tree,coldrage,steward,7801,6000,500,6000,FC0C7DE2,6,0,0,0,6,0,0,0,All six unordered faction pairs stayed neutral
+2026-07-29,dynamic-war-peace-cycle,0a5e5535,sprint-5-working-tree,coldrage,"rogue,fortress",7802,26000,1000,26000,9F3B1BA2,6,11,11,0,6,22,174950,175430,Repeated rivalry wars ended through synchronized war exhaustion
+2026-07-29,determinism-repeat-a,0a5e5535,sprint-5-working-tree,coldrage,"rogue,fortress",7803,11000,1000,11000,E5E13643,6,5,3,2,6,10,42850,42850,Five wars then three exhaustion peaces and two collapse transitions
+2026-07-29,determinism-repeat-b,0a5e5535,sprint-5-working-tree,coldrage,"rogue,fortress",7803,11000,1000,11000,E5E13643,6,5,3,2,6,10,42850,42850,Exact synchronized repeat of repeat-a

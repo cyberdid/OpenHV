@@ -129,7 +129,8 @@ namespace OpenRA.Mods.HV
 					CultureInfo.InvariantCulture),
 				NaturalWinners = naturalWinners,
 				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
-				Players = players
+				Players = players,
+				Diplomacy = SimulationDiplomacySnapshotBuilder.Build(world)
 			};
 
 			var directory = Path.GetDirectoryName(path);

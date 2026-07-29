@@ -36,6 +36,7 @@ namespace OpenRA.Mods.HV
 		readonly StreamWriter events;
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
 		readonly Dictionary<string, HashSet<string>> observedTechnologies = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
 		bool completed;
 
 		public int LastSnapshotTick { get; private set; } = -1;
@@ -103,6 +104,7 @@ namespace OpenRA.Mods.HV
 					};
 				})
 				.ToArray();
+			var diplomacy = SimulationDiplomacySnapshotBuilder.Build(world);
 
 			WriteLine(telemetry, new SimulationTelemetryRecord
 			{
@@ -113,7 +115,8 @@ namespace OpenRA.Mods.HV
 				SynchronizedStateHash = unchecked((uint)world.SyncHash()).ToString(
 					"X8",
 					CultureInfo.InvariantCulture),
-				Players = players
+				Players = players,
+				Diplomacy = diplomacy
 			});
 
 			foreach (var player in players)
@@ -121,6 +124,8 @@ namespace OpenRA.Mods.HV
 				ObserveSettlements(world.WorldTick, player);
 				ObserveTechnologies(world.WorldTick, player);
 			}
+
+			ObserveDiplomacy(world.WorldTick, diplomacy);
 
 			LastSnapshotTick = world.WorldTick;
 		}
@@ -274,6 +279,32 @@ namespace OpenRA.Mods.HV
 			});
 		}
 
+		void ObserveDiplomacy(int worldTick, SimulationDiplomaticRelation[] relations)
+		{
+			foreach (var relation in relations)
+			{
+				if (observedDiplomacySequences.TryGetValue(relation.RelationId, out var sequence) &&
+					sequence == relation.TransitionSequence)
+					continue;
+
+				observedDiplomacySequences[relation.RelationId] = relation.TransitionSequence;
+				WriteEvent(new SimulationEventRecord
+				{
+					SchemaVersion = SchemaVersion,
+					RecordType = "event",
+					MatchId = config.MatchId,
+					WorldTick = worldTick,
+					EventType = "diplomacy-transition",
+					ReasonCode = relation.ReasonCode,
+					PlayerName = relation.PlayerA,
+					OtherPlayerName = relation.PlayerB,
+					RelationId = relation.RelationId,
+					RelationState = relation.State,
+					Value = relation.Trust
+				});
+			}
+		}
+
 		void WriteEvent(SimulationEventRecord record)
 		{
 			WriteLine(events, record);
@@ -326,6 +357,7 @@ namespace OpenRA.Mods.HV
 		public int WorldTick { get; init; }
 		public string SynchronizedStateHash { get; init; }
 		public SimulationTelemetryPlayer[] Players { get; init; }
+		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 	}
 
 	public sealed class SimulationTelemetryPlayer
@@ -360,5 +392,8 @@ namespace OpenRA.Mods.HV
 		public string MapUid { get; init; }
 		public int? RandomSeed { get; init; }
 		public string SynchronizedStateHash { get; init; }
+		public string OtherPlayerName { get; init; }
+		public string RelationId { get; init; }
+		public string RelationState { get; init; }
 	}
 }

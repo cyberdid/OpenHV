@@ -24,12 +24,16 @@
         "settlement-founded",
         "population-changed",
         "technology-completed",
+        "diplomacy-transition",
         "shortage-started",
         "shortage-resolved"
       ]
     },
     "reasonCode": { "type": "string", "minLength": 1 },
     "playerName": { "type": "string" },
+    "otherPlayerName": { "type": "string" },
+    "relationId": { "type": "string", "minLength": 1 },
+    "relationState": { "enum": ["neutral", "war", "alliance"] },
     "settlementId": { "type": "string", "minLength": 1 },
     "value": { "type": "integer" },
     "previousValue": { "type": "integer" },

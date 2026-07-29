@@ -10,7 +10,8 @@
     "matchId",
     "worldTick",
     "synchronizedStateHash",
-    "players"
+    "players",
+    "diplomacy"
   ],
   "properties": {
     "schemaVersion": { "const": 1 },
@@ -24,6 +25,12 @@
     "players": {
       "type": "array",
       "items": { "$ref": "#/$defs/player" }
+    },
+    "diplomacy": {
+      "type": "array",
+      "items": {
+        "$ref": "simulation-result-v1.schema.json#/$defs/diplomaticRelation"
+      }
     }
   },
   "$defs": {

@@ -59,6 +59,10 @@
     "players": {
       "type": "array",
       "items": { "$ref": "#/$defs/playerResult" }
+    },
+    "diplomacy": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diplomaticRelation" }
     }
   },
   "$defs": {
@@ -296,6 +300,48 @@
         "settlements": {
           "type": "array",
           "items": { "$ref": "#/$defs/settlement" }
+        }
+      }
+    },
+    "diplomaticRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relationId",
+        "playerA",
+        "playerB",
+        "state",
+        "grievanceA",
+        "grievanceB",
+        "trust",
+        "warExhaustion",
+        "warStartedTick",
+        "peaceCooldownUntil",
+        "transitionTick",
+        "transitionSequence",
+        "reasonCode"
+      ],
+      "properties": {
+        "relationId": { "type": "string", "minLength": 1 },
+        "playerA": { "type": "string", "minLength": 1 },
+        "playerB": { "type": "string", "minLength": 1 },
+        "state": { "enum": ["neutral", "war", "alliance"] },
+        "grievanceA": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "grievanceB": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "trust": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "warExhaustion": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "warStartedTick": { "type": "integer", "minimum": 0 },
+        "peaceCooldownUntil": { "type": "integer", "minimum": 0 },
+        "transitionTick": { "type": "integer", "minimum": 0 },
+        "transitionSequence": { "type": "integer", "minimum": 0 },
+        "reasonCode": {
+          "enum": [
+            "initial-neutrality",
+            "strategic-rivalry",
+            "war-exhaustion",
+            "defensive-response",
+            "faction-collapse"
+          ]
         }
       }
     },

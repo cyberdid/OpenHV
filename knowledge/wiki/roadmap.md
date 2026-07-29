@@ -10,6 +10,8 @@ sources:
   - experiments/2026-07-29-headless-performance-fix.md
   - experiments/2026-07-29-batch-runner-v1.md
   - experiments/2026-07-29-living-factions-v1.md
+  - experiments/2026-07-29-civil-research-v1.md
+  - experiments/2026-07-29-dynamic-diplomacy-v1.md
 tags:
   - roadmap
   - planning
@@ -112,12 +114,12 @@ Acceptance:
 
 See [Living Factions Design](faction-life.md).
 
-Status: LIFE-001–003 complete. Four capitals now run synchronized civil and
-demographic pulses; balanced growth, shortage mortality, explicit building
-flows, peaceful Steward development, deterministic repeat, and civil
-telemetry passed. Default-neutral diplomacy, research unlocks, migration, and
-military/civilian coupling remain open, so the full P0.5 acceptance gate is
-not yet complete.
+Status: LIFE-001–004 and DIP-001 complete. Four capitals run synchronized civil
+and demographic pulses; balanced growth, shortage mortality, explicit
+building flows, peaceful Steward development, deterministic research unlocks,
+default-neutral diplomacy, explicit war/peace, repeat hashes, and strategic
+telemetry passed. Trade, migration, and military/civilian coupling remain
+open, so the full P0.5 acceptance gate is not yet complete.
 
 ## P1 — Strategic telemetry
 
@@ -149,6 +151,12 @@ Acceptance:
 - neutral factions are not auto-targeted;
 - every treaty, grievance, and war transition is recorded;
 - AI can rationally prefer peace, deterrence, or limited war.
+
+Status: DIP-001 complete. Bilateral neutral/war/alliance state is synchronized;
+neutral is the effective default; rivalry declares war through native OpenRA
+enemy masks; losses drive exhaustion and peace; transition snapshots/events
+validated; repeated inputs produced hash `E5E13643`. DIP-002 stock-backed
+trade is next, followed by richer treaties and Civilization AI utility.
 
 ## P1 — Automated experiment loop
 

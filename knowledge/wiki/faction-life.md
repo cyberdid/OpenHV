@@ -8,6 +8,8 @@ sources:
   - architecture.md
   - execution-plan.md
   - ../../engine/OpenRA.Game/Player.cs
+  - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
+  - experiments/2026-07-29-dynamic-diplomacy-v1.md
 tags:
   - civilization
   - population
@@ -53,8 +55,8 @@ LIFE-001–003 are implemented and validated:
 Balanced, scarcity, determinism, peaceful-development, and overhead evidence
 is recorded in
 [Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md).
-Neutral diplomacy, trade, migration transfer, and casualty-to-workforce
-coupling remain planned rather than implied.
+Trade, migration transfer, and casualty-to-workforce coupling remain planned
+rather than implied.
 
 LIFE-004 is now implemented as a five-node deterministic graph. Knowledge is
 spent in actor-ID order on agricultural systems, energy grid, logistics,
@@ -304,9 +306,19 @@ layer.
 
 ## Diplomacy
 
-Current OpenRA player relationship masks support ally, neutral, and enemy but
-are initialized from lobby/map state. Living factions require a synchronized
-runtime diplomacy manager.
+OpenRA player relationship masks support ally, neutral, and enemy but are
+initialized from lobby/map state. In deterministic simulation mode, the
+implemented synchronized `DiplomacyManager` owns one bilateral record per
+active faction pair and applies each transition to those native masks.
+Ordinary player-launched OpenHV games retain their lobby relationships.
+
+The first runtime policy starts every pair neutral. A 5,000-tick strategic
+pulse accumulates disposition-driven grievance, declares explicit war at a
+threshold, adds combat losses to war exhaustion, negotiates peace, and applies
+a cooldown. Faction collapse also closes active wars. State, reason, trust,
+grievance, exhaustion, ticks, and transition sequence are hash-visible and
+exported in final results, snapshots, and events. See
+[Dynamic Diplomacy v1 Validation](experiments/2026-07-29-dynamic-diplomacy-v1.md).
 
 ### Relationship state
 
@@ -320,7 +332,13 @@ Track independent signals:
 - border pressure;
 - relative power.
 
-Derived diplomatic states:
+Implemented states:
+
+- neutral;
+- war;
+- alliance (schema/state support, no policy transition yet).
+
+Planned richer derived states:
 
 - unknown;
 - neutral;

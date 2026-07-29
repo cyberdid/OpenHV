@@ -48,6 +48,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil Research v1 validation, 2026-07-29](experiments/2026-07-29-civil-research-v1.md)
   — deterministic knowledge spending, first technology unlock, output modifier,
   and reason-coded research event.
+- [Dynamic Diplomacy v1 validation, 2026-07-29](experiments/2026-07-29-dynamic-diplomacy-v1.md)
+  — default neutrality, engine-effective war/peace masks, exhaustion,
+  reason-coded transitions, and deterministic repeat.
 
 ## Decisions
 

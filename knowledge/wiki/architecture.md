@@ -11,6 +11,8 @@ sources:
   - ../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
   - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
+  - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
   - ../../schemas/simulation-telemetry-v1.schema.json
   - ../../schemas/simulation-event-v1.schema.json
@@ -25,6 +27,7 @@ sources:
   - experiments/2026-07-29-batch-runner-v1.md
   - experiments/2026-07-29-headless-performance-fix.md
   - decisions/0005-process-isolated-resumable-batches.md
+  - experiments/2026-07-29-dynamic-diplomacy-v1.md
 tags:
   - architecture
   - runtime
@@ -118,9 +121,10 @@ Every result records:
 Telemetry-enabled matches additionally write:
 
 - `telemetry.jsonl`: tick, synchronized hash, battle/economy counters, and
-  complete civilization/settlement snapshots;
+  complete civilization/settlement and bilateral diplomacy snapshots;
 - `events.jsonl`: match lifecycle, settlement founding, population changes,
-  and shortage start/resolution with stable reason codes.
+  research, shortage start/resolution, and diplomacy transitions with stable
+  reason codes.
 
 Both streams are line-flushed so a process failure retains complete prior
 records. A retry or resume moves an existing stream to an attempt-qualified
@@ -204,6 +208,27 @@ Failed/interrupted attempts retain their support logs and any replay that
 OpenRA managed to create. Each session records its exit code and active wall
 time; the run summary reports cumulative active runner time across resumes.
 See [Decision 0005](decisions/0005-process-isolated-resumable-batches.md).
+
+## Diplomacy boundary
+
+`DiplomacyManager` is a world trait enabled by deterministic simulation mode;
+ordinary OpenHV player matches retain their lobby relationships. On simulation
+world load it enumerates active playable factions in client-index order,
+creates one synchronized effect per unordered pair, and clears the
+lobby-created ally/enemy bits so every pair begins neutral. Strategic pulses
+change synchronized integer state and apply the corresponding native OpenRA
+player masks: war sets reciprocal enemy bits; neutral clears enemy and ally
+bits; alliance support exists at the state/mask level but has no policy
+transition yet.
+
+Pair state includes grievance, trust, war exhaustion, war start, peace
+cooldown, transition tick/sequence, and loss baselines. References and display
+labels remain derived; only supported integer fields carry `[VerifySync]`.
+`SimulationDiplomacySnapshotBuilder` maps the synchronized state into stable
+identifiers for final Result v1, every telemetry snapshot, and
+`diplomacy-transition` events. Result v1 keeps the top-level field optional for
+backward compatibility; current telemetry requires it. See
+[Dynamic Diplomacy v1 Validation](experiments/2026-07-29-dynamic-diplomacy-v1.md).
 
 ## Current performance boundary
 

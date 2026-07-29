@@ -28,6 +28,7 @@ namespace OpenRA.Mods.HV
 		public SimulationLeader[] NaturalWinners { get; init; }
 		public SimulationLeader ScoreLeader { get; init; }
 		public SimulationPlayerResult[] Players { get; init; }
+		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 	}
 
 	public sealed class SimulationBuildMetadata
@@ -146,5 +147,22 @@ namespace OpenRA.Mods.HV
 		public int CivilPulseCount { get; init; }
 		public int DemographicPulseCount { get; init; }
 		public int InfrastructureCount { get; init; }
+	}
+
+	public sealed class SimulationDiplomaticRelation
+	{
+		public string RelationId { get; init; }
+		public string PlayerA { get; init; }
+		public string PlayerB { get; init; }
+		public string State { get; init; }
+		public int GrievanceA { get; init; }
+		public int GrievanceB { get; init; }
+		public int Trust { get; init; }
+		public int WarExhaustion { get; init; }
+		public int WarStartedTick { get; init; }
+		public int PeaceCooldownUntil { get; init; }
+		public int TransitionTick { get; init; }
+		public int TransitionSequence { get; init; }
+		public string ReasonCode { get; init; }
 	}
 }

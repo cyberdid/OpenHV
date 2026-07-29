@@ -11,6 +11,8 @@ sources:
   - experiments/2026-07-29-headless-performance-fix.md
   - experiments/2026-07-29-batch-runner-v1.md
   - experiments/2026-07-29-living-factions-v1.md
+  - experiments/2026-07-29-civil-research-v1.md
+  - experiments/2026-07-29-dynamic-diplomacy-v1.md
 tags:
   - vision
   - status
@@ -66,15 +68,21 @@ rather than a conventional player-controlled game.
   reason-coded civil transitions as JSONL.
 - Balanced growth, deterministic telemetry parity, food-scarcity mortality,
   zero-combat Steward growth, and sub-1% observed CPU overhead passed.
+- A five-node civil research graph spends knowledge on deterministic unlocks
+  that modify real settlement production and capacity.
+- Runtime diplomacy begins all active pairs neutral, changes native OpenRA
+  targeting masks on explicit war/peace transitions, and exports synchronized
+  bilateral state plus reason-coded events.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
 Late-game memory/performance and natural outcomes still need measurement. The
 initial 30-second tournament used the deprecated wall-clock cutoff and remains
-only a startup/scoring test. Civil telemetry covers the first settlement
-slice, but territory, research unlocks, trade, migration transfer, casualty
-coupling, and dynamic diplomacy are not implemented yet.
+only a startup/scoring test. Civil telemetry covers the first settlement,
+research, and diplomacy slices, but territory, trade, migration transfer,
+casualty coupling, richer treaties, and Civilization AI utility planning are
+not implemented yet.
 
 ## Success criteria
 
@@ -103,3 +111,5 @@ The simulation becomes useful when it can:
 - [Headless dummy-audio performance fix](experiments/2026-07-29-headless-performance-fix.md)
 - [Resumable batch runner v1 validation](experiments/2026-07-29-batch-runner-v1.md)
 - [Living Factions and Telemetry v1 validation](experiments/2026-07-29-living-factions-v1.md)
+- [Civil Research v1 validation](experiments/2026-07-29-civil-research-v1.md)
+- [Dynamic Diplomacy v1 validation](experiments/2026-07-29-dynamic-diplomacy-v1.md)

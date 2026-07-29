@@ -452,6 +452,7 @@ World:
 	ScrapOptions:
 		CheckboxDisplayOrder: 8
 	CivilizationScenario:
+	DiplomacyManager:
 	TimeLimitManager:
 	VariedCostManager:
 		Multiplier: 110, 120

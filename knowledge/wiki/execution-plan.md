@@ -11,6 +11,8 @@ sources:
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
   - experiments/2026-07-29-batch-runner-v1.md
+  - experiments/2026-07-29-civil-research-v1.md
+  - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -774,14 +776,14 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | SIM-005 ✅ | Headless/reference equivalence | SIM-003 | hash `0AC799D4` and identical normalized results |
 | SIM-006 ✅ | Isolated CLI process and exit codes | SIM-003 | 7 failure/signal/resume integration tests |
 | SIM-007 ✅ | Manifest-driven batch runner | SIM-006 | sequential and four-worker resumable 100-match soaks |
-| SIM-008 | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
+| SIM-008 ✅ | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
 | SIM-009 | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
 | SIM-010 | Baseline benchmark suite | SIM-007–009 | reproducible report |
-| LIFE-001 | CivilizationState and SettlementCore traits | SIM-001–003 | synchronized state tests |
-| LIFE-002 | Population, workforce, food, and housing | LIFE-001 | peaceful-growth scenario |
-| LIFE-003 | Materials, energy, and building jobs | LIFE-001 | resource-flow telemetry |
-| LIFE-004 | Research and small civil technology graph | LIFE-002–003 | deterministic unlock test |
-| DIP-001 | Runtime diplomacy manager | LIFE-001 | neutral/war/peace transition tests |
+| LIFE-001 ✅ | CivilizationState and SettlementCore traits | SIM-001–003 | synchronized state tests |
+| LIFE-002 ✅ | Population, workforce, food, and housing | LIFE-001 | peaceful-growth scenario |
+| LIFE-003 ✅ | Materials, energy, and building jobs | LIFE-001 | resource-flow telemetry |
+| LIFE-004 ✅ | Research and small civil technology graph | LIFE-002–003 | deterministic unlock test |
+| DIP-001 ✅ | Runtime diplomacy manager | LIFE-001 | neutral/war/peace transition tests |
 | DIP-002 | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
 | AI-001 | Shared perception blackboard | SIM-008 | decision/telemetry traces |
 | AI-002 | Strategic state machine | AI-001 | distinct measured transitions |
@@ -862,6 +864,13 @@ preserved determinism and passed the overhead gate. Sprint 5 is now active.
 - SIM-010 first statistically useful civil/military baseline.
 
 Exit: trustworthy evidence about faction life, diplomacy, and warfare costs.
+
+Status: active. LIFE-004 and DIP-001 are complete. Knowledge now unlocks a
+five-node civil graph; all factions begin neutral; explicit rivalry can set
+native enemy masks; losses drive exhaustion and peace. The neutral control,
+26,000-tick relationship-cycle run, and deterministic repeat all passed.
+DIP-002 stock-backed trade is the next dependency before Civilization AI,
+war-cost coupling, lifecycle work, and baseline experiments.
 
 ### Following 4 to 8 weeks
 
