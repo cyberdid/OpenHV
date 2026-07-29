@@ -485,6 +485,13 @@ order loop.
 
 Attack target selection, retreat, regrouping, and re-engagement remain AI-004.
 
+The accepted AI-003 v3 matrix demonstrated a real civil split: Technologist
+completed 1.464 more technologies than baseline and Economist materially
+improved prosperity, stability, and available workforce. Total collapse did
+not increase. Increased Technologist/Fortress war exposure and casualties are
+explicit AI-004 problems, preserving the distinction between civilization
+planning and tactical execution.
+
 ## Consequences of war
 
 Combat must feed back into civilian life:

@@ -224,6 +224,12 @@ army calculation between mobilization and diplomacy.
 The v3 shared calculation is implemented and deterministic at `9419D0D9`;
 its exact 112-match matrix is the final AI-003 promotion test.
 
+AI-003 is complete after the clean v3 held-out matrix. It established distinct
+economy and technology behavior without increasing total collapse or violating
+score-lead share bounds. AI-004 is now the active priority: target selection,
+retreat/regroup, force preservation, and finishing attacks must address the
+measured Technologist/Fortress war exposure and the 100% tick-ceiling rate.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

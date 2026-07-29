@@ -7,6 +7,8 @@ sources:
   - ../../raw/experiments/2026-07-29-ai003-candidate-112-v1-metrics.csv
   - ../../raw/experiments/2026-07-29-ai003-candidate-112-v2-run.csv
   - ../../raw/experiments/2026-07-29-ai003-candidate-112-v2-metrics.csv
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v3-run.csv
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v3-metrics.csv
   - ../../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../../OpenRA.Mods.HV/Traits/BotModules/CivilizationPlannerBotModule.cs
   - ../../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
@@ -197,3 +199,37 @@ Two 12,000-tick smoke runs matched synchronized hash `9419D0D9` and preserved
 the corrected v2 research and civil outputs. The exact 112-match v3 matrix is
 the final AI-003 promotion gate; any remaining combat target/retreat problem
 will be handed to AI-004 only if the power-definition mismatch is removed.
+
+## Candidate v3 result and AI-003 decision
+
+The clean `947fe446` run completed 112/112 attempt-1 matches in 508.710
+seconds. QA validated 112 results, 1,456 snapshots, 10,955 events, and four
+tick-12,000 replays. See the immutable
+[run record](../../raw/experiments/2026-07-29-ai003-candidate-112-v3-run.csv)
+and [paired metrics](../../raw/experiments/2026-07-29-ai003-candidate-112-v3-metrics.csv).
+
+v3 reproduced the accepted civil specialization:
+
+- 101/112 Technologist observations ended in `technology`; mean completed
+  technologies were 2.455, +1.464 over baseline
+  (bootstrap 95% 1.366 to 1.571);
+- 111/112 Economist observations ended in `economy`; prosperity rose 41.473,
+  stability 45.866, available workforce 122.232, and mobilization fell
+  126.714, all with intervals excluding zero;
+- ordinary profiles retained their first profile-specific technology;
+- all timed score-lead shares were between 16.1% and 33.0%; total collapses
+  equaled baseline at 15; infrastructure failure remained zero.
+
+The v3 consistency change barely altered the v2 military result. This falsifies
+the narrow hypothesis that support value in relative power caused most added
+war exposure. Technologist still traded 1,485 retained army and 7.268
+casualties for its technology edge; Fortress still lost 1,725 retained army,
+gained 3.607 casualties, and lost 36.511 stability. Both remained in about
+0.69 more active wars. Every match still ended at the hard tick ceiling.
+
+Decision: AI-003 is complete for opening/economy/technology/recovery planning,
+observable reasons, bounded native requests, research identity, and civil
+wellbeing. The military findings are not waived: they define AI-004's measured
+problem. AI-004 must reduce unnecessary war exposure, preserve high-value
+forces, retreat/regroup, and finish viable wars; it will be evaluated against
+this committed v3 candidate, not tuned inside the civil planner.

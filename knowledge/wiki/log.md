@@ -410,3 +410,14 @@ workforce mobilization and diplomatic relative power. Plan bonuses, research
 order, request budgets, and tactical weights are unchanged. Two 12,000-tick
 repeats matched `9419D0D9`; the generated exact-schedule v3 matrix is the final
 AI-003 gate.
+
+## [2026-07-29] experiment | Complete AI-003 with candidate v3
+
+The clean `947fe446` matrix completed 112/112 attempt-1 matches in 508.710
+seconds with 112 valid results, 1,456 snapshots, 10,955 events, and four
+tick-12,000 replays. Technologist gained 1.464 technologies; Economist
+prosperity, stability, and workforce improved significantly; collapse count
+matched baseline and score-lead shares stayed inside 10–40%. The shared power
+definition did not remove Technologist/Fortress war regressions, falsifying
+that narrow hypothesis. AI-003 closes; measured war exposure, force loss, and
+100% tick ceilings move to active AI-004.

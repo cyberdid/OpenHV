@@ -134,3 +134,10 @@ knowledge and support-unit value inflated civilian mobilization. Candidate v2
 uses positive round-up, excludes explicit civilian/support actors from
 mobilization, and matched two 12,000-tick runs at hash `9419B52D`; its exact
 112-match gate is next.
+
+The accepted v3 held-out result completed 112/112 matches. Technologist gained
+1.464 technologies; Economist gained 41 prosperity, 46 stability, and 122
+available workforce while reducing mobilization by 127. Total collapses
+matched baseline and score-lead shares stayed within 10–40%. Technologist and
+Fortress also exposed significant war/casualty/army regressions; these are now
+AI-004 acceptance inputs, not ignored planner results.

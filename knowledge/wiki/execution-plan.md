@@ -836,7 +836,7 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | DIP-002 ✅ | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
 | AI-001 ✅ | Shared perception blackboard | SIM-008 | decision/telemetry traces |
 | AI-002 ✅ | Strategic state machine | AI-001 | distinct measured transitions |
-| AI-003 ◐ | Opening/economy/tech planners | AI-002 | implementation and exact candidate schedule complete; held-out report running next |
+| AI-003 ✅ | Opening/economy/tech planners | AI-002 | 112-match v3 held-out behavior report |
 | AI-004 | Combat target/retreat planners | AI-002 | combat efficiency report |
 | FAC-001 | Separate faction/profile inputs | SIM-001 | factorial test schedule |
 | FAC-002 | Define faction gameplay pillars | FAC-001 | accepted design decision |
@@ -959,6 +959,13 @@ AI-003 gate.
 The shared v3 military-value calculation is implemented and produced two
 12,000-tick repeats at hash `9419D0D9`. No plan or tactical weights changed;
 the exact v3 matrix is the remaining gate.
+
+AI-003 gate result: complete. The clean v3 matrix passed 112/112 attempt-1
+execution, preserved baseline collapse count, kept every score-lead share
+inside 10–40%, produced +1.464 Technologist technologies, and materially
+improved Economist prosperity/stability/workforce. Significant
+Technologist/Fortress army, casualty, active-war, and Fortress-stability
+regressions remain explicit AI-004 inputs. AI-004 is now active.
 
 ### Following 4 to 8 weeks
 
