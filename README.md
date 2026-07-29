@@ -36,6 +36,9 @@ Run a ten-match tournament across several maps with:
 
 The tournament writes each match and an aggregate `tournament.json` under `../tournament-results`. `MATCH_COUNT`, `MATCH_DURATION`, `TOURNAMENT_SEED`, `TOURNAMENT_BOTS`, `TOURNAMENT_MAPS`, and `TOURNAMENT_RESULTS_DIR` can be overridden through the environment.
 
+Project architecture, experiments, decisions, and the current roadmap are
+maintained in the persistent [project wiki](knowledge/wiki/index.md).
+
 ![MiniYAML](https://www.openhv.net/images/readme/miniyaml.png)
 
 Game rules are defined in text files using a dialect called `MiniYAML` which has [IDE support in Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=openra.oraide-vscode).

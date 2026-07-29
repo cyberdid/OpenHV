@@ -1,0 +1,40 @@
+---
+title: Universe RTS Project Wiki
+status: current
+updated: 2026-07-29
+sources:
+  - ../raw/karpathy-llm-wiki-2026-07-29.md
+tags:
+  - index
+  - project
+---
+
+# Universe RTS Project Wiki
+
+This is the maintained entry point for the autonomous RTS simulation project.
+
+## Project
+
+- [Overview](overview.md) — mission, present capabilities, constraints, and
+  success criteria.
+- [Architecture](architecture.md) — runtime components and data flow.
+- [AI profiles](ai-profiles.md) — current strategy personalities and their
+  intended behavior.
+- [Roadmap](roadmap.md) — ordered next milestones and acceptance criteria.
+
+## Experiments
+
+- [Baseline tournament, 2026-07-29](experiments/2026-07-29-baseline-tournament.md)
+  — first ten-match timed comparison of four AI profiles.
+
+## Decisions
+
+- [0001: Use OpenHV/OpenRA as the foundation](decisions/0001-openhv-foundation.md)
+- [0002: Maintain persistent project memory](decisions/0002-persistent-project-wiki.md)
+
+## Operations
+
+- [Project log](log.md) — append-only chronology of ingests, changes,
+  experiments, queries, and lint passes.
+- [Agent schema](../../AGENTS.md) — maintenance and evidence rules.
+- [Raw sources](../raw/README.md) — immutable evidence layer.
