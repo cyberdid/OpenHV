@@ -1,0 +1,367 @@
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
+index b06ff12..6514d56 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
+@@ -93,12 +93,54 @@ namespace OpenRA.Mods.Common.Traits
+ 		[Desc("Enemy target types to never target.")]
+ 		public readonly BitSet<TargetableType> IgnoredEnemyTargetTypes = default;
+ 
++		[Desc("Score reachable targets by strategic value instead of distance alone.")]
++		public readonly bool UseStrategicTargetScoring = false;
++
++		[Desc("Score multiplier for the target's production value.")]
++		public readonly int TargetValueWeight = 1;
++
++		[Desc("Score awarded for each percentage point of damage already suffered by the target.")]
++		public readonly int TargetDamageWeight = 10;
++
++		[Desc("Additional score for building targets.")]
++		public readonly int TargetBuildingBonus = 1000;
++
++		[Desc("Additional score for enemy construction yards.")]
++		public readonly int TargetConstructionYardBonus = 4000;
++
++		[Desc("Additional score when attacking a faction below FinishingAssetsThreshold.")]
++		public readonly int FinishingTargetBonus = 6000;
++
++		[Desc("Combined enemy army and asset value below which finishing targets receive a bonus. Zero disables this bonus.")]
++		public readonly int FinishingAssetsThreshold = 0;
++
++		[Desc("Minimum enemy death value required before finishing targets receive a bonus.")]
++		public readonly int FinishingLossThreshold = 0;
++
++		[Desc("Score penalty per squared cell of distance from the squad leader.")]
++		public readonly int TargetDistanceWeight = 1;
++
++		[Desc("Retreat when average squad health is at or below this percentage and local relative value is unfavorable. Zero disables the additional rule.")]
++		public readonly int RetreatHealthPercentage = 0;
++
++		[Desc("The squad retreats when own value as a percentage of nearby enemy value is below this threshold. Used with RetreatHealthPercentage.")]
++		public readonly int RetreatRelativeValuePercentage = 100;
++
++		[Desc("Ticks spent regrouping at a friendly base before re-engaging. Zero preserves the stock behavior of dissolving a retreating squad.")]
++		public readonly int RegroupTicks = 0;
++
+ 		public override void RulesetLoaded(Ruleset rules, ActorInfo ai)
+ 		{
+ 			base.RulesetLoaded(rules, ai);
+ 
+ 			if (DangerScanRadius <= 0)
+ 				throw new YamlException("DangerScanRadius must be greater than zero.");
++			if (RetreatHealthPercentage is < 0 or > 100)
++				throw new YamlException("RetreatHealthPercentage must be between zero and 100.");
++			if (RetreatRelativeValuePercentage < 0)
++				throw new YamlException("RetreatRelativeValuePercentage must not be negative.");
++			if (RegroupTicks < 0)
++				throw new YamlException("RegroupTicks must not be negative.");
+ 		}
+ 
+ 		public override object Create(ActorInitializer init) { return new SquadManagerBotModule(init.Self, this); }
+@@ -133,6 +175,7 @@ namespace OpenRA.Mods.Common.Traits
+ 		IBot bot;
+ 		IBotPositionsUpdated[] notifyPositionsUpdated;
+ 		IBotNotifyIdleBaseUnits[] notifyIdleBaseUnits;
++		INotifySquadDecision[] notifySquadDecision;
+ 
+ 		List<Actor> unitsHangingAroundTheBase = [];
+ 		CPos initialBaseCenter;
+@@ -187,6 +230,7 @@ namespace OpenRA.Mods.Common.Traits
+ 		{
+ 			notifyPositionsUpdated = self.Owner.PlayerActor.TraitsImplementing<IBotPositionsUpdated>().ToArray();
+ 			notifyIdleBaseUnits = self.Owner.PlayerActor.TraitsImplementing<IBotNotifyIdleBaseUnits>().ToArray();
++			notifySquadDecision = self.Owner.PlayerActor.TraitsImplementing<INotifySquadDecision>().ToArray();
+ 		}
+ 
+ 		protected override void TraitEnabled(Actor self)
+@@ -302,7 +346,157 @@ namespace OpenRA.Mods.Common.Traits
+ 
+ 		(Actor Actor, WVec Offset) FindClosestEnemy(IEnumerable<Actor> actors, Actor sourceActor)
+ 		{
+-			return WorldUtils.ClosestToIgnoringPath(FindEnemies(actors, sourceActor), x => x.Actor, sourceActor);
++			var enemies = FindEnemies(actors, sourceActor).ToArray();
++			if (!Info.UseStrategicTargetScoring)
++				return WorldUtils.ClosestToIgnoringPath(enemies, x => x.Actor, sourceActor);
++
++			return enemies
++				.OrderByDescending(enemy => TargetScore(sourceActor, enemy.Actor))
++				.ThenBy(enemy => enemy.Actor.ActorID)
++				.FirstOrDefault();
++		}
++
++		long TargetScore(Actor sourceActor, Actor target)
++		{
++			var value = target.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 0;
++			var health = target.TraitOrDefault<IHealth>();
++			var damage = health == null || health.MaxHP <= 0 ? 0 : 100 - health.HP * 100 / health.MaxHP;
++			var distance = (sourceActor.Location - target.Location).LengthSquared;
++			var score =
++				(long)value * Info.TargetValueWeight +
++				(long)damage * Info.TargetDamageWeight -
++				(long)distance * Info.TargetDistanceWeight;
++
++			if (target.Info.HasTraitInfo<BuildingInfo>())
++				score += Info.TargetBuildingBonus;
++			if (Info.ConstructionYardTypes.Contains(target.Info.Name))
++				score += Info.TargetConstructionYardBonus;
++			if (IsFinishingTarget(target))
++				score += Info.FinishingTargetBonus;
++
++			return score;
++		}
++
++		bool IsFinishingTarget(Actor target)
++		{
++			if (Info.FinishingAssetsThreshold <= 0)
++				return false;
++
++			var statistics = target.Owner.PlayerActor.TraitOrDefault<PlayerStatistics>();
++			return statistics != null &&
++				statistics.DeathsCost >= Info.FinishingLossThreshold &&
++				statistics.ArmyValue + statistics.AssetsValue <= Info.FinishingAssetsThreshold;
++		}
++
++		internal void RecordTargetSelection(Squad squad, Actor target)
++		{
++			if (target == null)
++				return;
++
++			var reason = IsFinishingTarget(target)
++				? SquadDecisionReason.FinishingOpportunity
++				: Info.UseStrategicTargetScoring
++					? SquadDecisionReason.StrategicScore
++					: SquadDecisionReason.NearestReachable;
++			RecordDecision(
++				squad,
++				SquadDecisionType.TargetSelected,
++				reason,
++				target.ActorID,
++				SumValue(squad.Units),
++				ActorValue(target));
++		}
++
++		internal bool ShouldRetreat(
++			Squad squad,
++			IReadOnlyCollection<Actor> enemies,
++			bool stockDecision)
++		{
++			var ownValue = SumValue(squad.Units);
++			var enemyValue = SumValue(enemies);
++			var lowHealthAndPower =
++				Info.RetreatHealthPercentage > 0 &&
++				NormalizedHealth(squad.Units) <= Info.RetreatHealthPercentage &&
++				(long)ownValue * 100 < (long)Math.Max(1, enemyValue) * Info.RetreatRelativeValuePercentage;
++			if (!stockDecision && !lowHealthAndPower)
++				return false;
++
++			RecordDecision(
++				squad,
++				SquadDecisionType.Retreat,
++				lowHealthAndPower ? SquadDecisionReason.LowHealthAndPower : SquadDecisionReason.StockThreat,
++				squad.TargetActor?.ActorID ?? 0,
++				ownValue,
++				enemyValue);
++			return true;
++		}
++
++		internal void RecordRegroup(Squad squad)
++		{
++			RecordDecision(
++				squad,
++				SquadDecisionType.Regroup,
++				SquadDecisionReason.RetreatOrder,
++				squad.TargetActor?.ActorID ?? 0,
++				SumValue(squad.Units),
++				0);
++		}
++
++		internal void RecordReengage(Squad squad)
++		{
++			RecordDecision(
++				squad,
++				SquadDecisionType.Reengage,
++				SquadDecisionReason.RegroupComplete,
++				squad.TargetActor?.ActorID ?? 0,
++				SumValue(squad.Units),
++				0);
++		}
++
++		void RecordDecision(
++			Squad squad,
++			SquadDecisionType decision,
++			SquadDecisionReason reason,
++			uint targetActorId,
++			int ownValue,
++			int enemyValue)
++		{
++			foreach (var notify in notifySquadDecision)
++				notify.SquadDecision(
++					decision,
++					reason,
++					squad.Type,
++					squad.Units.Count,
++					targetActorId,
++					ownValue,
++					enemyValue);
++		}
++
++		static int ActorValue(Actor actor)
++		{
++			return actor?.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 0;
++		}
++
++		static int SumValue(IEnumerable<Actor> actors)
++		{
++			return actors.Sum(ActorValue);
++		}
++
++		static int NormalizedHealth(IEnumerable<Actor> actors)
++		{
++			long current = 0;
++			long maximum = 0;
++			foreach (var actor in actors)
++			{
++				var health = actor.TraitOrDefault<IHealth>();
++				if (health == null)
++					continue;
++
++				current += health.HP;
++				maximum += health.MaxHP;
++			}
++
++			return maximum == 0 ? 100 : (int)(current * 100 / maximum);
+ 		}
+ 
+ 		void CleanSquads()
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
+index 4d90ce2..b4bdff1 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
+@@ -18,6 +18,31 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ {
+ 	public enum SquadType { Assault, Air, Rush, Protection, Naval }
+ 
++	public enum SquadDecisionType { TargetSelected, Retreat, Regroup, Reengage }
++
++	public enum SquadDecisionReason
++	{
++		NearestReachable,
++		StrategicScore,
++		FinishingOpportunity,
++		StockThreat,
++		LowHealthAndPower,
++		RetreatOrder,
++		RegroupComplete
++	}
++
++	public interface INotifySquadDecision
++	{
++		void SquadDecision(
++			SquadDecisionType decision,
++			SquadDecisionReason reason,
++			SquadType squadType,
++			int unitCount,
++			uint targetActorId,
++			int ownValue,
++			int enemyValue);
++	}
++
+ 	public class Squad
+ 	{
+ 		public HashSet<Actor> Units = [];
+@@ -39,6 +64,7 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 		/// Actor that is targeted, for any actor based checks. Use <see cref="Target"/> for a targeting location.
+ 		/// </summary>
+ 		internal Actor TargetActor;
++		internal Actor LastReportedTargetActor;
+ 
+ 		public Squad(IBot bot, SquadManagerBotModule squadManager, SquadType type)
+ 			: this(bot, squadManager, type, default) { }
+@@ -83,6 +109,7 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 			if (TargetActor == null)
+ 			{
+ 				Target = Target.Invalid;
++				LastReportedTargetActor = null;
+ 				return;
+ 			}
+ 
+@@ -90,6 +117,12 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 				Target = Target.FromActor(TargetActor);
+ 			else
+ 				Target = Target.FromPos(TargetActor.CenterPosition + target.Offset);
++
++			if (Units.Count > 0 && TargetActor != LastReportedTargetActor)
++			{
++				SquadManager.RecordTargetSelection(this, TargetActor);
++				LastReportedTargetActor = TargetActor;
++			}
+ 		}
+ 
+ 		/// <summary>
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
+index 54bfebb..dc54178 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
+@@ -56,7 +56,12 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 
+ 		protected virtual bool ShouldFlee(Squad owner)
+ 		{
+-			return ShouldFlee(owner, enemies => !AttackOrFleeFuzzy.Default.CanAttack(owner.Units, enemies));
++			return ShouldFlee(
++				owner,
++				enemies => owner.SquadManager.ShouldRetreat(
++					owner,
++					enemies,
++					!AttackOrFleeFuzzy.Default.CanAttack(owner.Units, enemies)));
+ 		}
+ 
+ 		protected (Actor Actor, WVec Offset) NewLeaderAndFindClosestEnemy(Squad owner)
+@@ -254,7 +259,14 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 
+ 	sealed class GroundUnitsFleeState : GroundStateBase, IState
+ 	{
+-		public void Activate(Squad owner) { }
++		public void Activate(Squad owner)
++		{
++			if (owner.SquadManager.Info.RegroupTicks <= 0)
++				return;
++
++			GoToRandomOwnBuilding(owner);
++			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsRegroupState());
++		}
+ 
+ 		public void Tick(Squad owner)
+ 		{
+@@ -265,6 +277,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsIdleState());
+ 		}
+ 
+-		public void Deactivate(Squad owner) { owner.SquadManager.UnregisterSquad(owner); }
++		public void Deactivate(Squad owner)
++		{
++			if (owner.SquadManager.Info.RegroupTicks <= 0)
++				owner.SquadManager.UnregisterSquad(owner);
++		}
++	}
++
++	sealed class GroundUnitsRegroupState : GroundStateBase, IState
++	{
++		int reengageTick;
++
++		public void Activate(Squad owner)
++		{
++			reengageTick = owner.World.WorldTick + owner.SquadManager.Info.RegroupTicks;
++			owner.SquadManager.RecordRegroup(owner);
++		}
++
++		public void Tick(Squad owner)
++		{
++			if (!owner.IsValid || owner.World.WorldTick < reengageTick)
++				return;
++
++			owner.SquadManager.RecordReengage(owner);
++			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsIdleState());
++		}
++
++		public void Deactivate(Squad owner) { }
+ 	}
+ }
