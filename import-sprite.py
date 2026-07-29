@@ -48,6 +48,10 @@ RESAMPLERS = {
 
 
 class Animation:
+    OPTION_KEYS = frozenset(
+        {"facings", "length", "tick", "cells", "offset", "cols", "rows", "row"}
+    )
+
     def __init__(self, name: str, spec: str):
         self.name = name
         self.facings = 8
@@ -59,13 +63,34 @@ class Animation:
         self.rows = 1
         self.row: int | None = None
 
+        # Generated files are routinely named "Image July 29, 2026 - 6_46PM.jpg",
+        # so the path cannot simply be everything before the first comma. Peel
+        # recognised options off the end instead and keep the rest as the path.
         parts = spec.split(",")
-        self.path = Path(parts[0]).expanduser()
-        for option in parts[1:]:
-            if "=" not in option:
-                raise SystemExit(
-                    f"--animation {name}: expected key=value, got {option!r}"
-                )
+        options: list[str] = []
+        while len(parts) > 1:
+            candidate = parts[-1].strip()
+            key = candidate.partition("=")[0].strip().lower()
+            if key in self.OPTION_KEYS:
+                options.insert(0, candidate)
+                parts.pop()
+                continue
+
+            # offset=X,Y is itself comma separated, so a bare tail belongs to it.
+            if (
+                "=" not in candidate
+                and len(parts) > 2
+                and parts[-2].strip().lower().startswith("offset=")
+            ):
+                options.insert(0, f"{parts[-2].strip()},{candidate}")
+                parts.pop()
+                parts.pop()
+                continue
+
+            break
+
+        self.path = Path(",".join(parts).strip()).expanduser()
+        for option in options:
             key, _, value = option.partition("=")
             key = key.strip().lower()
             if key == "facings":
@@ -264,33 +289,64 @@ def trim_inset(frame: Image.Image, inset: int) -> Image.Image:
     return frame.crop((inset, inset, frame.width - inset, frame.height - inset))
 
 
+def team_mask(frame: Image.Image, team_key: tuple[int, int, int], tolerance: int):
+    """Mark the team-colour key at source resolution.
+
+    A keyed detail is often a blade edge a few pixels wide. Once the cell is
+    reduced to 11x15 that edge is a fraction of a pixel and blends away, so
+    matching the colour after downscaling finds nothing. Marking it first and
+    carrying the mask through the same resize preserves it.
+    """
+    mask = Image.new("L", frame.size, 0)
+    source = frame.load()
+    target = mask.load()
+    threshold = tolerance * tolerance
+    for y in range(frame.height):
+        for x in range(frame.width):
+            r, g, b, a = source[x, y]
+            if a >= 128 and distance((r, g, b), team_key) <= threshold:
+                target[x, y] = 255
+    return mask
+
+
 def fit_to_frame(
-    frame: Image.Image, size: tuple[int, int], resample: int
-) -> Image.Image:
+    frame: Image.Image,
+    mask: Image.Image,
+    size: tuple[int, int],
+    resample: int,
+) -> tuple[Image.Image, Image.Image]:
     """Trim to the drawn content, scale to fit, and centre on the frame canvas."""
+    width, height = size
     box = frame.getbbox()
     if box is None:
-        return Image.new("RGBA", size, (0, 0, 0, 0))
+        return (
+            Image.new("RGBA", size, (0, 0, 0, 0)),
+            Image.new("L", size, 0),
+        )
 
     content = frame.crop(box)
-    width, height = size
+    content_mask = mask.crop(box)
     scale = min(width / content.width, height / content.height)
-    scaled = content.resize(
-        (max(1, round(content.width * scale)), max(1, round(content.height * scale))),
-        resample,
+    scaled_size = (
+        max(1, round(content.width * scale)),
+        max(1, round(content.height * scale)),
     )
+    scaled = content.resize(scaled_size, resample)
 
+    # Area averaging keeps a thin marked edge present as partial coverage
+    # instead of dropping it on a nearest-neighbour sample.
+    scaled_mask = content_mask.resize(scaled_size, Image.BOX)
+
+    origin = ((width - scaled.width) // 2, (height - scaled.height) // 2)
     canvas = Image.new("RGBA", size, (0, 0, 0, 0))
-    canvas.paste(scaled, ((width - scaled.width) // 2, (height - scaled.height) // 2))
-    return canvas
+    canvas.paste(scaled, origin)
+    canvas_mask = Image.new("L", size, 0)
+    canvas_mask.paste(scaled_mask, origin)
+    return canvas, canvas_mask
 
 
-def build_index_map(
-    palette: list[tuple[int, int, int]],
-    team_key: tuple[int, int, int],
-    team_tolerance: int,
-):
-    """Return a function mapping one RGBA pixel to a palette index."""
+def build_index_map(palette: list[tuple[int, int, int]]):
+    """Return a function mapping one RGBA pixel plus its team mask to an index."""
     general = [i for i in range(len(palette)) if i not in RESERVED]
     if not general:
         raise SystemExit("Palette has no entries left after reserving the team ramp")
@@ -298,28 +354,26 @@ def build_index_map(
     ramp = [palette[i] for i in TEAM_RAMP]
     ramp_low = min(luminance(color) for color in ramp)
     ramp_span = max(max(luminance(color) for color in ramp) - ramp_low, 1.0)
-    team_threshold = team_tolerance * team_tolerance
     cache: dict[tuple[int, int, int], int] = {}
 
-    def convert(pixel: tuple[int, int, int, int]) -> int:
+    def convert(pixel: tuple[int, int, int, int], team: bool) -> int:
         r, g, b, a = pixel
         if a < 128:
             return TRANSPARENT_INDEX
 
         color = (r, g, b)
-        cached = cache.get(color)
-        if cached is not None:
-            return cached
-
-        if distance(color, team_key) <= team_threshold:
+        if team:
             # Spread the keyed region across the ramp by brightness so shading
             # survives the recolour instead of flattening to a single shade.
             position = (luminance(color) - ramp_low) / ramp_span
             step = round(min(max(position, 0.0), 1.0) * (len(TEAM_RAMP) - 1))
-            index = TEAM_RAMP[step]
-        else:
-            index = min(general, key=lambda i: distance(color, palette[i]))
+            return TEAM_RAMP[step]
 
+        cached = cache.get(color)
+        if cached is not None:
+            return cached
+
+        index = min(general, key=lambda i: distance(color, palette[i]))
         cache[color] = index
         return index
 
@@ -327,11 +381,12 @@ def build_index_map(
 
 
 def compose_sheet(
-    frames: list[Image.Image],
+    frames: list[tuple[Image.Image, Image.Image]],
     size: tuple[int, int],
     columns: int,
     palette: list[tuple[int, int, int]],
     convert,
+    mask_threshold: int,
 ) -> Image.Image:
     rows = (len(frames) + columns - 1) // columns
     width, height = size
@@ -349,13 +404,16 @@ def compose_sheet(
         for x in range(sheet.width):
             target[x, y] = TRANSPARENT_INDEX
 
-    for position, frame in enumerate(frames):
+    for position, (frame, mask) in enumerate(frames):
         origin_x = (position % columns) * width
         origin_y = (position // columns) * height
         source = frame.load()
+        marked = mask.load()
         for y in range(height):
             for x in range(width):
-                target[origin_x + x, origin_y + y] = convert(source[x, y])
+                target[origin_x + x, origin_y + y] = convert(
+                    source[x, y], marked[x, y] >= mask_threshold
+                )
 
     return sheet
 
@@ -433,6 +491,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--team-key", default="00FFFF", help="Team-colour key colour")
     parser.add_argument("--team-tolerance", type=int, default=90)
+    parser.add_argument(
+        "--team-mask-threshold",
+        type=int,
+        default=64,
+        help="Downscaled team-mask coverage, 0-255, above which a pixel joins the "
+        "player ramp. Lower keeps thin keyed edges; higher avoids bleed.",
+    )
     parser.add_argument("--author", required=True)
     parser.add_argument("--license", default="CC-BY-SA-4.0")
     parser.add_argument(
@@ -451,6 +516,8 @@ def main() -> int:
     resample = RESAMPLERS[args.resample]
     background = parse_color(args.background)
 
+    team_key = parse_color(args.team_key)
+
     animations = []
     for entry in args.animation:
         if "=" not in entry:
@@ -468,27 +535,26 @@ def main() -> int:
                 file=sys.stderr,
             )
         animation.start = len(packed)
-        animation.frames = [
-            fit_to_frame(
-                key_background(
-                    trim_inset(frame, args.inset),
-                    background,
-                    args.background_tolerance,
-                    args.background_hue_tolerance,
-                    args.background_min_saturation,
-                ),
-                size,
-                resample,
+        animation.frames = []
+        for frame in frames:
+            keyed = key_background(
+                trim_inset(frame, args.inset),
+                background,
+                args.background_tolerance,
+                args.background_hue_tolerance,
+                args.background_min_saturation,
             )
-            for frame in frames
-        ]
+            marked = team_mask(keyed, team_key, args.team_tolerance)
+            animation.frames.append(fit_to_frame(keyed, marked, size, resample))
         packed.extend(animation.frames)
 
     if not packed:
         raise SystemExit("No frames to import")
 
-    convert = build_index_map(palette, parse_color(args.team_key), args.team_tolerance)
-    sheet = compose_sheet(packed, size, args.columns, palette, convert)
+    convert = build_index_map(palette)
+    sheet = compose_sheet(
+        packed, size, args.columns, palette, convert, args.team_mask_threshold
+    )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_name(f".{args.output.name}.{os.getpid()}.tmp")
