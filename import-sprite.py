@@ -198,18 +198,70 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
     ]
 
 
+def hue_and_saturation(color: tuple[int, int, int]) -> tuple[float, float]:
+    r, g, b = (channel / 255 for channel in color)
+    high = max(r, g, b)
+    low = min(r, g, b)
+    chroma = high - low
+    if chroma == 0:
+        return 0.0, 0.0
+    if high == r:
+        hue = ((g - b) / chroma) % 6
+    elif high == g:
+        hue = (b - r) / chroma + 2
+    else:
+        hue = (r - g) / chroma + 4
+    return hue * 60, chroma / high
+
+
 def key_background(
-    frame: Image.Image, background: tuple[int, int, int], tolerance: int
+    frame: Image.Image,
+    background: tuple[int, int, int],
+    tolerance: int,
+    hue_tolerance: float,
+    minimum_saturation: float,
 ) -> Image.Image:
-    """Make the flat generated backdrop transparent."""
+    """Make the flat generated backdrop transparent.
+
+    Image models light the subject, so the backdrop arrives with a drop shadow
+    that is the key colour darkened rather than the key colour itself. An exact
+    match leaves that shadow behind as dark pixels. Matching the hue family
+    instead removes it, and the saturation floor keeps a desaturated subject -
+    grey-violet chitin against magenta - from being eaten with it.
+    """
     pixels = frame.load()
     threshold = tolerance * tolerance
+    background_hue, _ = hue_and_saturation(background)
+
     for y in range(frame.height):
         for x in range(frame.width):
             r, g, b, a = pixels[x, y]
-            if a == 0 or distance((r, g, b), background) <= threshold:
+            if a == 0:
                 pixels[x, y] = (0, 0, 0, 0)
+                continue
+
+            color = (r, g, b)
+            if distance(color, background) <= threshold:
+                pixels[x, y] = (0, 0, 0, 0)
+                continue
+
+            if hue_tolerance > 0:
+                hue, saturation = hue_and_saturation(color)
+                separation = abs(hue - background_hue) % 360
+                separation = min(separation, 360 - separation)
+                if separation <= hue_tolerance and saturation >= minimum_saturation:
+                    pixels[x, y] = (0, 0, 0, 0)
+
     return frame
+
+
+def trim_inset(frame: Image.Image, inset: int) -> Image.Image:
+    """Drop the cell border a generated sheet draws between frames."""
+    if inset <= 0:
+        return frame
+    if frame.width <= inset * 2 or frame.height <= inset * 2:
+        raise SystemExit(f"--inset {inset} removes the whole {frame.width}x{frame.height} cell")
+    return frame.crop((inset, inset, frame.width - inset, frame.height - inset))
 
 
 def fit_to_frame(
@@ -359,6 +411,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--palette", type=Path, default=DEFAULT_PALETTE)
     parser.add_argument("--background", default="FF00FF", help="Backdrop key colour")
     parser.add_argument("--background-tolerance", type=int, default=60)
+    parser.add_argument(
+        "--background-hue-tolerance",
+        type=float,
+        default=30.0,
+        help="Also key pixels within this many degrees of the backdrop hue, which "
+        "removes its drop shadow. Set 0 to key the exact colour only.",
+    )
+    parser.add_argument(
+        "--background-min-saturation",
+        type=float,
+        default=0.35,
+        help="Hue keying ignores pixels below this saturation, so a desaturated "
+        "subject survives a saturated backdrop",
+    )
+    parser.add_argument(
+        "--inset",
+        type=int,
+        default=0,
+        help="Pixels to trim from every cell edge, for sheets drawn with borders",
+    )
     parser.add_argument("--team-key", default="00FFFF", help="Team-colour key colour")
     parser.add_argument("--team-tolerance", type=int, default=90)
     parser.add_argument("--author", required=True)
@@ -398,7 +470,13 @@ def main() -> int:
         animation.start = len(packed)
         animation.frames = [
             fit_to_frame(
-                key_background(frame, background, args.background_tolerance),
+                key_background(
+                    trim_inset(frame, args.inset),
+                    background,
+                    args.background_tolerance,
+                    args.background_hue_tolerance,
+                    args.background_min_saturation,
+                ),
                 size,
                 resample,
             )
