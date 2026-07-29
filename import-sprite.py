@@ -257,25 +257,54 @@ def key_background(
     pixels = frame.load()
     threshold = tolerance * tolerance
     background_hue, _ = hue_and_saturation(background)
+    width, height = frame.size
 
-    for y in range(frame.height):
-        for x in range(frame.width):
-            r, g, b, a = pixels[x, y]
-            if a == 0:
+    def background_like(x: int, y: int) -> bool:
+        r, g, b, a = pixels[x, y]
+        if a == 0:
+            return True
+        color = (r, g, b)
+        if distance(color, background) <= threshold:
+            return True
+        if hue_tolerance <= 0:
+            return False
+        hue, saturation = hue_and_saturation(color)
+        separation = abs(hue - background_hue) % 360
+        separation = min(separation, 360 - separation)
+        return separation <= hue_tolerance and saturation >= minimum_saturation
+
+    # Connectivity is what makes the hue test safe. A subject whose own colour
+    # sits in the backdrop's hue family - violet chitin against magenta - is
+    # only reachable by crossing its outline, so filling inward from the border
+    # takes the backdrop and its shadow while leaving the subject solid. Testing
+    # every pixel independently punched holes straight through it.
+    filled = bytearray(width * height)
+    queue = []
+    for x in range(width):
+        for y in (0, height - 1):
+            if not filled[y * width + x] and background_like(x, y):
+                filled[y * width + x] = 1
+                queue.append((x, y))
+    for y in range(height):
+        for x in (0, width - 1):
+            if not filled[y * width + x] and background_like(x, y):
+                filled[y * width + x] = 1
+                queue.append((x, y))
+
+    while queue:
+        x, y = queue.pop()
+        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+            if 0 <= nx < width and 0 <= ny < height:
+                offset = ny * width + nx
+                if not filled[offset] and background_like(nx, ny):
+                    filled[offset] = 1
+                    queue.append((nx, ny))
+
+    for y in range(height):
+        row = y * width
+        for x in range(width):
+            if filled[row + x]:
                 pixels[x, y] = (0, 0, 0, 0)
-                continue
-
-            color = (r, g, b)
-            if distance(color, background) <= threshold:
-                pixels[x, y] = (0, 0, 0, 0)
-                continue
-
-            if hue_tolerance > 0:
-                hue, saturation = hue_and_saturation(color)
-                separation = abs(hue - background_hue) % 360
-                separation = min(separation, 360 - separation)
-                if separation <= hue_tolerance and saturation >= minimum_saturation:
-                    pixels[x, y] = (0, 0, 0, 0)
 
     return frame
 
@@ -479,7 +508,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--background-min-saturation",
         type=float,
-        default=0.35,
+        default=0.55,
         help="Hue keying ignores pixels below this saturation, so a desaturated "
         "subject survives a saturated backdrop",
     )
