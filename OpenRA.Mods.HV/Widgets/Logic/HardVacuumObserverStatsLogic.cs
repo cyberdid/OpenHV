@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Lint;
 using OpenRA.Mods.Common.Traits;
@@ -24,7 +25,7 @@ using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.Widgets.Logic
 {
-	public enum ObserverStatsPanel { None, Basic, Economy, Production, SupportPowers, Combat, Army, Graph, ArmyGraph }
+	public enum ObserverStatsPanel { None, Basic, Economy, Production, SupportPowers, Combat, Army, Civilization, Graph, ArmyGraph }
 
 	[ChromeLogicArgsHotkeys(
 		"StatisticsBasicKey",
@@ -59,6 +60,9 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		const string Army = "options-observer-stats.army";
 
 		[FluentReference]
+		const string Civilization = "options-observer-stats.civilization";
+
+		[FluentReference]
 		const string EarningsGraph = "options-observer-stats.earnings-graph";
 
 		[FluentReference]
@@ -75,6 +79,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		readonly ContainerWidget productionStatsHeaders;
 		readonly ContainerWidget supportPowerStatsHeaders;
 		readonly ContainerWidget combatStatsHeaders;
+		readonly ContainerWidget civilizationStatsHeaders;
 		readonly ContainerWidget armyHeaders;
 		readonly ScrollPanelWidget playerStatsPanel;
 		readonly ScrollItemWidget basicPlayerTemplate;
@@ -83,6 +88,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		readonly ScrollItemWidget supportPowersPlayerTemplate;
 		readonly ScrollItemWidget armyPlayerTemplate;
 		readonly ScrollItemWidget combatPlayerTemplate;
+		readonly ScrollItemWidget civilizationPlayerTemplate;
 		readonly ContainerWidget incomeGraphContainer;
 		readonly ContainerWidget armyValueGraphContainer;
 		readonly ScrollableLineGraphWidget incomeGraph;
@@ -124,6 +130,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			supportPowerStatsHeaders = widget.Get<ContainerWidget>("SUPPORT_POWERS_HEADERS");
 			armyHeaders = widget.Get<ContainerWidget>("ARMY_HEADERS");
 			combatStatsHeaders = widget.Get<ContainerWidget>("COMBAT_STATS_HEADERS");
+			civilizationStatsHeaders = widget.Get<ContainerWidget>("CIVILIZATION_STATS_HEADERS");
 
 			playerStatsPanel = widget.Get<ScrollPanelWidget>("PLAYER_STATS_PANEL");
 			playerStatsPanel.Layout = new GridLayout(playerStatsPanel);
@@ -138,6 +145,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				AdjustHeader(productionStatsHeaders);
 				AdjustHeader(supportPowerStatsHeaders);
 				AdjustHeader(combatStatsHeaders);
+				AdjustHeader(civilizationStatsHeaders);
 				AdjustHeader(armyHeaders);
 			}
 
@@ -147,6 +155,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			supportPowersPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("SUPPORT_POWERS_PLAYER_TEMPLATE");
 			armyPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("ARMY_PLAYER_TEMPLATE");
 			combatPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("COMBAT_PLAYER_TEMPLATE");
+			civilizationPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("CIVILIZATION_PLAYER_TEMPLATE");
 
 			incomeGraphContainer = widget.Get<ContainerWidget>("INCOME_GRAPH_CONTAINER");
 			incomeGraph = incomeGraphContainer.Get<ScrollableLineGraphWidget>("INCOME_GRAPH");
@@ -200,6 +209,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				CreateStatsOption(SupportPowers, ObserverStatsPanel.SupportPowers, supportPowersPlayerTemplate, () => DisplayStats(SupportPowerStats)),
 				CreateStatsOption(Combat, ObserverStatsPanel.Combat, combatPlayerTemplate, () => DisplayStats(CombatStats)),
 				CreateStatsOption(Army, ObserverStatsPanel.Army, armyPlayerTemplate, () => DisplayStats(ArmyStats)),
+				CreateStatsOption(Civilization, ObserverStatsPanel.Civilization, civilizationPlayerTemplate, () => DisplayStats(CivilizationStats)),
 				CreateStatsOption(EarningsGraph, ObserverStatsPanel.Graph, null, IncomeGraph),
 				CreateStatsOption(ArmyGraph, ObserverStatsPanel.ArmyGraph, null, ArmyValueGraph),
 			};
@@ -248,6 +258,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			supportPowerStatsHeaders.Visible = false;
 			armyHeaders.Visible = false;
 			combatStatsHeaders.Visible = false;
+			civilizationStatsHeaders.Visible = false;
 
 			incomeGraphContainer.Visible = false;
 			armyValueGraphContainer.Visible = false;
@@ -314,6 +325,115 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 					playerStatsPanel.AddChild(createItem(player));
 				}
 			}
+		}
+
+		readonly record struct CivilSummary(
+			int Population,
+			int Food,
+			int Energy,
+			int Knowledge,
+			int Prosperity,
+			int Stability,
+			int Mobilized);
+
+		static CivilSummary SummariseCivilization(World world, CivilizationState civilization, Player player)
+		{
+			var population = 0;
+			var food = 0;
+			var energy = 0;
+			var knowledge = 0;
+			var mobilized = 0;
+			var weightedProsperity = 0L;
+			var weightedStability = 0L;
+
+			foreach (var actor in civilization.Settlements(world, player))
+			{
+				var settlement = actor.Trait<SettlementCore>();
+				population += settlement.Population;
+				food += settlement.Food;
+				energy += settlement.Energy;
+				knowledge += settlement.Knowledge;
+				mobilized += settlement.Mobilized;
+				weightedProsperity += (long)settlement.Prosperity * settlement.Population;
+				weightedStability += (long)settlement.Stability * settlement.Population;
+			}
+
+			// Prosperity and stability are per-settlement scores, so a faction-level
+			// figure has to be weighted by where the people actually live.
+			var weight = Math.Max(population, 1);
+			return new CivilSummary(
+				population,
+				food,
+				energy,
+				knowledge,
+				(int)(weightedProsperity / weight),
+				(int)(weightedStability / weight),
+				mobilized);
+		}
+
+		ScrollItemWidget CivilizationStats(Player player)
+		{
+			civilizationStatsHeaders.Visible = true;
+			var template = SetupPlayerScrollItemWidget(civilizationPlayerTemplate, player);
+
+			AddPlayerFlagAndName(template, player);
+
+			var playerName = template.Get<LabelWithTooltipWidget>("PLAYER");
+			playerName.GetColor = () => Color.White;
+
+			var playerColor = template.Get<ColorBlockWidget>("PLAYER_COLOR");
+			var playerGradient = template.Get<GradientColorBlockWidget>("PLAYER_GRADIENT");
+
+			SetupPlayerColor(player, template, playerColor, playerGradient);
+
+			var civilization = player.PlayerActor.TraitOrDefault<CivilizationState>();
+			if (civilization == null)
+				return template;
+
+			// Settlements are re-aggregated at most once per world tick, not once per
+			// label per frame.
+			var summary = new CachedTransform<int, CivilSummary>(
+				_ => SummariseCivilization(world, civilization, player));
+			CivilSummary Current() => summary.Update(world.WorldTick);
+
+			var number = new Func<int, string>(i => i.ToString(NumberFormatInfo.CurrentInfo));
+
+			var populationText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("POPULATION").GetText =
+				() => populationText.Update(Current().Population);
+
+			var foodText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("FOOD").GetText = () => foodText.Update(Current().Food);
+
+			var energyText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("ENERGY").GetText = () => energyText.Update(Current().Energy);
+
+			var knowledgeText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("KNOWLEDGE").GetText =
+				() => knowledgeText.Update(Current().Knowledge);
+
+			var prosperityText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("PROSPERITY").GetText =
+				() => prosperityText.Update(Current().Prosperity);
+
+			var stabilityText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("STABILITY").GetText =
+				() => stabilityText.Update(Current().Stability);
+
+			var technologiesText = new CachedTransform<int, string>(
+				mask => BitOperations.PopCount((uint)mask).ToString(NumberFormatInfo.CurrentInfo));
+			template.Get<LabelWidget>("TECHNOLOGIES").GetText =
+				() => technologiesText.Update(civilization.CompletedTechnologyMask);
+
+			var strategyText = new CachedTransform<CivilizationStrategy, string>(
+				strategy => strategy.ToString());
+			template.Get<LabelWidget>("STRATEGY").GetText =
+				() => strategyText.Update(civilization.Strategy);
+
+			var warsText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("WARS").GetText = () => warsText.Update(civilization.ActiveWars);
+
+			return template;
 		}
 
 		ScrollItemWidget CombatStats(Player player)

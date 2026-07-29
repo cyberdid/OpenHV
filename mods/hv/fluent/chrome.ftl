@@ -99,3 +99,15 @@ label-update-notice-b = Download the latest version from www.openhv.net
 
 ## mainmenu-prompts.yaml
 label-mainmenu-introduction-prompt-title = Incoming subspace transmission
+
+## ingame-observer.yaml
+label-civilization-stats-player-header = Faction
+label-civilization-stats-population-header = People
+label-civilization-stats-food-header = Food
+label-civilization-stats-energy-header = Energy
+label-civilization-stats-knowledge-header = Know.
+label-civilization-stats-prosperity-header = Prosper.
+label-civilization-stats-stability-header = Stabil.
+label-civilization-stats-technologies-header = Tech
+label-civilization-stats-strategy-header = Strategy
+label-civilization-stats-wars-header = Wars

@@ -572,6 +572,115 @@ Container@OBSERVER_WIDGETS:
 									Text: label-combat-stats-vision-header
 									Align: Right
 									Shadow: True
+						Container@CIVILIZATION_STATS_HEADERS:
+							X: 0
+							Y: 0
+							Width: 760
+							Height: PARENT_HEIGHT
+							Children:
+								ColorBlock@HEADER_COLOR:
+									X: 0
+									Y: 0
+									Color: 00000090
+									Width: PARENT_WIDTH - 200
+									Height: PARENT_HEIGHT
+								GradientColorBlock@HEADER_GRADIENT:
+									X: PARENT_WIDTH - 200
+									Y: 0
+									TopLeftColor: 00000090
+									BottomLeftColor: 00000090
+									Width: 200
+									Height: PARENT_HEIGHT
+								Label@PLAYER_HEADER:
+									X: 35
+									Y: 0
+									Width: 120
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-player-header
+									Align: Left
+									Shadow: True
+								Label@POPULATION_HEADER:
+									X: 155
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-population-header
+									Align: Right
+									Shadow: True
+								Label@FOOD_HEADER:
+									X: 230
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-food-header
+									Align: Right
+									Shadow: True
+								Label@ENERGY_HEADER:
+									X: 300
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-energy-header
+									Align: Right
+									Shadow: True
+								Label@KNOWLEDGE_HEADER:
+									X: 370
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-knowledge-header
+									Align: Right
+									Shadow: True
+								Label@PROSPERITY_HEADER:
+									X: 445
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-prosperity-header
+									Align: Right
+									Shadow: True
+								Label@STABILITY_HEADER:
+									X: 520
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-stability-header
+									Align: Right
+									Shadow: True
+								Label@TECHNOLOGIES_HEADER:
+									X: 590
+									Y: 0
+									Width: 55
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-technologies-header
+									Align: Right
+									Shadow: True
+								Label@STRATEGY_HEADER:
+									X: 650
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-strategy-header
+									Align: Left
+									Shadow: True
+								Label@WARS_HEADER:
+									X: 720
+									Y: 0
+									Width: 40
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-civilization-stats-wars-header
+									Align: Right
+									Shadow: True
 				ScrollPanel@PLAYER_STATS_PANEL:
 					X: 0
 					Y: 55
@@ -974,6 +1083,101 @@ Container@OBSERVER_WIDGETS:
 									X: 700
 									Y: 0
 									Width: 60
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+						ScrollItem@CIVILIZATION_PLAYER_TEMPLATE:
+							X: 0
+							Y: 0
+							Width: 760
+							Height: 25
+							Background: scrollitem-nohover
+							EnableChildMouseOver: true
+							Children:
+								ColorBlock@PLAYER_COLOR:
+									X: 0
+									Y: 0
+									Width: PARENT_WIDTH - 200
+									Height: PARENT_HEIGHT
+								GradientColorBlock@PLAYER_GRADIENT:
+									X: PARENT_WIDTH - 200
+									Y: 0
+									Width: 200
+									Height: PARENT_HEIGHT
+								Image@FLAG:
+									X: 2
+									Y: 2
+									ImageName: random
+									ImageCollection: flags
+								LabelWithTooltip@PLAYER:
+									X: 35
+									Y: 0
+									Width: 120
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Shadow: True
+									TooltipContainer: TOOLTIP_CONTAINER
+									TooltipTemplate: SIMPLE_TOOLTIP
+								Label@POPULATION:
+									X: 155
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@FOOD:
+									X: 230
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@ENERGY:
+									X: 300
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@KNOWLEDGE:
+									X: 370
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@PROSPERITY:
+									X: 445
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@STABILITY:
+									X: 520
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@TECHNOLOGIES:
+									X: 590
+									Y: 0
+									Width: 55
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@STRATEGY:
+									X: 650
+									Y: 0
+									Width: 70
+									Height: PARENT_HEIGHT
+									Align: Left
+									Shadow: True
+								Label@WARS:
+									X: 720
+									Y: 0
+									Width: 40
 									Height: PARENT_HEIGHT
 									Align: Right
 									Shadow: True
