@@ -37,6 +37,7 @@ sources:
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - experiments/2026-07-29-scenario-lifecycle-v1.md
+  - experiments/2026-07-29-baseline-112-v1.md
 tags:
   - architecture
   - runtime
@@ -231,7 +232,9 @@ drift a test failure.
 trees, or matches without exactly one of each four military profiles. It
 produces match- and player-grain CSV plus a JSON report with profile, map,
 faction, and spawn breakdowns. Binary rates use Wilson 95% intervals;
-continuous means use a deterministic 2,000-resample nonparametric bootstrap.
+continuous means use a deterministic 2,000-resample nonparametric bootstrap,
+and candidate profile differences are paired within each match before
+resampling.
 Timed score leadership remains separate from natural victory. The full run
 artifacts stay outside Git; compact immutable evidence is compiled into the
 project Wiki.

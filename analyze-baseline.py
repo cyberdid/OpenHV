@@ -12,6 +12,7 @@ import os
 import random
 import statistics
 from collections import Counter, defaultdict
+from itertools import combinations
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -37,6 +38,18 @@ PLAYER_FIELDS = (
     "tradeExported",
     "mobilized",
     "availableWorkforce",
+    "warCasualties",
+    "activeWars",
+)
+PAIRED_FIELDS = (
+    "scoreLead",
+    "score",
+    "population",
+    "prosperity",
+    "stability",
+    "armyValue",
+    "killsValue",
+    "deathsValue",
     "warCasualties",
     "activeWars",
 )
@@ -250,6 +263,36 @@ def aggregate_group(rows: list[dict[str, Any]], seed: int) -> dict[str, Any]:
     }
 
 
+def paired_profile_differences(
+    rows: list[dict[str, Any]], seed: int
+) -> dict[str, Any]:
+    by_match: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
+    for row in rows:
+        by_match[row["matchId"]][row["profile"]] = row
+
+    report = {}
+    for pair_index, (left, right) in enumerate(combinations(PROFILES, 2)):
+        pairs = [
+            (match[left], match[right])
+            for match in by_match.values()
+            if left in match and right in match
+        ]
+        report[f"{left}-minus-{right}"] = {
+            "n": len(pairs),
+            "metrics": {
+                field: summarize_numeric(
+                    (
+                        left_row[field] - right_row[field]
+                        for left_row, right_row in pairs
+                    ),
+                    seed + pair_index * 100 + field_index,
+                )
+                for field_index, field in enumerate(PAIRED_FIELDS)
+            },
+        }
+    return report
+
+
 def write_json_atomic(path: Path, document: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
@@ -421,6 +464,9 @@ def analyze(run_dir: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[d
         "byProfileMap": by_profile_map,
         "byProfileFaction": by_profile_faction,
         "byProfileSpawn": by_profile_spawn,
+        "pairedProfileDifferences": paired_profile_differences(
+            players, BOOTSTRAP_SEED + 3_000
+        ),
         "profileFactionCounts": {
             profile: dict(
                 sorted(

@@ -14,6 +14,7 @@ sources:
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - experiments/2026-07-29-scenario-lifecycle-v1.md
+  - experiments/2026-07-29-baseline-112-v1.md
 tags:
   - civilization
   - population
@@ -74,6 +75,13 @@ settlement stability cross configured thresholds. Partial collapse does not
 end a living world; surviving factions continue until their declared
 observation horizon. Only total collapse is terminal. See
 [Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
+
+Across the first 112-match held-out baseline, the model recorded 15 destroyed
+societies: 14 through the civil threshold and one first observed as engine
+loss. Aggressor accounted for 12; Fortress one; Technologist two; Economist
+none. The surviving-profile means also separated population, stability,
+mobilization, and casualties. See
+[Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md).
 
 ## What OpenCiv contributes
 

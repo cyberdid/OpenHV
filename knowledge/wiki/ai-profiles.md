@@ -7,6 +7,7 @@ sources:
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-living-factions-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-baseline-112-v1.md
 tags:
   - ai
   - balancing
@@ -83,11 +84,22 @@ and a repeat produced hash `8431018E`.
 
 ## Evidence status
 
-The [baseline tournament](experiments/2026-07-29-baseline-tournament.md)
-confirmed that every profile loads, runs, and produces different short-horizon
-scores. It did not run long enough to validate the intended strategic
-identities in combat. Those descriptions remain design intent until longer
-telemetry-backed experiments confirm them.
+The original
+[baseline tournament](experiments/2026-07-29-baseline-tournament.md) only
+confirmed startup behavior. The
+[112-match baseline](experiments/2026-07-29-baseline-112-v1.md) now provides
+held-out multi-map evidence:
 
-Civilization-state transitions are now directly evidenced, but profile-wide
-tactical identity still needs a held-out multi-map baseline.
+- Aggressor deals the most kill value but has the lowest retained army and 12
+  of 15 faction collapses, including nine on Doubles;
+- Fortress has the highest mean population, prosperity, stability, army,
+  assets, and score, with the lowest casualties;
+- Economist avoids collapse but ends mobilized in 111/112 observations and
+  does not yet express a trade-centered identity;
+- Technologist completes no more technologies than its peers and instead has
+  the lowest stability and highest casualties.
+
+These are current-system observations, not permanent identity definitions.
+They show that AI-003 must connect strategic state to real opening/economy/
+technology plans, and AI-004 must add finishing, retreat, and regroup logic.
+Every match ended at the tick ceiling, so timed score leaders are not winners.

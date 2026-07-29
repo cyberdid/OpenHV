@@ -329,3 +329,26 @@ profile-invalid runs; writes match/player observations; and reports profile,
 map, faction, and spawn distributions with Wilson and deterministic
 2,000-resample bootstrap 95% intervals. Three focused tests protect schedule
 balance, bilateral trade reconciliation, and repeatable aggregation.
+
+## [2026-07-29] experiment | Complete the 112-match civil/military baseline
+
+SIM-010 completed 112/112 clean-commit matches on attempt 1 in 522.827 seconds
+with no infrastructure failure. Validated 112 results, 1,456 snapshots, 8,574
+events, and four tick-12,000 replays. Fortress led societal resilience;
+Aggressor produced the most damage but 12 collapses; Economist survived but
+ended mobilized in 111 observations; Technologist gained no research edge and
+had the highest casualties. Only 23 trade shipments occurred. Every match hit
+the hard ceiling, so the natural-completion guardrail failed at 100% and timed
+leaders remain non-winners. See
+[Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md).
+
+## [2026-07-29] lint | SIM-010 evidence publication gate
+
+Validated all 112 results, 1,456 snapshots, and 8,574 events against Schema
+v1; confirmed one clean simulation commit, exactly one attempt per match, no
+stderr, and four readable tick-12,000 replays. All 13 simulation/batch/
+analysis tests passed. Checked all 25 Wiki pages for frontmatter, index
+coverage, and relative links; checked four JSON schemas; and parsed the
+immutable one-row/37-column provenance and 20-row/23-column metric records.
+The six-row/17-column paired-difference record preserves every quoted
+within-match comparison.

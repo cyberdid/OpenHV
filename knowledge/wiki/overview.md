@@ -16,6 +16,7 @@ sources:
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - experiments/2026-07-29-scenario-lifecycle-v1.md
+  - experiments/2026-07-29-baseline-112-v1.md
 tags:
   - vision
   - status
@@ -88,11 +89,19 @@ rather than a conventional player-controlled game.
   faction collapses are recorded while survivors continue; total collapse,
   explicit stalemate termination, and the hard tick ceiling have separate end
   reasons.
+- The first held-out civil/military baseline completed 112/112 clean-commit
+  matches with 448 player observations, strict artifact QA, profile/map/spawn/
+  faction breakdowns, and deterministic uncertainty estimates. It identified
+  Fortress resilience, Aggressor collapse sensitivity, Technologist's missing
+  technology advantage, Economist's over-mobilization, and near-zero balanced
+  trade.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-Late-game memory/performance and natural victories still need measurement. The
+Natural conflict completion is now a measured failure rather than an unknown:
+all 112 baseline matches reached their 12,000-tick ceiling. AI finishing,
+retreat, and regroup behavior must reduce that 100% cutoff rate. The
 initial 30-second tournament used the deprecated wall-clock cutoff and remains
 only a startup/scoring test. Civil telemetry covers the first settlement,
 research, diplomacy, and first trade slices, but territory, physical cargo,
@@ -131,3 +140,4 @@ The simulation becomes useful when it can:
 - [Stock-Backed Trade v1 validation](experiments/2026-07-29-stock-backed-trade-v1.md)
 - [Civilization AI and War Cost v1 validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md)
 - [Scenario Lifecycle v1 validation](experiments/2026-07-29-scenario-lifecycle-v1.md)
+- [Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md)

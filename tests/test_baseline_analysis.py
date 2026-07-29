@@ -100,6 +100,25 @@ class BaselineSuiteTests(unittest.TestCase):
             first["metrics"]["population"]["meanBootstrap95"][1],
         )
 
+    def test_paired_differences_preserve_direction(self) -> None:
+        rows = []
+        for match_index in range(4):
+            for profile_index, profile in enumerate(analysis.PROFILES):
+                row = {
+                    "matchId": f"match-{match_index}",
+                    "profile": profile,
+                }
+                for field in analysis.PAIRED_FIELDS:
+                    row[field] = match_index * 10 + profile_index
+                rows.append(row)
+
+        report = analysis.paired_profile_differences(rows, 321)
+        aggressor_minus_fortress = report["aggressor-minus-fortress"]
+        self.assertEqual(aggressor_minus_fortress["n"], 4)
+        for metric in aggressor_minus_fortress["metrics"].values():
+            self.assertEqual(metric["mean"], -3)
+            self.assertEqual(metric["meanBootstrap95"], [-3.0, -3.0])
+
 
 if __name__ == "__main__":
     unittest.main()

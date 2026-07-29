@@ -60,6 +60,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Scenario Lifecycle v1 validation, 2026-07-29](experiments/2026-07-29-scenario-lifecycle-v1.md)
   — observation horizons, partial and total faction collapse, hard ceilings,
   active-war stalemate protection, and deterministic repeat.
+- [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
+  — clean-commit 112-match held-out matrix, uncertainty, civil/military
+  profile differences, map sensitivity, and the failed natural-outcome gate.
 
 ## Decisions
 

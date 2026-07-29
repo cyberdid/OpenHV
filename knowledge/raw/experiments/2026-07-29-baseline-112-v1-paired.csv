@@ -1,0 +1,7 @@
+comparison,n,score_mean,score_ci_low,score_ci_high,population_mean,population_ci_low,population_ci_high,stability_mean,stability_ci_low,stability_ci_high,armyValue_mean,armyValue_ci_low,armyValue_ci_high,warCasualties_mean,warCasualties_ci_low,warCasualties_ci_high
+aggressor-minus-economist,112,-10997.027,-20737.958,-1055.025,-109.116,-172.429,-55.169,28.464,-28.546,78.678,-6025.893,-7673.259,-4387.154,-0.598,-2.848,1.554
+aggressor-minus-technologist,112,11.973,-9509.89,9875.974,-82.893,-146.573,-20.071,66.589,6.759,123.795,-3608.929,-5356.741,-1863.371,-8.536,-11.152,-5.902
+aggressor-minus-fortress,112,-14681.375,-23356.244,-5779.534,-133.009,-197.878,-70.033,-70.088,-127.731,-13.125,-9129.464,-10801.451,-7566.685,5.652,3.5,7.733
+economist-minus-technologist,112,11009.0,2164.578,19880.58,26.223,7.241,53.22,38.125,19.241,61.537,2416.964,598.594,4180.045,-7.938,-10.385,-5.438
+economist-minus-fortress,112,-3684.348,-12135.154,5264.565,-23.893,-60.206,11.786,-98.552,-114.787,-76.674,-3103.571,-4732.433,-1400.368,6.25,3.937,8.643
+technologist-minus-fortress,112,-14693.348,-21970.103,-6882.669,-50.116,-94.313,-12.937,-136.677,-164.831,-110.667,-5520.536,-7191.607,-3779.464,14.188,11.616,16.625

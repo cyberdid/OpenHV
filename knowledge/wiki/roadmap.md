@@ -15,6 +15,7 @@ sources:
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - experiments/2026-07-29-scenario-lifecycle-v1.md
+  - experiments/2026-07-29-baseline-112-v1.md
 tags:
   - roadmap
   - planning
@@ -184,11 +185,14 @@ Acceptance:
 - changes are kept only when they improve an explicit target without violating
   guardrails.
 
-Status: infrastructure ready; baseline execution active. The generated
-SIM-010 v1 schedule balances all four profiles across 112 map/slot/seed cells.
-The standard-library analyzer rejects incomplete or dirty/mixed-commit runs and
-reports Wilson/bootstrapped uncertainty plus profile, map, faction, and spawn
-sensitivity.
+Status: first baseline complete. SIM-010 completed 112/112 attempt-1 matches
+across its balanced map/slot/seed matrix with no infrastructure failure. The
+analyzer reported Wilson/bootstrapped uncertainty, paired profile differences,
+and map/faction/spawn sensitivity. Fortress was the most resilient;
+Aggressor collapsed disproportionately on Doubles; Economist over-mobilized;
+Technologist showed no technology edge. All matches hit the tick ceiling, so
+AI-003–004 must be compared against this exact schedule before promotion. See
+[Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md).
 
 ## P2 — Strong societal and faction identity
 

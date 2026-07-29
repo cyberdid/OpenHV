@@ -19,6 +19,7 @@ sources:
   - ../../generate-baseline-manifest.py
   - ../../analyze-baseline.py
   - ../../batch-manifests/baseline-112-v1.json
+  - experiments/2026-07-29-baseline-112-v1.md
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -494,12 +495,17 @@ Gate result:
 
 Goal: establish a trustworthy baseline before deeper AI changes.
 
-Status: SIM-010 execution is active. The frozen v1 schedule contains 112
+Status: SIM-010 complete on 2026-07-29. The frozen v1 schedule contains 112
 matches: four maps × four profile/slot rotations × seven held-out seeds, with
 12,000 synchronized ticks, 1,000-tick telemetry, advisory-only stalemate,
 four workers, and one retained replay per map. The analyzer requires a single
 clean commit and reports player-, map-, faction-, and spawn-level distributions
 with Wilson and deterministic bootstrap 95% intervals.
+
+The run completed 112/112 on attempt 1 with no infrastructure failure. Its
+descriptive evidence is statistically useful, but the natural-completion
+guardrail failed: all 112 matches reached the 12,000-tick ceiling. See
+[Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md).
 
 ### Test suites
 
@@ -562,6 +568,19 @@ These are provisional and must be revised with evidence:
 - A generated report can explain performance by profile, opponent, map, spawn,
   and end reason.
 - Conclusions include uncertainty and limitations.
+
+Gate result:
+
+- held-out sample: passed with 112 matches, four maps, 448 player observations;
+- generated report: passed for profile, map, faction, spawn, end reason, civil,
+  diplomacy, trade, and military metrics;
+- uncertainty: passed with Wilson binary intervals, deterministic bootstrap
+  mean intervals, and paired within-match profile differences;
+- artifact integrity: passed for one clean commit, attempt-1 completion,
+  112 results, 1,456 snapshots, 8,574 events, and four tick-12,000 replays;
+- infrastructure/crash guardrails: passed at 0%;
+- natural cutoff guardrail: failed at 100%, establishing the primary AI-004
+  target rather than invalidating the baseline.
 
 ## Phase 6 — Civilization AI v2
 
@@ -808,7 +827,7 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | SIM-007 ✅ | Manifest-driven batch runner | SIM-006 | sequential and four-worker resumable 100-match soaks |
 | SIM-008 ✅ | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
 | SIM-009 ✅ | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
-| SIM-010 | Baseline benchmark suite | SIM-007–009 | reproducible report |
+| SIM-010 ✅ | Baseline benchmark suite | SIM-007–009 | reproducible report |
 | LIFE-001 ✅ | CivilizationState and SettlementCore traits | SIM-001–003 | synchronized state tests |
 | LIFE-002 ✅ | Population, workforce, food, and housing | LIFE-001 | peaceful-growth scenario |
 | LIFE-003 ✅ | Materials, energy, and building jobs | LIFE-001 | resource-flow telemetry |
@@ -895,17 +914,19 @@ preserved determinism and passed the overhead gate. Sprint 5 is now active.
 
 Exit: trustworthy evidence about faction life, diplomacy, and warfare costs.
 
-Status: active. LIFE-004, DIP-001–002, AI-001–002, and SIM-009 are complete.
-Knowledge unlocks a five-node civil graph; all factions begin neutral;
-explicit rivalry can set
+Status: complete on 2026-07-29. LIFE-004, DIP-001–002, AI-001–002, SIM-009,
+and SIM-010 are complete. Knowledge unlocks a five-node civil graph; all
+factions begin neutral; explicit rivalry can set
 native enemy masks; losses drive exhaustion and peace; stock-backed routes
 move complementary resources and suspend at war. The enabled/disabled paired
 trade test, route-flow reconciliation, suspension case, and deterministic
 repeat passed. AI-001–002 and war-cost coupling then added observable utility
 selection, dependency-driven peace, mobilization, population casualties, and
-post-war recovery. Scenario lifecycle now separates observation, partial/total
-collapse, advisory stalemate, and hard limits. SIM-010's statistically useful
-baseline is next, followed by tactical AI-003–004.
+post-war recovery. Scenario lifecycle separates observation, partial/total
+collapse, advisory stalemate, and hard limits. The 112-match baseline exposed
+profile/map effects and a 100% natural-outcome cutoff rate. Sprint 6 begins
+with AI-003 opening/economy/technology planning, then AI-004 finishing,
+retreat, and regroup behavior.
 
 ### Following 4 to 8 weeks
 
