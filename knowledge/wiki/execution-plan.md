@@ -935,6 +935,14 @@ and paired comparison tooling are complete. Two 12,000-tick repeats matched
 hash `DEB138AE`. The item remains open until the clean-commit 112-match
 candidate report passes or records its guardrails.
 
+Candidate v1 recorded rather than promoted: all 112 clean matches passed
+infrastructure QA, but its apparent technology separation came from integer
+rounding suppressing research for non-Technologists. Economist prosperity,
+stability, and workforce regressed significantly; Technologist casualties and
+active wars increased significantly. The v2 correction must preserve ordinary
+research, raise Technologist progress directly, exclude support units from
+civil mobilization, and reduce production-request budgets.
+
 ### Following 4 to 8 weeks
 
 - Civilization AI v2 in small, separately measured increments.

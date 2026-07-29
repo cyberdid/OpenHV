@@ -202,6 +202,13 @@ event telemetry. The candidate manifest reuses all 112 baseline map, slot,
 profile, and seed cells exactly, and `compare-candidate.py` pairs every
 match/profile observation before estimating differences.
 
+Candidate v1 completed but was not promoted. It reduced total collapses from
+15 to 13 and made final plans observable, yet integer rounding removed almost
+all non-Technologist research; Economist wellbeing regressed and Technologist
+paid significantly higher casualty/war costs without advancing beyond its
+baseline one technology. AI-003 therefore remains active for a narrower v2
+correction.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

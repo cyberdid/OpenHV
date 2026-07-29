@@ -3,6 +3,8 @@ title: Civilization Planner AI-003
 status: current
 updated: 2026-07-29
 sources:
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v1-run.csv
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v1-metrics.csv
   - ../../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../../OpenRA.Mods.HV/Traits/BotModules/CivilizationPlannerBotModule.cs
   - ../../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
@@ -90,8 +92,39 @@ paired faction or spawn mismatch before calculating candidate-minus-baseline
 bootstrap intervals for technology, population, stability, army, casualties,
 score, collapse, final plans, and request counts.
 
-AI-003 remains open until this clean-commit batch and paired report are
-published. Passing requires measurable plan specialization without increasing
-infrastructure failure, collapse, or the already-failed natural-outcome
-cutoff. A failed behavioral hypothesis will be recorded and revised rather
-than hidden.
+## Candidate v1 result
+
+The clean `bfee9494` run completed 112/112 matches on attempt 1 in 795.208
+seconds. All 112 results, 1,456 snapshots, and 11,388 events validated; four
+sampled replays reported `FinalGameTick=12000`. Compact immutable evidence is
+in the [run record](../../raw/experiments/2026-07-29-ai003-candidate-112-v1-run.csv)
+and [paired metrics](../../raw/experiments/2026-07-29-ai003-candidate-112-v1-metrics.csv).
+
+The implementation achieved visible specialization but not the desired
+mechanism:
+
+- Technologist ended in `technology` in 95/112 observations and completed
+  exactly 1.0 technologies on average;
+- the other profiles fell from about one technology to 0.00–0.04 because the
+  −20% knowledge multiplier rounded a one-unit production pulse down to zero;
+- Technologist itself gained only +0.009 technologies versus baseline
+  (bootstrap 95% 0.000 to 0.027), while casualties rose by 4.268
+  (1.151 to 7.483) and active wars by 0.134 (0.027 to 0.250);
+- Economist prosperity fell 20.875 (−48.108 to −2.214), stability fell 17.250
+  (−40.752 to −0.205), available workforce fell 18.688
+  (−35.325 to −4.062), and two societies collapsed;
+- total collapses improved from 15 to 13, Aggressor from 12 to 9, and Fortress
+  from one to zero, but every match still hit the tick ceiling.
+
+The root cause is twofold. Integer floor multiplication accidentally removed
+ordinary knowledge production, and economic/technical support units inflated
+`ArmyValue`, which the civil model interpreted as military mobilization. The
+native request pulse also displaced more normal combat production than the
+first hypothesis allowed.
+
+Decision: candidate v1 is a documented failed promotion. AI-003 remains open.
+The next candidate must use positive-value rounded production, preserve
+ordinary research, exclude explicit civilian/support actors from mobilization,
+and lower planner request budgets. It must create a real Technologist gain
+without the significant Economist wellbeing or Technologist casualty
+regressions.

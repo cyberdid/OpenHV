@@ -371,3 +371,15 @@ plan/request metrics. Added a generated candidate manifest that reuses all 112
 baseline map/slot/profile/seed cells, extended aggregation with plan fields,
 and added an identity-checking paired comparison tool. Full held-out execution
 is the remaining AI-003 acceptance step.
+
+## [2026-07-29] experiment | Reject AI-003 candidate v1
+
+The clean `bfee9494` exact-schedule candidate completed 112/112 matches on
+attempt 1 with 112 valid results, 1,456 snapshots, 11,388 events, and four
+tick-12,000 replays. It made plans visible and reduced total collapses from 15
+to 13, but its research separation was an integer-rounding artifact:
+non-Technologist knowledge pulses fell to zero while Technologist remained at
+one technology. Economist prosperity/stability/workforce and Technologist
+casualties/active wars regressed significantly. Candidate v1 is retained as a
+failed hypothesis; v2 will correct production rounding, civilian mobilization,
+and request budgets.
