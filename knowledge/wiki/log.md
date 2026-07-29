@@ -39,3 +39,21 @@ automated improvement, and a persistent world. Local engine inspection showed
 that the dedicated server does not advance `World` and that the normal client
 loop couples logic and rendering, making a logic-only client runtime the first
 recommended spike. See the [detailed execution plan](execution-plan.md).
+
+## [2026-07-29] ingest | OpenCiv civilization concepts
+
+Inspected `RyanGrieb/OpenCiv` at commit
+`113eb908ffda2f50ff5c0d5a4a0bbe697904293a`. Its city population, worked
+territory, differentiated yields, resources, building data, and civilization
+configuration are useful conceptual references, but the TypeScript turn-based
+implementation is incomplete and is not merged into OpenRA. See the
+[source record](../raw/openciv-2026-07-29.md).
+
+## [2026-07-29] decision | Living factions before war
+
+Reframed the project from an autonomous war tournament into a real-time
+simulation of living societies. Added population, needs, settlements, civil
+economy, research, trade, migration, and dynamic diplomacy as core product
+systems. Warfare remains possible but costly and non-mandatory. See
+[Decision 0003](decisions/0003-living-factions-before-war.md) and
+[Living Factions Design](faction-life.md).

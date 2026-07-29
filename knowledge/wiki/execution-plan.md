@@ -20,16 +20,34 @@ tags:
 ## Strategic objective
 
 Turn the current graphical proof of concept into a fast, deterministic,
-observable autonomous RTS laboratory, then use that laboratory to develop
-distinct factions and, only after the match layer is trustworthy, a persistent
-world.
+observable laboratory for living autonomous factions. Add population,
+settlements, civil resource flows, research, trade, and diplomacy before
+treating military optimization as the center of faction development.
 
 The order matters:
 
-`correct simulation → headless speed → telemetry → reproducible experiments → strategic AI → faction identity → adaptation → persistent world`
+`correct simulation → headless speed → living-faction model → telemetry → reproducible experiments → civilization AI → faction identity → adaptation → persistent world`
 
-Balancing before measurement or adding a metagame before stable matches would
-compound uncertainty.
+War remains a deep RTS subsystem, but it is an emergent strategic choice rather
+than the default purpose of every system. Balancing before measurement or
+adding a metagame before stable matches would compound uncertainty.
+
+## Direction correction: society before conquest
+
+The initial prototype proves autonomous combat infrastructure but is too close
+to a war tournament. The product direction is now defined by
+[Living Factions Design](faction-life.md):
+
+- population and needs make settlements worth protecting;
+- civil production and technology create non-military progress;
+- trade and migration connect factions during peace;
+- dynamic diplomacy allows neutrality, cooperation, rivalry, war, and peace;
+- war damages workforce, infrastructure, stability, and relationships;
+- faction success includes continuity, wellbeing, resilience, knowledge, and
+  influence, not only victory count.
+
+Headless execution and telemetry remain the first engineering dependencies
+because the civil model also needs fast, reproducible experiments.
 
 ## Verified starting point
 
@@ -102,6 +120,8 @@ Goal: remove ambiguity before changing the engine.
    - artifact directory.
 2. Define `EndReason`:
    - `natural-victory`;
+   - `faction-collapse`;
+   - `observation-horizon`;
    - `world-tick-limit`;
    - `stalemate`;
    - `invalid-configuration`;
@@ -301,26 +321,34 @@ At a fixed world-tick interval:
   interval.
 - A replay inspection confirms a sample of emitted events.
 
-## Phase 4 — Natural completion and stalemate handling
+## Phase 4 — Scenario lifecycle and long-horizon stability
 
-Goal: produce strategically meaningful match outcomes.
+Goal: support strategically meaningful conflict outcomes and open-ended
+observation of living factions.
 
 ### Work
 
-1. Run long enough for normal victory conditions.
-2. Add a high deterministic tick ceiling.
-3. Detect likely stalemate using a conservative window:
+1. Run conflict scenarios long enough for normal victory conditions.
+2. Allow living-world scenarios to end at a declared observation horizon
+   without inventing a winner.
+3. Record faction collapse independently from scenario termination so other
+   factions can continue living.
+4. Add a high deterministic tick ceiling.
+5. Detect likely stalemate using a conservative window:
    - no damage;
    - no kills;
    - no production/technology progress;
    - no meaningful resource or territory change.
-4. Keep stalemate detection advisory first; compare with replays before making
+6. Keep stalemate detection advisory first; compare with replays before making
    it terminating.
-5. Record surviving assets and reason when a match reaches cutoff.
+7. Record population, settlements, needs, relationships, surviving assets, and
+   reason when a scenario reaches its horizon or cutoff.
 
 ### Acceptance gate
 
-- Natural wins dominate the benchmark suite.
+- Conflict scenarios produce reproducible natural wins or explicit cutoffs.
+- Living-world scenarios complete their observation horizon without requiring
+  a winner.
 - Timeout and stalemate rates are separately reported.
 - Every termination reason is reproducible from artifacts.
 - No active combat match is incorrectly stopped in the reviewed sample.
@@ -339,6 +367,12 @@ Goal: establish a trustworthy baseline before deeper AI changes.
 6. **Map robustness:** open, choke-heavy, island, resource-rich, and
    resource-poor maps.
 7. **Soak:** hundreds of mixed matches for crashes, leaks, and deadlocks.
+8. **Peaceful growth:** war disabled, compare settlement resilience and
+   prosperity.
+9. **Scarcity/trade:** asymmetric resources, observe exchange, migration, and
+   crisis handling.
+10. **War cost:** compare otherwise paired societies with and without
+    prolonged mobilization and infrastructure loss.
 
 ### Experimental design
 
@@ -354,6 +388,11 @@ Goal: establish a trustworthy baseline before deeper AI changes.
 - timeout/stalemate rate;
 - median and distribution of victory time;
 - paired differences in economy, tech, army, and combat metrics;
+- population growth, mortality, migration, and faction continuity;
+- food/energy security and shortage duration;
+- settlement prosperity, stability, and recovery time;
+- trade volume, dependency, and diplomatic-state duration;
+- demographic and economic cost of mobilization and war;
 - matchup and map sensitivity;
 - bootstrap intervals where analytic assumptions are weak;
 - raw sample count beside every aggregate.
@@ -368,6 +407,10 @@ These are provisional and must be revised with evidence:
 - four-way overall win share: no profile above 40% or below 10%;
 - 1v1 matchup: investigate persistent results worse than 35/65;
 - no profile gains balance by creating substantially longer or stalled games.
+- peaceful scenarios must permit stable population and settlement growth;
+- scarcity must create observable adaptation rather than immediate scripted
+  collapse;
+- war-oriented policies must pay measurable demographic and economic costs.
 
 ### Acceptance gate
 
@@ -376,10 +419,10 @@ These are provisional and must be revised with evidence:
   and end reason.
 - Conclusions include uncertainty and limitations.
 
-## Phase 6 — Strategic AI v2
+## Phase 6 — Civilization AI v2
 
-Goal: replace mostly static production weights with observable strategic
-decision-making.
+Goal: replace mostly static military production weights with observable
+civilization-level decision-making.
 
 ### Shared perception/blackboard
 
@@ -388,7 +431,10 @@ decision-making.
 - threat map and defended-value map;
 - expansion/resource opportunities;
 - recent combat outcomes;
-- confidence and age for incomplete intelligence.
+- confidence and age for incomplete intelligence;
+- population, needs, jobs, and migration pressure;
+- settlement prosperity and stability;
+- trade dependency and diplomatic relationships;
 
 ### Strategic state machine
 
@@ -399,7 +445,10 @@ decision-making.
 - defense/emergency;
 - counter-production;
 - regroup/rebuild;
-- finishing attack.
+- finishing attack;
+- famine/crisis response;
+- peaceful development;
+- trade/diplomatic initiative.
 
 Transitions must emit reason codes and relevant inputs.
 
@@ -414,6 +463,9 @@ Transitions must emit reason codes and relevant inputs.
 7. Defense allocation and reinforcement.
 8. Attack timing, target scoring, path/rally selection.
 9. Retreat, regroup, and re-engagement.
+10. Population needs and labor allocation.
+11. Trade and treaty selection.
+12. Crisis recovery and demobilization.
 
 ### Profile policies
 
@@ -430,7 +482,8 @@ Transitions must emit reason codes and relevant inputs.
 
 - Telemetry shows distinct opening, expansion, technology, and attack timing.
 - Decision logs explain major choices.
-- Each profile wins through its intended strengths in reviewed replays.
+- Each profile pursues and achieves measurably different civil and military
+  goals in reviewed simulations.
 - Differences persist on held-out maps rather than only tuning maps.
 
 ## Phase 7 — Faction identity
@@ -493,6 +546,11 @@ Use multi-objective fitness:
 - opponent/map robustness;
 - victory time;
 - resource/combat efficiency;
+- population wellbeing and survival;
+- settlement resilience and crisis recovery;
+- knowledge, trade, and prosperity;
+- cohesion and migration outcomes;
+- demographic and economic cost of war;
 - timeout and crash penalties;
 - strategy-identity guardrails.
 
@@ -603,8 +661,14 @@ versioned data rather than temporary fields.
 | SIM-006 | Isolated CLI process and exit codes | SIM-003 | failure-path integration tests |
 | SIM-007 | Manifest-driven batch runner | SIM-006 | resumable 100-match soak |
 | SIM-008 | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
-| SIM-009 | Natural victory/stalemate model | SIM-002, SIM-008 | reviewed long matches |
+| SIM-009 | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
 | SIM-010 | Baseline benchmark suite | SIM-007–009 | reproducible report |
+| LIFE-001 | CivilizationState and SettlementCore traits | SIM-001–003 | synchronized state tests |
+| LIFE-002 | Population, workforce, food, and housing | LIFE-001 | peaceful-growth scenario |
+| LIFE-003 | Materials, energy, and building jobs | LIFE-001 | resource-flow telemetry |
+| LIFE-004 | Research and small civil technology graph | LIFE-002–003 | deterministic unlock test |
+| DIP-001 | Runtime diplomacy manager | LIFE-001 | neutral/war/peace transition tests |
+| DIP-002 | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
 | AI-001 | Shared perception blackboard | SIM-008 | decision/telemetry traces |
 | AI-002 | Strategic state machine | AI-001 | distinct measured transitions |
 | AI-003 | Opening/economy/tech planners | AI-002 | held-out behavior report |
@@ -647,18 +711,30 @@ Exit: one verified no-window match, minimum 5× real-time.
 
 Exit: repeatable unattended batch with complete artifacts.
 
-### Sprint 4 — 5 to 10 focused days
+### Sprint 4 — 8 to 12 focused days
 
-- SIM-008 telemetry v1;
+- LIFE-001 civilization/settlement state;
+- LIFE-002 population, food, housing, and workforce;
+- LIFE-003 materials, energy, and civil jobs;
+- civil telemetry and peaceful-growth scenarios.
+
+Exit: four factions can live, grow, and experience shortages without mandatory
+war.
+
+### Sprint 5 — 8 to 12 focused days
+
+- DIP-001 dynamic neutral/war/peace relationships;
+- DIP-002 first resource trade;
+- LIFE-004 first civil research graph;
+- scarcity, trade, shock-recovery, and war-cost experiments;
 - SIM-009 natural completion/stalemate;
-- SIM-010 first statistically useful baseline;
-- report and metric-definition wiki pages.
+- SIM-010 first statistically useful civil/military baseline.
 
-Exit: trustworthy evidence about current AI behavior.
+Exit: trustworthy evidence about faction life, diplomacy, and warfare costs.
 
 ### Following 4 to 8 weeks
 
-- Strategic AI v2 in small, separately measured increments.
+- Civilization AI v2 in small, separately measured increments.
 - Faction/profile separation and first gameplay-identity prototypes.
 - Dashboard only after telemetry fields stabilize.
 
@@ -676,8 +752,8 @@ when:
 
 1. matches run without window, renderer, or audio;
 2. cutoff is based on synchronized world ticks;
-3. natural win, timeout, stalemate, invalid input, desync, and crash are
-   distinguishable;
+3. natural victory, faction collapse, observation horizon, timeout, stalemate,
+   invalid input, desync, and crash are distinguishable;
 4. config and result schemas are versioned;
 5. repeated identical matches are deterministic;
 6. a resumable 100-match batch completes unattended;
@@ -686,3 +762,14 @@ when:
 9. the full OpenHV test/lint suite remains green;
 10. architecture, experiment, decisions, and raw evidence are integrated into
     the project wiki.
+
+The following `living-factions-v0.1` milestone then requires:
+
+1. settlement population and workforce;
+2. food, housing, materials, energy, knowledge, and credits;
+3. needs-driven growth, shortage, and migration pressure;
+4. useful civil building choices;
+5. a small original technology graph;
+6. default-neutral factions and explicit war transitions;
+7. civil telemetry and at least four non-war/crisis scenarios;
+8. visible demographic and economic consequences from military mobilization.

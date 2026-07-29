@@ -15,13 +15,15 @@ tags:
 
 ## Mission
 
-Build an observable autonomous RTS world inspired by the macro loop of
-StarCraft: factions gather resources, construct bases, research technology,
-produce armies, scout, attack, defend, and evolve without human players.
+Build an observable autonomous real-time world in which factions live rather
+than merely fight. They grow populations, build settlements, satisfy needs,
+develop technology and institutions, trade, negotiate, migrate, recover from
+crises, and may scout, defend, or wage war without human players.
 
-The immediate product is a simulation laboratory rather than a conventional
-player-controlled game. It must support repeatable experiments, measurable
-behavior, and progressively more distinct faction strategies.
+The StarCraft-like RTS layer provides visible geography, logistics,
+construction, units, and combat. A civilization layer adds long-term societal
+motives and consequences. The immediate product is a simulation laboratory
+rather than a conventional player-controlled game.
 
 ## Current state
 
@@ -51,13 +53,18 @@ The simulation becomes useful when it can:
 1. run unattended without graphics;
 2. finish matches naturally or under a documented deterministic cutoff;
 3. execute hundreds of reproducible matches;
-4. expose economy, production, territory, technology, army, and combat metrics;
-5. demonstrate statistically distinguishable AI strategies;
-6. turn experiment results into explicit balancing decisions.
+4. expose population, needs, economy, settlement, territory, technology,
+   diplomacy, army, and combat metrics;
+5. allow factions to coexist, trade, prosper, stagnate, migrate, fragment, or
+   collapse without mandatory war;
+6. demonstrate statistically distinguishable societal and military strategies;
+7. make warfare costly to population, economy, stability, and diplomacy;
+8. turn experiment results into explicit design and balancing decisions.
 
 ## Related pages
 
 - [Architecture](architecture.md)
 - [AI profiles](ai-profiles.md)
+- [Living factions](faction-life.md)
 - [Roadmap](roadmap.md)
 - [Baseline tournament](experiments/2026-07-29-baseline-tournament.md)

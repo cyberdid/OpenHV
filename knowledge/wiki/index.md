@@ -20,6 +20,8 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Architecture](architecture.md) — runtime components and data flow.
 - [AI profiles](ai-profiles.md) — current strategy personalities and their
   intended behavior.
+- [Living factions](faction-life.md) — population, settlements, needs,
+  research, trade, diplomacy, culture, and the first civil vertical slice.
 - [Roadmap](roadmap.md) — ordered next milestones and acceptance criteria.
 - [Detailed execution plan](execution-plan.md) — phased implementation,
   experiments, gates, risks, backlog, and delivery sequence.
@@ -33,6 +35,7 @@ This is the maintained entry point for the autonomous RTS simulation project.
 
 - [0001: Use OpenHV/OpenRA as the foundation](decisions/0001-openhv-foundation.md)
 - [0002: Maintain persistent project memory](decisions/0002-persistent-project-wiki.md)
+- [0003: Model living factions, not only war](decisions/0003-living-factions-before-war.md)
 
 ## Operations
 

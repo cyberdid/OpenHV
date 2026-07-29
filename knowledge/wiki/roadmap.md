@@ -29,21 +29,40 @@ Acceptance:
 - deterministic reruns with the same map, composition, seed, and commit;
 - failed matches are isolated and reported without losing completed results.
 
-## P0 — Natural match completion
+## P0 — Deterministic scenario lifecycle
 
-Run matches long enough for combat victory, with a deterministic safety cutoff
-for stalemates.
+Support both finite conflict scenarios and open-ended living-world observation
+windows, with deterministic cutoffs and a wall-clock watchdog for deadlocks.
 
 Acceptance:
 
-- natural win, timeout, crash, and invalid-map outcomes are distinct;
-- victory time and final world tick are recorded;
+- natural victory, faction collapse, observation horizon, stalemate, timeout,
+  crash, and invalid-map outcomes are distinct;
+- final world tick and the scenario-specific outcome are recorded;
 - timed leaders are never labeled as natural winners.
+
+## P0.5 — Living Factions vertical slice
+
+Add an OpenRA-native civilization layer inspired by the useful concepts found
+in OpenCiv: settlement population, worked territory, differentiated yields,
+building effects, and civilization identity.
+
+Acceptance:
+
+- four factions can coexist without automatic war;
+- population consumes food and responds to housing/shortages;
+- settlements expose jobs, outputs, needs, prosperity, and stability;
+- a faction can grow and research without combat;
+- war requires an explicit relationship transition;
+- military mobilization and losses affect civilian life.
+
+See [Living Factions Design](faction-life.md).
 
 ## P1 — Strategic telemetry
 
-Capture time-series and final metrics for economy, construction, technology,
-army composition, territory, scouting, damage, and combat efficiency.
+Capture time-series and final metrics for population, needs, migration,
+economy, construction, technology, trade, diplomacy, army composition,
+territory, scouting, damage, and combat efficiency.
 
 Acceptance:
 
@@ -51,7 +70,20 @@ Acceptance:
 - schema version is included in every result;
 - tournament aggregation can compare profiles by map and spawn.
 
-## P1 — Automated balance loop
+## P1 — Dynamic diplomacy and trade
+
+Allow neutral factions to discover each other, exchange resources, form or
+break agreements, develop grievances, declare war, and negotiate peace.
+
+Acceptance:
+
+- relationship changes are synchronized and reproducible;
+- trade reflects real stocks, demand, routes, and risk;
+- neutral factions are not auto-targeted;
+- every treaty, grievance, and war transition is recorded;
+- AI can rationally prefer peace, deterrence, or limited war.
+
+## P1 — Automated experiment loop
 
 Use controlled batches to test one configuration change at a time.
 
@@ -62,10 +94,11 @@ Acceptance:
 - changes are kept only when they improve an explicit target without violating
   guardrails.
 
-## P2 — Strong faction identity
+## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,
-technology paths, expansion logic, scouting models, and counter-strategies.
+needs priorities, institutions, technology paths, trade behavior, expansion
+logic, diplomacy, scouting models, and counter-strategies.
 
 Acceptance:
 
