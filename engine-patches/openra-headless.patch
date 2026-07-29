@@ -276,3 +276,35 @@ diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
  
  			if (IsMultiplayer && settings.EnableGeoIP)
  				GeoIP.Initialize();
+diff --git a/OpenRA.Game/Server/OrderBuffer.cs b/OpenRA.Game/Server/OrderBuffer.cs
+index cddb0e2..21d48a3 100644
+--- a/OpenRA.Game/Server/OrderBuffer.cs
++++ b/OpenRA.Game/Server/OrderBuffer.cs
+@@ -43,6 +43,11 @@ namespace OpenRA.Server
+ 		{
+ 			timestamps[playerIndex] = gameTimer.ElapsedMilliseconds;
+ 
++			// Without a baseline there is nothing to measure against, and reading
++			// one would throw on the connection thread.
++			if (!timestamps.ContainsKey(baselinePlayer))
++				return;
++
+ 			if (timestamps.Values.All(t => t != EmptyValue))
+ 			{
+ 				var baseline = timestamps[baselinePlayer];
+@@ -68,7 +73,14 @@ namespace OpenRA.Server
+ 			ticksPerInterval = Interval / timestep;
+ 
+ 			this.players = players.ToList();
+-			baselinePlayer = this.players[0];
++
++			// A match can start with no ordering connection: an autonomous
++			// simulation is observed by a spectator whose slot is empty, and a
++			// client can also drop during the start handshake. There is no
++			// baseline to pace against, and indexing here took the whole server
++			// thread down with an unhandled exception. RemovePlayer already
++			// tolerates an empty roster; Start must too.
++			baselinePlayer = this.players.Count > 0 ? this.players[0] : EmptyValue;
+ 
+ 			foreach (var player in this.players)
+ 			{
