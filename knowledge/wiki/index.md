@@ -33,12 +33,16 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Simulation contract v1 validation, 2026-07-29](experiments/2026-07-29-simulation-contract-v1.md)
   — exact tick cutoff, repeat hash/metrics, schema validation, and invalid-input
   evidence.
+- [Deterministic headless runtime validation, 2026-07-29](experiments/2026-07-29-headless-runtime.md)
+  — no-device execution, 1,500-tick graphical parity, repeat determinism, and
+  the still-open throughput gate.
 
 ## Decisions
 
 - [0001: Use OpenHV/OpenRA as the foundation](decisions/0001-openhv-foundation.md)
 - [0002: Maintain persistent project memory](decisions/0002-persistent-project-wiki.md)
 - [0003: Model living factions, not only war](decisions/0003-living-factions-before-war.md)
+- [0004: Accept the logic-only headless client runtime](decisions/0004-logic-only-headless-runtime.md)
 
 ## Operations
 

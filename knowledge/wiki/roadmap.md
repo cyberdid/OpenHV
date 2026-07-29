@@ -6,6 +6,7 @@ sources:
   - overview.md
   - architecture.md
   - experiments/2026-07-29-baseline-tournament.md
+  - experiments/2026-07-29-headless-runtime.md
 tags:
   - roadmap
   - planning
@@ -31,6 +32,16 @@ Simulation contract v1 and its deterministic graphical lifecycle are complete:
 See
 [Simulation Contract v1 Validation](experiments/2026-07-29-simulation-contract-v1.md).
 
+The headless correctness foundation is also complete:
+
+- tracked, idempotent OpenRA SDK patching on normal build paths;
+- no-op window/graphics/audio platform and unpaced logic loop;
+- seed-derived lobby RNG and a renderer-independent bot RNG stream;
+- 1,500-tick graphical/headless parity and repeat validation.
+
+See
+[Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md).
+
 ## P0 — Headless simulation loop
 
 Move autonomous match orchestration and result capture away from the rendered
@@ -42,6 +53,10 @@ Acceptance:
 - one command runs at least 100 sequential matches;
 - deterministic reruns with the same map, composition, seed, and commit;
 - failed matches are isolated and reported without losing completed results.
+
+Status: one-match no-device execution and deterministic cross-mode parity are
+complete. Throughput is 0.738× rather than the required 5×, and the
+manifest/resume/failure-isolation runner plus 100-match soak remain open.
 
 ## P0 — Deterministic scenario lifecycle
 

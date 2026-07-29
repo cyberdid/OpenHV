@@ -63,9 +63,10 @@ ticks a finite observation contains. The wall clock is now only a deadlock
 watchdog.
 
 The synchronized hash and final metrics are the determinism authority.
-Timestamps and artifact paths are deliberately environmental. Lobby colors are
-set from a deterministic valid-preset sequence because OpenRA otherwise chooses
-bot colors from a cosmetic server RNG.
+Timestamps and artifact paths are deliberately environmental. The later
+headless spike corrected the implementation detail behind deterministic lobby
+colors: the local server RNG is seeded from the requested simulation seed, so
+OpenRA's stock valid-color picker remains authoritative and repeatable.
 
 ## Remaining limits
 
@@ -73,5 +74,6 @@ bot colors from a cosmetic server RNG.
   dedicated golden fixtures.
 - Crash, desync, stalemate, faction-collapse, and open-ended observation
   policies have identifiers but require their later lifecycle detectors.
-- The check is graphical and initializes SDL, OpenGL, and audio; the next gate
-  is the logic-only/headless spike.
+- This historical validation used the graphical runtime. The later
+  [headless runtime validation](2026-07-29-headless-runtime.md) demonstrated
+  no-device execution and graphical parity at 1,500 ticks.

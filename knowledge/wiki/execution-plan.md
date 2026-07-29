@@ -8,6 +8,7 @@ sources:
   - roadmap.md
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-simulation-contract-v1.md
+  - experiments/2026-07-29-headless-runtime.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
 tags:
@@ -58,16 +59,19 @@ because the civil model also needs fast, reproducible experiments.
   interval, match ID, and output path are configurable and validated.
 - Result contract v1 records build/map/slot metadata, synchronized state hash,
   explicit end reason, natural winners, score leader, and final metrics.
-- Paired runs with the same seed and tick cutoff reached identical tick 50,
-  hash `4F20B62A`, lobby assignments, and metrics.
+- A 1,500-tick graphical/headless pair and a repeated headless run reached the
+  same hash `0AC799D4`, lobby assignments, and metrics.
 - Ten timed matches completed without manual intervention.
-- Current matches initialize SDL, OpenGL, and audio.
+- Headless matches initialize no SDL window, OpenGL context, or audio device;
+  graphical inspection remains available.
 - The primary cutoff is `WorldTick`; wall clock is only a deadlock watchdog.
 - `OpenRA.Server` coordinates lobby/network state but does not advance the game
   `World`; a dedicated server alone is not a headless simulator.
-- `Game.Loop` currently couples logic advancement to rendering and forces
-  regular render passes. Logic-only execution requires an explicit engine
-  seam.
+- The accepted engine seam retains the production client world path but uses a
+  no-op platform, an unpaced loop, seeded server RNG, and a renderer-independent
+  bot RNG stream.
+- Current headless throughput is 0.738× real time, so the 5× minimum remains an
+  open performance gate.
 
 ## North-star qualities
 
@@ -153,8 +157,8 @@ Implementation notes:
   failure cannot be confused with a synchronized observation horizon.
 - The mod checks the completed `WorldTick` before allowing the next logic tick
   and locally pauses the world before result capture.
-- Bot colors are explicitly assigned from a deterministic map-valid preset
-  sequence; the stock server otherwise chooses them from cosmetic RNG.
+- The local server RNG is seeded from the requested simulation seed, preserving
+  the stock map-valid color picker while making lobby assignments repeatable.
 - Atomic writes use a same-directory temporary file followed by replace.
 
 ### Acceptance gate
@@ -172,6 +176,12 @@ the scenario suite when long-running headless tests are affordable.
 
 Goal: prove that the normal OpenRA simulation can advance without graphics or
 audio while preserving gameplay behavior.
+
+Status: architecture accepted on 2026-07-29 for correctness and device
+isolation; performance follow-up remains open. Evidence:
+[Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md)
+and
+[Decision 0004](decisions/0004-logic-only-headless-runtime.md).
 
 ### Candidate approaches
 
@@ -224,13 +234,26 @@ for approach 1 becomes disproportionately invasive.
 - Simulation speed is measured; proceed if it exceeds 5× real time, optimize
   toward 20×.
 
+Gate result:
+
+- no SDL/OpenGL/audio: passed;
+- fixed-tick valid result: passed;
+- repeated deterministic result: passed at 1,500 ticks;
+- graphical/headless parity: passed at 1,500 ticks, hash `0AC799D4`;
+- minimum 5× speed: failed at 0.738× real time.
+
+The spike implementation is retained because it passed behavioral compatibility
+without introducing a second gameplay engine. Sprint 2 remains open until
+profiling and optimization satisfy or deliberately revise the throughput gate.
+
 ### Decision gate
 
-Write an architecture decision after the spike:
+The architecture decision selected:
 
-- accept logic-only client mode;
-- switch to thin client plus dedicated server; or
-- authorize a standalone runner with an explicit compatibility test suite.
+- accept logic-only client mode for correctness;
+- continue profiling before batch soak;
+- revisit a thin or standalone runner only if the accepted path cannot reach
+  useful throughput.
 
 ## Phase 2 — Reliable batch orchestration
 
@@ -680,9 +703,9 @@ Status marker: ✅ means implemented and validated on the feature branch.
 |---|---|---|---|
 | SIM-001 ✅ | Versioned config/result contract | — | schema v1 and paired validation |
 | SIM-002 ✅ | Tick-based end conditions | SIM-001 | exact tick/hash repeat evidence |
-| SIM-003 | Logic-only engine spike | SIM-002 | one no-window match |
-| SIM-004 | Disable renderer/audio initialization | SIM-003 | process inspection and logs |
-| SIM-005 | Headless/reference equivalence | SIM-003 | matching hashes/metrics |
+| SIM-003 ✅ | Logic-only engine spike | SIM-002 | no-window 1,500-tick match |
+| SIM-004 ✅ | Disable renderer/audio initialization | SIM-003 | backend-negative log check |
+| SIM-005 ✅ | Headless/reference equivalence | SIM-003 | hash `0AC799D4` and identical normalized results |
 | SIM-006 | Isolated CLI process and exit codes | SIM-003 | failure-path integration tests |
 | SIM-007 | Manifest-driven batch runner | SIM-006 | resumable 100-match soak |
 | SIM-008 | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
@@ -718,7 +741,7 @@ estimates because it tests the deepest engine coupling.
 
 Exit: deterministic graphical simulation with correct outcome semantics.
 
-Status: complete on 2026-07-29. The next active gate is Sprint 2 / SIM-003.
+Status: complete on 2026-07-29.
 
 ### Sprint 2 — 4 to 8 focused days
 
@@ -728,6 +751,11 @@ Status: complete on 2026-07-29. The next active gate is Sprint 2 / SIM-003.
 - performance profiling.
 
 Exit: one verified no-window match, minimum 5× real-time.
+
+Status: SIM-003–005 and the no-window/parity part of the exit are complete.
+The measured 0.738× speed does not satisfy the 5× exit, so performance
+profiling/optimization remains the active Sprint 2 gate before Sprint 3's
+100-match soak.
 
 ### Sprint 3 — 5 to 8 focused days
 

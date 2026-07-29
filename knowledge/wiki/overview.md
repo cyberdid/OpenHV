@@ -7,6 +7,7 @@ sources:
   - ../../run-simulation.sh
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-simulation-contract-v1.md
+  - experiments/2026-07-29-headless-runtime.md
 tags:
   - vision
   - status
@@ -36,21 +37,25 @@ rather than a conventional player-controlled game.
   fortress.
 - Match composition, map, speed, seed, synchronized world-tick horizon,
   watchdog, telemetry interval, and result path are configurable and validated.
+- The same client gameplay path can run through a no-window/no-audio headless
+  platform, and tournaments select it by default.
 - Matches atomically write schema-versioned JSON with build/map/slot metadata,
-  synchronized hash, explicit end reason, natural winners, score leader, and
-  statistics.
+  execution mode, synchronized hash, explicit end reason, natural winners,
+  score leader, and statistics.
 - A tournament runner rotates maps and seeds and aggregates end reasons,
   natural wins, score leads, and per-profile metrics.
-- Paired reference runs reach the same cutoff with identical normalized config,
-  synchronized hash, and final metrics.
+- Seeded bot randomness is isolated from renderer cosmetics. A 1,500-tick
+  graphical/headless reference pair and a repeated headless run produced the
+  same normalized result and synchronized hash.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-The runner still opens the graphical client and initializes audio. The initial
-30-second tournament used the deprecated wall-clock cutoff and remains only a
-startup/scoring test. Current runs use exact world ticks, but fast large batches
-still require the headless runtime.
+The headless runtime is correct but not yet fast: its measured 30 simulated
+seconds required 40.66 wall seconds (0.738× real time), below the 5× minimum.
+The initial 30-second tournament used the deprecated wall-clock cutoff and
+remains only a startup/scoring test. Batch orchestration, civil systems, and
+telemetry are not implemented yet.
 
 ## Success criteria
 
@@ -75,3 +80,4 @@ The simulation becomes useful when it can:
 - [Roadmap](roadmap.md)
 - [Baseline tournament](experiments/2026-07-29-baseline-tournament.md)
 - [Simulation contract v1 validation](experiments/2026-07-29-simulation-contract-v1.md)
+- [Deterministic headless runtime validation](experiments/2026-07-29-headless-runtime.md)

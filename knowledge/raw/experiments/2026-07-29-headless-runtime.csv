@@ -1,0 +1,8 @@
+test,mode,map,seed,max_world_ticks,observed_world_tick,simulated_seconds,wall_seconds,realtime_multiple,synchronized_state_hash,observed,result
+no-window-smoke,headless,Cold Rage,424242,250,250,5,,,3679995E,"headless platform selected; no SDL, OpenGL, or audio backend in log",pass
+graphical-reference,graphical,Cold Rage,424242,1500,1500,30,,,0AC799D4,"valid schema v1 result",pass
+headless-reference,headless,Cold Rage,424242,1500,1500,30,,,0AC799D4,"normalized result identical to graphical reference",pass
+headless-repeat,headless,Cold Rage,424242,1500,1500,30,40.66,0.738,0AC799D4,"normalized result identical to prior headless run",pass
+performance-gate,headless,Cold Rage,424242,1500,1500,30,40.66,0.738,0AC799D4,"minimum target is 5x real time (at most 6.00 wall seconds)",fail
+json-schema-v1,both,Cold Rage,424242,1500,1500,30,,,0AC799D4,"graphical, headless, and repeated headless artifacts valid",pass
+release-build-tests,both,,,,,,,,,"Release build; full OpenHV MiniYAML, map, Fluent, sprite sequence tests",pass

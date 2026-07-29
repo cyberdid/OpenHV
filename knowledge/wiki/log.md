@@ -86,3 +86,31 @@ both stopped at tick 50 with sync hash `4F20B62A`. Normalized artifacts matched,
 both passed JSON Schema v1, and an unknown bot failed before the match with a
 non-zero process result. Compact evidence is preserved in
 [the experiment record](experiments/2026-07-29-simulation-contract-v1.md).
+
+## [2026-07-29] change | Deterministic headless client runtime
+
+Completed SIM-003–005. Added an idempotent, version-pinned OpenRA SDK patch,
+no-op graphics/sound platform, unpaced headless loop, deterministic local
+server RNG, execution-mode metadata, headless-default tournament runs, and
+graphical/headless parity automation. A lobby-start polling fallback also
+removed an event-order race. See [Architecture](architecture.md) and
+[Decision 0004](decisions/0004-logic-only-headless-runtime.md).
+
+## [2026-07-29] correction | Separate bot randomness from renderer cosmetics
+
+Longer parity testing disproved the earlier assumption that seeding the lobby
+alone made bot behavior repeatable. OpenRA bot modules used the same local RNG
+as renderer effects; graphical and headless runs consumed different sequences
+before later strategic choices. Added a seed-derived `World.BotRandom` and
+routed stock/OpenHV bot modules through it. This correction is documented in
+the
+[headless runtime experiment](experiments/2026-07-29-headless-runtime.md).
+
+## [2026-07-29] experiment | Headless parity and performance
+
+Graphical, headless, and repeated headless matches on Cold Rage with seed
+424242 all stopped at tick 1,500 with synchronized hash `0AC799D4`; normalized
+artifacts matched and passed Schema v1. Headless initialized no SDL, OpenGL, or
+audio backend. The 30 simulated seconds took 40.66 wall seconds (0.738×), so
+the 5× performance gate remains open. See
+[Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md).
