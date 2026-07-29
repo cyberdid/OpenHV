@@ -16,9 +16,18 @@ Player:
 	ModularBot@FortressAI:
 		Name: bot-fortress-ai.name
 		Type: fortress
+	ModularBot@StewardAI:
+		Name: bot-steward-ai.name
+		Type: steward
 	GrantConditionOnBotOwner@UniverseAI:
 		Condition: enable-universe-ai
+		Bots: rogue, aggressor, economist, technologist, fortress, steward
+	GrantConditionOnBotOwner@CombatBaseAI:
+		Condition: enable-combat-base-ai
 		Bots: rogue, aggressor, economist, technologist, fortress
+	GrantConditionOnBotOwner@StewardAI:
+		Condition: enable-steward-ai
+		Bots: steward
 	GrantConditionOnBotOwner@AggressorAI:
 		Condition: enable-aggressor-ai
 		Bots: rogue, aggressor
@@ -38,7 +47,7 @@ Player:
 		BuilderTypes: builder, builder2
 		MinimumBaseRadius: 15
 	BaseBuilderBotModule@UniverseAI:
-		RequiresCondition: enable-universe-ai
+		RequiresCondition: enable-combat-base-ai
 		MinimumExcessPower: 40
 		MaximumExcessPower: 500
 		InititalMinimumRefineryCount: 1
@@ -115,6 +124,59 @@ Player:
 			field: 12000
 			silo: 13000
 			uplink: 13000
+	BaseBuilderBotModule@StewardAI:
+		RequiresCondition: enable-steward-ai
+		MinimumExcessPower: 40
+		MaximumExcessPower: 500
+		InititalMinimumRefineryCount: 1
+		AdditionalMinimumRefineryCount: 1
+		PlaceDefenseTowardsEnemyChance: 0
+		NewProductionCashThreshold: 7000
+		WaterTerrainTypes: Littoral
+		ConstructionYardTypes: base, base2
+		PowerTypes: generator
+		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2
+		NavalProductionTypes: harbor, harbor2
+		RefineryTypes: storage
+		BuildingLimits:
+			base: 1
+			storage: 3
+			module: 4
+			module2: 4
+			factory: 2
+			factory2: 2
+			radar: 1
+			radar2: 1
+			starport: 1
+			starport2: 1
+			oresmelt: 2
+			orepurifier: 2
+			trader: 1
+			techcenter: 1
+			harbor: 1
+			harbor2: 1
+		BuildingFractions:
+			base: 1
+			storage: 1
+			module: 1
+			module2: 1
+			radar: 1
+			radar2: 1
+			factory: 1
+			factory2: 1
+			harbor: 1
+			harbor2: 1
+			trader: 1
+			starport: 1
+			starport2: 1
+			techcenter: 1
+			oresmelt: 20
+			orepurifier: 20
+		BuildingDelays:
+			radar: 10000
+			radar2: 10000
+			factory: 11000
+			factory2: 11000
 	BuildingRepairBotModule:
 		RequiresCondition: enable-universe-ai
 	SquadManagerBotModule@AggressorAI:

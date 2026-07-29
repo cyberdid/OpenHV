@@ -27,6 +27,35 @@ specialization, migration, and cultural influence.
 
 A faction should remain interesting when no shots are fired.
 
+## Implemented vertical slice
+
+LIFE-001–003 are implemented and validated:
+
+- every player owns a synchronized `CivilizationState`;
+- `BASE`/`BASE2` actors are `SettlementCore` capitals with deterministic
+  children, adults, elders, population, founding tick, and local stocks;
+- a 250-tick civil pulse computes jobs, employment, housing, food, materials,
+  energy, knowledge, storage, demand, satisfaction, prosperity, stability, and
+  migration pressure;
+- a 3,000-tick demographic pulse applies births, baseline deaths, aging, and
+  food-shortage mortality;
+- base, generator, storage, trader, technology center, and ore-processing
+  actors expose explicit civil capacity, production, consumption, and
+  maintenance;
+- infrastructure is assigned to the nearest owned settlement with actor-ID
+  tie-breaking;
+- `balanced` and `scarcity` are synchronized lobby profiles;
+- the non-attacking `steward` bot develops infrastructure without forming
+  combat squads;
+- final results, periodic snapshots, and civil reason-coded events expose the
+  full state.
+
+Balanced, scarcity, determinism, peaceful-development, and overhead evidence
+is recorded in
+[Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md).
+Neutral diplomacy, trade, migration transfer, research unlocks, and
+casualty-to-workforce coupling remain planned rather than implied.
+
 ## What OpenCiv contributes
 
 OpenCiv provides a useful conceptual bridge between RTS bases and living

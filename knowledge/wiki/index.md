@@ -42,6 +42,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Resumable batch runner v1 validation, 2026-07-29](experiments/2026-07-29-batch-runner-v1.md)
   — process/support isolation, 100-match sequential and parallel soaks,
   failure taxonomy, interruption/resume, and verified replay artifacts.
+- [Living Factions and Telemetry v1 validation, 2026-07-29](experiments/2026-07-29-living-factions-v1.md)
+  — synchronized settlement life, balanced growth, food-scarcity mortality,
+  peaceful Steward AI, JSONL schemas, determinism, and telemetry overhead.
 
 ## Decisions
 

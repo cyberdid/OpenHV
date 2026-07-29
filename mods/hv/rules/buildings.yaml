@@ -30,6 +30,19 @@ BASE:
 	RevealsShroud@Hacked:
 		Range: 4c0
 	BaseBuilding:
+	SettlementCore:
+	CivilInfrastructure:
+		Housing: 1200
+		Jobs: 700
+		Food: 30
+		Materials: 12
+		Energy: 10
+		Knowledge: 2
+		EnergyUse: 8
+		MaterialsUse: 2
+		FoodStorage: 3000
+		MaterialsStorage: 2000
+		EnergyStorage: 1500
 	BaseProvider:
 		Range: 14c0
 		CircleWidth: 2
@@ -329,6 +342,12 @@ GENERATOR:
 		Range: 2c0
 	Power:
 		Amount: 120
+	CivilInfrastructure:
+		Jobs: 30
+		Energy: 80
+		MaterialsUse: 1
+		EnergyStorage: 1000
+		RequiresCondition: !build-incomplete
 	Targetable:
 		TargetTypes: Ground, Structure
 	ScalePowerWithHealth:
@@ -471,6 +490,13 @@ TRADER:
 		HP: 80000
 	Armor:
 		Type: Steel
+	CivilInfrastructure:
+		Jobs: 120
+		Food: 8
+		Knowledge: 3
+		EnergyUse: 12
+		MaterialsUse: 2
+		RequiresCondition: !build-incomplete
 	RevealsShroud:
 		Range: 5c0
 		MinRange: 2c0
@@ -1095,6 +1121,12 @@ TECHCENTER:
 		Range: 2c0
 	Power:
 		Amount: -200
+	CivilInfrastructure:
+		Jobs: 160
+		Knowledge: 25
+		EnergyUse: 30
+		MaterialsUse: 4
+		RequiresCondition: !build-incomplete
 	Targetable:
 		TargetTypes: Ground, Structure
 	RenderSprites:
@@ -1134,6 +1166,12 @@ ORESMELT:
 		HP: 40000
 	Power:
 		Amount: -80
+	CivilInfrastructure:
+		Jobs: 90
+		Materials: 40
+		EnergyUse: 15
+		MaterialsUse: 2
+		RequiresCondition: !build-incomplete
 	Building:
 		Footprint: + x
 		Dimensions: 1,2
@@ -1724,6 +1762,14 @@ STORAGE:
 		Range: 2c0
 	Power:
 		Amount: -30
+	CivilInfrastructure:
+		Housing: 300
+		Jobs: 50
+		FoodStorage: 2500
+		MaterialsStorage: 4000
+		EnergyStorage: 1500
+		EnergyUse: 5
+		RequiresCondition: !build-incomplete
 	RenderSprites:
 		Image: storage2
 		FactionImages:

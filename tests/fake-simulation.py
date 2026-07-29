@@ -28,6 +28,29 @@ def main() -> int:
         f"Synthetic log for {map_name}.\n", encoding="utf-8"
     )
     (replay_dir / f"{map_name}.orarep").write_bytes(b"synthetic replay")
+    telemetry_interval = int(os.environ["SIMULATION_TELEMETRY_INTERVAL_TICKS"])
+    if telemetry_interval > 0:
+        (result_path.parent / "telemetry.jsonl").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "recordType": "snapshot",
+                "matchId": os.environ["SIMULATION_MATCH_ID"],
+                "worldTick": 0,
+                "syntheticProcessId": os.getpid(),
+            }) + "\n",
+            encoding="utf-8",
+        )
+        (result_path.parent / "events.jsonl").write_text(
+            json.dumps({
+                "schemaVersion": 1,
+                "recordType": "event",
+                "matchId": os.environ["SIMULATION_MATCH_ID"],
+                "worldTick": 0,
+                "eventType": "match-start",
+                "reasonCode": "synthetic",
+            }) + "\n",
+            encoding="utf-8",
+        )
     if map_name == "invalid":
         print(
             "Exception of type `System.ArgumentException`: "
@@ -64,7 +87,7 @@ def main() -> int:
     seed = int(os.environ["SIMULATION_SEED"])
     max_ticks = int(os.environ["SIMULATION_MAX_TICKS"])
     watchdog = int(os.environ["SIMULATION_WATCHDOG_SECONDS"])
-    telemetry = int(os.environ["SIMULATION_TELEMETRY_INTERVAL_TICKS"])
+    telemetry = telemetry_interval
     headless = os.environ["SIMULATION_HEADLESS"].lower() == "true"
     state_hash = hashlib.sha256(
         f"{map_name}:{seed}:{max_ticks}:{','.join(bots)}".encode()
@@ -79,6 +102,71 @@ def main() -> int:
         "spawnPoint": 1,
         "homeCellX": 1,
         "homeCellY": 1,
+    }
+    settlement = {
+        "settlementId": "Multi0-1",
+        "actorId": 1,
+        "actorType": "base",
+        "foundedTick": 0,
+        "cellX": 1,
+        "cellY": 1,
+        "population": 1000,
+        "children": 220,
+        "adults": 650,
+        "elders": 130,
+        "workforce": 650,
+        "employed": 650,
+        "housing": 1200,
+        "jobs": 700,
+        "food": 600,
+        "materials": 400,
+        "energy": 300,
+        "knowledge": 0,
+        "foodStorage": 3000,
+        "materialsStorage": 2000,
+        "energyStorage": 1500,
+        "foodProduction": 30,
+        "materialsProduction": 12,
+        "energyProduction": 10,
+        "knowledgeProduction": 2,
+        "foodDemand": 25,
+        "materialsDemand": 2,
+        "energyDemand": 8,
+        "foodSatisfaction": 1000,
+        "housingSatisfaction": 1000,
+        "energySatisfaction": 1000,
+        "employmentSatisfaction": 1000,
+        "prosperity": 1000,
+        "stability": 1000,
+        "migrationPressure": 0,
+        "lastPopulationDelta": 0,
+        "civilPulseCount": 1,
+        "demographicPulseCount": 0,
+        "infrastructureCount": 1,
+    }
+    civilization = {
+        "model": "living-factions-v1",
+        "foundedTick": 0,
+        "population": 1000,
+        "children": 220,
+        "adults": 650,
+        "elders": 130,
+        "workforce": 650,
+        "employed": 650,
+        "housing": 1200,
+        "jobs": 700,
+        "food": 600,
+        "materials": 400,
+        "energy": 300,
+        "knowledge": 0,
+        "foodProduction": 30,
+        "materialsProduction": 12,
+        "energyProduction": 10,
+        "knowledgeProduction": 2,
+        "prosperity": 1000,
+        "stability": 1000,
+        "migrationPressure": 0,
+        "settlements": [settlement],
     }
     player_result = {
         **player_config,
@@ -96,6 +184,7 @@ def main() -> int:
         "cashAndResources": 0,
         "earned": 0,
         "spent": 0,
+        "civilization": civilization,
     }
     result = {
         "schemaVersion": 1,
@@ -124,6 +213,7 @@ def main() -> int:
             "maxWorldTicks": max_ticks,
             "watchdogSeconds": watchdog,
             "telemetryIntervalTicks": telemetry,
+            "civilizationProfile": os.environ["SIMULATION_CIVILIZATION_PROFILE"],
             "gitCommit": "fake-commit",
             "gitDirty": False,
             "resultPath": str(result_path),

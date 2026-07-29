@@ -451,6 +451,7 @@ World:
 		GameSpeedDropdownDisplayOrder: 3
 	ScrapOptions:
 		CheckboxDisplayOrder: 8
+	CivilizationScenario:
 	TimeLimitManager:
 	VariedCostManager:
 		Multiplier: 110, 120

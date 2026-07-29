@@ -49,6 +49,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 			var config = SimulationConfig.Parse(args, map);
 			var startedUtc = DateTime.UtcNow;
 			var simulationComplete = false;
+			SimulationTelemetryWriter telemetry = null;
 
 			Ui.ResetAll();
 			Game.Settings.Save();
@@ -95,6 +96,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 					}
 
 					orderManager.IssueOrder(Order.Command($"option gamespeed {config.GameSpeed}"));
+					orderManager.IssueOrder(
+						Order.Command($"option civilizationprofile {config.CivilizationProfile}"));
 					Game.RunAfterTick(StartSimulation);
 					return;
 				}
@@ -133,6 +136,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 
 					simulationComplete = true;
 					orderManager.World.SetLocalPauseState(true);
+					telemetry?.Complete(orderManager.World, endReason);
 
 					if (!string.IsNullOrEmpty(config.ResultPath))
 						SimulationResultWriter.Write(
@@ -156,6 +160,13 @@ namespace OpenRA.Mods.HV.LoadScreens
 				void GameStarted()
 				{
 					Game.AfterGameStart -= GameStarted;
+					var nextTelemetryTick = config.TelemetryIntervalTicks;
+					if (config.TelemetryIntervalTicks > 0 && !string.IsNullOrEmpty(config.ResultPath))
+					{
+						telemetry = new SimulationTelemetryWriter(config);
+						telemetry.Start(orderManager.World);
+					}
+
 					orderManager.World.GameOver += () =>
 						FinishSimulation(SimulationEndReason.NaturalVictory, "The engine declared the match complete.");
 
@@ -163,6 +174,12 @@ namespace OpenRA.Mods.HV.LoadScreens
 					{
 						if (simulationComplete)
 							return;
+
+						if (telemetry != null && orderManager.World.WorldTick >= nextTelemetryTick)
+						{
+							telemetry.Capture(orderManager.World);
+							nextTelemetryTick += config.TelemetryIntervalTicks;
+						}
 
 						if (orderManager.World.WorldTick >= config.MaxWorldTicks)
 							FinishSimulation(

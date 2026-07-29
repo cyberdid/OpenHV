@@ -39,6 +39,7 @@ namespace OpenRA.Mods.HV
 		public int MaxWorldTicks { get; init; }
 		public int WatchdogSeconds { get; init; }
 		public int TelemetryIntervalTicks { get; init; }
+		public string CivilizationProfile { get; init; }
 		public string GitCommit { get; init; }
 		public bool GitDirty { get; init; }
 		public string ResultPath { get; init; }
@@ -88,6 +89,14 @@ namespace OpenRA.Mods.HV
 				ParseOptionalNonNegativeInt(args, "Launch.SimulationWatchdogSeconds") ?? DefaultWatchdogSeconds;
 			var telemetryIntervalTicks =
 				ParseOptionalNonNegativeInt(args, "Launch.SimulationTelemetryIntervalTicks") ?? 0;
+			var civilizationProfile = args.GetValue(
+				"Launch.SimulationCivilizationProfile",
+				Traits.CivilizationScenarioInfo.Balanced);
+			if (civilizationProfile != Traits.CivilizationScenarioInfo.Balanced &&
+				civilizationProfile != Traits.CivilizationScenarioInfo.Scarcity)
+				throw new ArgumentException(
+					"Launch.SimulationCivilizationProfile must be 'balanced' or 'scarcity', " +
+					$"but was '{civilizationProfile}'.");
 
 			var gitDirtyText = args.GetValue("Launch.SimulationGitDirty", "false");
 			if (!bool.TryParse(gitDirtyText, out var gitDirty))
@@ -129,6 +138,7 @@ namespace OpenRA.Mods.HV
 				MaxWorldTicks = maxWorldTicks.Value,
 				WatchdogSeconds = watchdogSeconds,
 				TelemetryIntervalTicks = telemetryIntervalTicks,
+				CivilizationProfile = civilizationProfile,
 				GitCommit = gitCommit,
 				GitDirty = gitDirty,
 				ResultPath = args.GetValue("Launch.SimulationResult", "")

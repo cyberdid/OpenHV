@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "runId": "living-factions-v1",
+  "description": "Balanced growth, peaceful stewardship, and food-scarcity validation for Living Factions v1.",
+  "defaults": {
+    "bots": [
+      "steward"
+    ],
+    "headless": true,
+    "gameSpeed": "fastest",
+    "maxWorldTicks": 3500,
+    "watchdogSeconds": 120,
+    "telemetryIntervalTicks": 250,
+    "civilizationProfile": "balanced"
+  },
+  "runner": {
+    "workers": 1,
+    "maxInfrastructureRetries": 1,
+    "processTimeoutGraceSeconds": 60,
+    "successfulReplaySampleEvery": 1
+  },
+  "matches": [
+    {
+      "id": "peaceful-growth",
+      "map": "coldrage",
+      "seed": 7501
+    },
+    {
+      "id": "balanced-combat-ai",
+      "map": "coldrage",
+      "seed": 7401,
+      "bots": [
+        "rogue"
+      ]
+    },
+    {
+      "id": "food-scarcity",
+      "map": "coldrage",
+      "seed": 7401,
+      "civilizationProfile": "scarcity"
+    }
+  ]
+}

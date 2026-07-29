@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/simulation-event-v1.schema.json",
+  "title": "Universe simulation event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "matchId",
+    "worldTick",
+    "eventType",
+    "reasonCode"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "recordType": { "const": "event" },
+    "matchId": { "type": "string", "minLength": 1 },
+    "worldTick": { "type": "integer", "minimum": 0 },
+    "eventType": {
+      "enum": [
+        "match-start",
+        "match-end",
+        "settlement-founded",
+        "population-changed",
+        "shortage-started",
+        "shortage-resolved"
+      ]
+    },
+    "reasonCode": { "type": "string", "minLength": 1 },
+    "playerName": { "type": "string" },
+    "settlementId": { "type": "string", "minLength": 1 },
+    "value": { "type": "integer" },
+    "previousValue": { "type": "integer" },
+    "mapUid": { "type": "string", "minLength": 1 },
+    "randomSeed": { "type": "integer" },
+    "synchronizedStateHash": {
+      "type": "string",
+      "pattern": "^[0-9A-F]{8}$"
+    }
+  }
+}

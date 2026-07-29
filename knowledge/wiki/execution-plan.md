@@ -302,8 +302,9 @@ runs/<run-id>/
     attempt-N-support/
 ```
 
-`telemetry.jsonl` and `events.jsonl` join this boundary in Phase 3; they are not
-claimed as current Batch v1 artifacts.
+`telemetry.jsonl` and `events.jsonl` now join this boundary when telemetry is
+enabled. Retry/resume preserves prior files under attempt-qualified names
+before a new process writes canonical artifacts.
 
 ### Work
 
@@ -357,6 +358,12 @@ Gate result:
 ## Phase 3 — Telemetry schema v1
 
 Goal: observe strategy, not merely final score.
+
+Status: civil foundation complete on 2026-07-29. Strict snapshot and event
+schemas, synchronized hashes, battle/economy counters, complete civilization
+and settlement state, lifecycle/founding/population/shortage events, and
+retry-safe JSONL artifacts are implemented. The wider tactical event catalog
+below remains incremental work.
 
 ### Match metadata
 
@@ -414,6 +421,17 @@ At a fixed world-tick interval:
 - Telemetry collection changes runtime by less than 10% at the default sample
   interval.
 - A replay inspection confirms a sample of emitted events.
+
+Current gate:
+
+- schema validation: passed for final result, 15-snapshot civil runs, and
+  reason-coded event streams;
+- definitions: recorded in
+  [Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md);
+- overhead: passed; paired 10,000-tick runs had the same hash and 0.58%
+  observed user-CPU increase;
+- replay/event correlation: still open for tactical events; civil events are
+  currently derived from synchronized snapshots rather than replay orders.
 
 ## Phase 4 — Scenario lifecycle and long-horizon stability
 
@@ -827,6 +845,12 @@ designed together so the first Living Factions behavior is observable.
 
 Exit: four factions can live, grow, and experience shortages without mandatory
 war.
+
+Status: complete on 2026-07-29 for SIM-008's civil foundation and
+LIFE-001–003. Balanced factions grew to 1,006, scarcity factions fell to 992
+after a recorded food shortage, and four Steward AIs grew with zero
+kills/losses. Final, snapshot, and event artifacts validated; telemetry
+preserved determinism and passed the overhead gate. Sprint 5 is now active.
 
 ### Sprint 5 — 8 to 12 focused days
 

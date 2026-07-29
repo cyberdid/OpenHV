@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/simulation-telemetry-v1.schema.json",
+  "title": "Universe simulation telemetry snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "matchId",
+    "worldTick",
+    "synchronizedStateHash",
+    "players"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "recordType": { "const": "snapshot" },
+    "matchId": { "type": "string", "minLength": 1 },
+    "worldTick": { "type": "integer", "minimum": 0 },
+    "synchronizedStateHash": {
+      "type": "string",
+      "pattern": "^[0-9A-F]{8}$"
+    },
+    "players": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/player" }
+    }
+  },
+  "$defs": {
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "playerName",
+        "faction",
+        "outcome",
+        "cashAndResources",
+        "earned",
+        "spent",
+        "powerProvided",
+        "powerDrained",
+        "armyValue",
+        "assetsValue",
+        "killsValue",
+        "deathsValue",
+        "civilization"
+      ],
+      "properties": {
+        "playerName": { "type": "string" },
+        "faction": { "type": "string" },
+        "outcome": { "enum": ["undefined", "won", "lost"] },
+        "cashAndResources": { "type": "integer", "minimum": 0 },
+        "earned": { "type": "integer", "minimum": 0 },
+        "spent": { "type": "integer", "minimum": 0 },
+        "powerProvided": { "type": "integer", "minimum": 0 },
+        "powerDrained": { "type": "integer", "minimum": 0 },
+        "armyValue": { "type": "integer", "minimum": 0 },
+        "assetsValue": { "type": "integer", "minimum": 0 },
+        "killsValue": { "type": "integer", "minimum": 0 },
+        "deathsValue": { "type": "integer", "minimum": 0 },
+        "civilization": {
+          "$ref": "simulation-result-v1.schema.json#/$defs/civilization"
+        }
+      }
+    }
+  }
+}

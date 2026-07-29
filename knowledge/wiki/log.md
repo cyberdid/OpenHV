@@ -183,3 +183,40 @@ schedule hash matches the executed schedule, parsed the raw experiment CSV
 with a uniform 21-column shape, and checked all wiki frontmatter and relative
 Markdown links. Removed stale “batch remains open” claims from compiled pages;
 historical append-only log statements remain unchanged.
+
+## [2026-07-29] change | Living Factions civil vertical slice
+
+Completed LIFE-001–003. Added synchronized `CivilizationState`,
+`SettlementCore`, and `CivilInfrastructure` traits; deterministic 250-tick
+civil and 3,000-tick demographic pulses; explicit population cohorts,
+workforce, jobs, housing, food, materials, energy, knowledge, stocks,
+production, needs, prosperity, stability, and shortage mortality. Existing
+buildings now contribute civil capacity and flows. Added synchronized
+`balanced`/`scarcity` profiles and the non-attacking Steward AI control. See
+[Living Factions Design](faction-life.md).
+
+## [2026-07-29] change | Telemetry and Event Schemas v1
+
+Added line-flushed periodic snapshots, synchronized checkpoint hashes,
+complete civil state, and reason-coded lifecycle/founding/population/shortage
+events. Result Schema v1 gained backward-compatible optional civil fields.
+Batch retry/resume now preserves prior telemetry and event streams, covered by
+the seven-test integration suite. See [Architecture](architecture.md).
+
+## [2026-07-29] experiment | Balanced growth, scarcity, peace, and overhead
+
+Balanced factions grew from 1,000 to 1,006 residents; the scarcity control
+emitted a food shortage at tick 2,250 and fell to 992 at tick 3,000. Four
+Steward AIs developed to tick 3,500 with zero kills/losses. Telemetry on/off
+at 10,000 ticks preserved hash `748B3676`; observed user-CPU overhead was
+0.58%. All JSON/JSONL artifacts passed Schema v1. See
+[Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md).
+
+## [2026-07-29] lint | Sprint 4 contract and wiki consistency
+
+Validated 19 wiki pages for required frontmatter, catalog inclusion, and
+relative links; parsed the immutable six-row/23-column experiment CSV;
+validated all five batch manifests; validated balanced, scarcity, and Steward
+result/snapshot/event artifacts; and confirmed that a legacy Result v1 object
+without the new optional civil fields still passes the backward-compatible
+schema.

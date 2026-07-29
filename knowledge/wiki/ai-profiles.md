@@ -5,6 +5,7 @@ updated: 2026-07-29
 sources:
   - ../../mods/hv/rules/bots.yaml
   - experiments/2026-07-29-baseline-tournament.md
+  - experiments/2026-07-29-living-factions-v1.md
 tags:
   - ai
   - balancing
@@ -43,6 +44,20 @@ cash thresholds, and build limits differ.
   move out with large formations.
 - Largest squad target and longest rush delay.
 - Emphasizes repair, mine-laying, artillery, and defensive unit composition.
+
+## Steward — Steward AI
+
+- Intended behavior: peaceful civil-development fixture.
+- Uses shared base, builder, repair, and economic construction logic.
+- Builds no combat units and creates no attack squads.
+- Exists to test population, infrastructure, research, shortages, trade, and
+  diplomacy without making combat the default source of activity.
+- Four Steward AIs reached tick 3,500 with population growth and zero
+  kills/losses in the
+  [Living Factions validation](experiments/2026-07-29-living-factions-v1.md).
+
+Steward is an experiment control, not a substitute for runtime neutral
+relationships.
 
 ## Evidence status
 

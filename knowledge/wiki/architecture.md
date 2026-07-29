@@ -8,7 +8,12 @@ sources:
   - ../../OpenRA.Mods.HV/Simulation/SimulationEndReason.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationResult.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationResultWriter.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
+  - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
+  - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
   - ../../schemas/simulation-result-v1.schema.json
+  - ../../schemas/simulation-telemetry-v1.schema.json
+  - ../../schemas/simulation-event-v1.schema.json
   - ../../apply-engine-patches.sh
   - ../../engine-patches/openra-headless.patch
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
@@ -49,13 +54,18 @@ tags:
 8. Bot modules use the seed-derived `World.BotRandom`; render/audio cosmetics
    continue to use `World.LocalRandom`, so execution mode cannot change later
    strategic choices.
-9. A mod-owned callback checks `WorldTick` before each following logic tick.
-10. Natural game-over, the synchronized tick limit, or the deadlock watchdog
+9. `SettlementCore` actors advance civil and demographic pulses using only
+   synchronized integer state; infrastructure is assigned by distance and
+   actor-ID tie-breaking.
+10. When enabled, a mod-owned observer writes periodic JSONL snapshots and
+    derives reason-coded civil events without mutating synchronized state.
+11. A mod-owned callback checks `WorldTick` before each following logic tick.
+12. Natural game-over, the synchronized tick limit, or the deadlock watchdog
     calls `SimulationResultWriter`.
-11. Artificial terminal conditions finalize the `World` after result capture
+13. Artificial terminal conditions finalize the `World` after result capture
     so replay metadata records the terminal tick without changing the captured
     synchronized state.
-12. The batch runner validates Result Schema v1 plus config correspondence,
+14. The batch runner validates Result Schema v1 plus config correspondence,
     classifies the attempt, harvests replay/support diagnostics, atomically
     writes status, and aggregates only valid completed results.
 
@@ -69,14 +79,19 @@ tags:
 | `PanelLoadScreen.cs` | Deterministically constructs, starts, monitors, and stops autonomous lobbies |
 | `SimulationResult.cs` | Defines the strongly typed result contract |
 | `SimulationResultWriter.cs` | Captures synchronized state/statistics and atomically writes JSON |
+| `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
+| `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
+| `CivilizationScenario.cs` | Defines synchronized balanced/scarcity lobby profiles |
 | `schemas/simulation-result-v1.schema.json` | Validates serialized result artifacts |
+| `schemas/simulation-telemetry-v1.schema.json` | Validates each periodic snapshot record |
+| `schemas/simulation-event-v1.schema.json` | Validates each lifecycle/civil event record |
 | `engine-patches/openra-headless.patch` | Adds the engine runtime flag, fast loop, deterministic local server and RNG streams |
 | `engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs` | Supplies no-op window, graphics, font, cursor, and sound contracts |
 | `apply-engine-patches.sh` / `.ps1` | Idempotently patches a version-pinned downloaded SDK and routes stock bot modules to `BotRandom` |
 | `run-simulation.sh` | Launches one reproducible simulation |
 | `run-batch.py` | Resolves manifests and runs isolated, resumable, validated attempts |
 | `schemas/simulation-batch-manifest-v1.schema.json` | Validates schedule and execution controls |
-| `batch-manifests/*.json` | Stores reproducible smoke, soak, interruption, and isolation schedules |
+| `batch-manifests/*.json` | Stores reproducible smoke, soak, failure, and Living Factions schedules |
 | `tests/test_batch_runner.py` | Exercises retry, timeout, signals, resume, drift, and partial artifacts |
 | `run-tournament.sh` | Runs a map/seed series and creates standings |
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
@@ -96,7 +111,20 @@ Every result records:
 - end reason/detail, final world tick, simulated seconds, and synchronized
   state hash;
 - natural winners and score leader as separate fields;
-- final per-player combat and economy statistics.
+- final per-player combat/economy statistics and optional backward-compatible
+  civilization/settlement state;
+- synchronized `civilizationProfile` when produced by the current runtime.
+
+Telemetry-enabled matches additionally write:
+
+- `telemetry.jsonl`: tick, synchronized hash, battle/economy counters, and
+  complete civilization/settlement snapshots;
+- `events.jsonl`: match lifecycle, settlement founding, population changes,
+  and shortage start/resolution with stable reason codes.
+
+Both streams are line-flushed so a process failure retains complete prior
+records. A retry or resume moves an existing stream to an attempt-qualified
+artifact before the canonical path is recreated.
 
 The current composite score is:
 

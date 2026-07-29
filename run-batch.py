@@ -40,6 +40,7 @@ DEFAULT_OPTIONS = {
     "maxWorldTicks": 1500,
     "watchdogSeconds": 120,
     "telemetryIntervalTicks": 0,
+    "civilizationProfile": "balanced",
 }
 DEFAULT_RUNNER = {
     "workers": 1,
@@ -372,6 +373,7 @@ class BatchRunner:
             "maxWorldTicks": match["maxWorldTicks"],
             "watchdogSeconds": match["watchdogSeconds"],
             "telemetryIntervalTicks": match["telemetryIntervalTicks"],
+            "civilizationProfile": match["civilizationProfile"],
         }
         for key, expected_value in expected.items():
             if config.get(key) != expected_value:
@@ -412,10 +414,14 @@ class BatchRunner:
                 numbers.append(int(match.group(1)))
         return max(numbers, default=0) + 1
 
-    def preserve_prior_result(self, match_dir: Path, attempt: int) -> None:
-        result_path = match_dir / "result.json"
-        if result_path.exists():
-            os.replace(result_path, match_dir / f"attempt-{attempt}-prior-result.json")
+    def preserve_prior_artifacts(self, match_dir: Path, attempt: int) -> None:
+        for artifact_name in ("result.json", "telemetry.jsonl", "events.jsonl"):
+            artifact_path = match_dir / artifact_name
+            if artifact_path.exists():
+                os.replace(
+                    artifact_path,
+                    match_dir / f"attempt-{attempt}-prior-{artifact_name}",
+                )
 
     def classify_attempt(
         self,
@@ -464,7 +470,7 @@ class BatchRunner:
         stderr_path = match_dir / f"attempt-{attempt}.stderr.log"
         result_path = match_dir / "result.json"
         support_dir = match_dir / f"attempt-{attempt}-support"
-        self.preserve_prior_result(match_dir, attempt)
+        self.preserve_prior_artifacts(match_dir, attempt)
 
         env = os.environ.copy()
         env.update(
@@ -478,6 +484,7 @@ class BatchRunner:
                 "SIMULATION_TELEMETRY_INTERVAL_TICKS": str(
                     match["telemetryIntervalTicks"]
                 ),
+                "SIMULATION_CIVILIZATION_PROFILE": match["civilizationProfile"],
                 "SIMULATION_MATCH_ID": match["id"],
                 "SIMULATION_RESULT": str(result_path),
                 "OPENHV_SUPPORT_DIR": str(support_dir),

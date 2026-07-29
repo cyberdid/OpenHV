@@ -36,6 +36,7 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
                 "maxWorldTicks": 50,
                 "watchdogSeconds": 10,
                 "telemetryIntervalTicks": 0,
+                "civilizationProfile": "balanced",
             },
             "runner": {
                 "workers": 2,
@@ -166,6 +167,7 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
         self.manifest["runId"] = "partial-attempt"
         self.manifest["runner"]["workers"] = 1
         self.manifest["runner"]["maxInfrastructureRetries"] = 0
+        self.manifest["defaults"]["telemetryIntervalTicks"] = 10
         self.manifest["matches"] = [
             {"id": "partial", "map": "valid", "seed": 13}
         ]
@@ -188,6 +190,8 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
         )
         self.assertTrue((match_dir / "attempt-2.json").is_file())
         self.assertTrue((match_dir / "attempt-2-prior-result.json").is_file())
+        self.assertTrue((match_dir / "attempt-2-prior-telemetry.jsonl").is_file())
+        self.assertTrue((match_dir / "attempt-2-prior-events.jsonl").is_file())
         with (match_dir / "status.json").open(encoding="utf-8") as stream:
             status = json.load(stream)
         self.assertEqual(status["lastAttempt"], 2)

@@ -72,5 +72,75 @@ namespace OpenRA.Mods.HV
 		public int CashAndResources { get; init; }
 		public int Earned { get; init; }
 		public int Spent { get; init; }
+		public SimulationCivilizationResult Civilization { get; init; }
+	}
+
+	public sealed class SimulationCivilizationResult
+	{
+		public string Model { get; init; }
+		public int FoundedTick { get; init; }
+		public int Population { get; init; }
+		public int Children { get; init; }
+		public int Adults { get; init; }
+		public int Elders { get; init; }
+		public int Workforce { get; init; }
+		public int Employed { get; init; }
+		public int Housing { get; init; }
+		public int Jobs { get; init; }
+		public int Food { get; init; }
+		public int Materials { get; init; }
+		public int Energy { get; init; }
+		public int Knowledge { get; init; }
+		public int FoodProduction { get; init; }
+		public int MaterialsProduction { get; init; }
+		public int EnergyProduction { get; init; }
+		public int KnowledgeProduction { get; init; }
+		public int Prosperity { get; init; }
+		public int Stability { get; init; }
+		public int MigrationPressure { get; init; }
+		public SimulationSettlementResult[] Settlements { get; init; }
+	}
+
+	public sealed class SimulationSettlementResult
+	{
+		public string SettlementId { get; init; }
+		public uint ActorId { get; init; }
+		public string ActorType { get; init; }
+		public int FoundedTick { get; init; }
+		public int CellX { get; init; }
+		public int CellY { get; init; }
+		public int Population { get; init; }
+		public int Children { get; init; }
+		public int Adults { get; init; }
+		public int Elders { get; init; }
+		public int Workforce { get; init; }
+		public int Employed { get; init; }
+		public int Housing { get; init; }
+		public int Jobs { get; init; }
+		public int Food { get; init; }
+		public int Materials { get; init; }
+		public int Energy { get; init; }
+		public int Knowledge { get; init; }
+		public int FoodStorage { get; init; }
+		public int MaterialsStorage { get; init; }
+		public int EnergyStorage { get; init; }
+		public int FoodProduction { get; init; }
+		public int MaterialsProduction { get; init; }
+		public int EnergyProduction { get; init; }
+		public int KnowledgeProduction { get; init; }
+		public int FoodDemand { get; init; }
+		public int MaterialsDemand { get; init; }
+		public int EnergyDemand { get; init; }
+		public int FoodSatisfaction { get; init; }
+		public int HousingSatisfaction { get; init; }
+		public int EnergySatisfaction { get; init; }
+		public int EmploymentSatisfaction { get; init; }
+		public int Prosperity { get; init; }
+		public int Stability { get; init; }
+		public int MigrationPressure { get; init; }
+		public int LastPopulationDelta { get; init; }
+		public int CivilPulseCount { get; init; }
+		public int DemographicPulseCount { get; init; }
+		public int InfrastructureCount { get; init; }
 	}
 }

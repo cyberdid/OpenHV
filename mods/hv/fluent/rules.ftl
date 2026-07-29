@@ -6,6 +6,12 @@ options-starting-units =
     .base-miner = Base + Miner
     .base-scout = Base + Scout
 
+options-civilization-profile =
+    .label = Civilization profile
+    .description = Selects deterministic living-faction production and reserve conditions.
+    .balanced = Balanced growth
+    .scarcity = Food scarcity
+
 ### MapBuildRadius
 checkbox-build-radius =
     .label = Limit Build Area
@@ -90,6 +96,8 @@ bot-technologist-ai =
    .name = Ascendant AI
 bot-fortress-ai =
    .name = Bastion AI
+bot-steward-ai =
+   .name = Steward AI
 
 ## Notifications
 notification-game-loaded = Game loaded.

@@ -18,7 +18,11 @@ The local development fork can launch a hands-off AI match with the local client
 
 The first argument is a map folder name. `coldrage` is the default and starts four AI factions in a free-for-all match at the fastest game speed.
 
-Four strategy profiles are available: `aggressor`, `economist`, `technologist`, and `fortress`. A mixed match that stops after 1,500 synchronized world ticks (30 simulated seconds at the `fastest` 20 ms timestep) and writes a versioned result can be launched with:
+Five strategy profiles are available: `aggressor`, `economist`,
+`technologist`, `fortress`, and the non-attacking civil-development
+`steward`. A mixed match that stops after 1,500 synchronized world ticks
+(30 simulated seconds at the `fastest` 20 ms timestep) and writes a versioned
+result can be launched with:
 
 ```sh
 SIMULATION_HEADLESS=true \
@@ -35,6 +39,27 @@ simulation horizon. `SIMULATION_DURATION` remains a deprecated compatibility
 input and is converted to simulated ticks. Results follow
 [`simulation-result-v1.schema.json`](schemas/simulation-result-v1.schema.json)
 and distinguish `naturalWinners` from the composite `scoreLeader`.
+
+Current results also expose synchronized civilization/settlement state.
+Enable periodic JSONL snapshots and reason-coded events with
+`SIMULATION_TELEMETRY_INTERVAL_TICKS=250`. Select the synchronized
+`balanced` or `scarcity` civil fixture with
+`SIMULATION_CIVILIZATION_PROFILE`; for example:
+
+```sh
+SIMULATION_HEADLESS=true \
+SIMULATION_BOTS=steward \
+SIMULATION_CIVILIZATION_PROFILE=scarcity \
+SIMULATION_TELEMETRY_INTERVAL_TICKS=250 \
+SIMULATION_MAX_TICKS=3500 \
+SIMULATION_RESULT=/tmp/living-factions/result.json \
+./run-simulation.sh coldrage
+```
+
+This writes `result.json`, `telemetry.jsonl`, and `events.jsonl` using the
+schemas under [`schemas/`](schemas/). The reproducible balanced, peaceful, and
+scarcity schedule is
+[`batch-manifests/living-factions-v1.json`](batch-manifests/living-factions-v1.json).
 
 `SIMULATION_HEADLESS=true` uses a no-window, no-OpenGL, no-audio runtime. The
 normal game and `run-simulation.sh` remain graphical by default, while
@@ -68,7 +93,8 @@ Batch runs default to `../simulation-runs/<run-id>`. Each match attempt runs in
 an isolated OS process and OpenRA support directory. The run records the
 original and resolved manifests, runtime/Git provenance, session history,
 aggregate summary, per-match config/status/result, attempt logs, failure
-support files, and configured replay samples. Resume a run without repeating
+support files, configured replay samples, and enabled telemetry/event streams.
+Resume a run without repeating
 validated completed matches:
 
 ```sh

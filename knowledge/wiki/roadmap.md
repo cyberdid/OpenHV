@@ -9,6 +9,7 @@ sources:
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
   - experiments/2026-07-29-batch-runner-v1.md
+  - experiments/2026-07-29-living-factions-v1.md
 tags:
   - roadmap
   - planning
@@ -111,6 +112,13 @@ Acceptance:
 
 See [Living Factions Design](faction-life.md).
 
+Status: LIFE-001–003 complete. Four capitals now run synchronized civil and
+demographic pulses; balanced growth, shortage mortality, explicit building
+flows, peaceful Steward development, deterministic repeat, and civil
+telemetry passed. Default-neutral diplomacy, research unlocks, migration, and
+military/civilian coupling remain open, so the full P0.5 acceptance gate is
+not yet complete.
+
 ## P1 — Strategic telemetry
 
 Capture time-series and final metrics for population, needs, migration,
@@ -122,6 +130,12 @@ Acceptance:
 - metrics have documented definitions and units;
 - schema version is included in every result;
 - tournament aggregation can compare profiles by map and spawn.
+
+Status: foundation complete. Result Schema v1 now admits civil state, and
+strict Telemetry/Event Schemas v1 validate snapshots and reason-coded civil
+events. A 10,000-tick paired run preserved the synchronized hash with 0.58%
+observed user-CPU overhead. Tactical production/scouting/combat events and
+broader strategic dimensions remain open.
 
 ## P1 — Dynamic diplomacy and trade
 

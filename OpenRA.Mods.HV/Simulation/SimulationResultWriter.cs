@@ -10,11 +10,11 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using OpenRA.Mods.Common.Traits;
-using OpenRA.Traits;
 
 namespace OpenRA.Mods.HV
 {
@@ -72,7 +72,8 @@ namespace OpenRA.Mods.HV
 						AssetsValue = stats?.AssetsValue ?? 0,
 						CashAndResources = resources?.GetCashAndResources() ?? 0,
 						Earned = resources?.Earned ?? 0,
-						Spent = resources?.Spent ?? 0
+						Spent = resources?.Spent ?? 0,
+						Civilization = SimulationCivilizationSnapshotBuilder.Build(world, player)
 					};
 				})
 				.OrderByDescending(player => player.Outcome == WinState.Won.ToString().ToLowerInvariant())
@@ -123,7 +124,9 @@ namespace OpenRA.Mods.HV
 				EndedUtc = DateTime.UtcNow,
 				WorldTick = world.WorldTick,
 				SimulatedSeconds = world.WorldTick * world.Timestep / 1000d,
-				SynchronizedStateHash = unchecked((uint)world.SyncHash()).ToString("X8"),
+				SynchronizedStateHash = unchecked((uint)world.SyncHash()).ToString(
+					"X8",
+					CultureInfo.InvariantCulture),
 				NaturalWinners = naturalWinners,
 				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
 				Players = players

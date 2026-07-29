@@ -10,6 +10,7 @@ sources:
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
   - experiments/2026-07-29-batch-runner-v1.md
+  - experiments/2026-07-29-living-factions-v1.md
 tags:
   - vision
   - status
@@ -35,8 +36,8 @@ rather than a conventional player-controlled game.
   and modular-bot systems.
 - A local observer can automatically start a free-for-all match with no human
   participant.
-- Four AI profiles are selectable: aggressor, economist, technologist, and
-  fortress.
+- Five AI profiles are selectable: aggressor, economist, technologist,
+  fortress, and non-attacking civil-development Steward.
 - Match composition, map, speed, seed, synchronized world-tick horizon,
   watchdog, telemetry interval, and result path are configurable and validated.
 - The same client gameplay path can run through a no-window/no-audio headless
@@ -57,16 +58,23 @@ rather than a conventional player-controlled game.
   replay/failure diagnostics.
 - Exact-commit 100-match soaks completed 100/100 sequentially and with four
   workers. Resume skipped all completed matches without adding attempts.
+- Every faction now has synchronized civilization and settlement state with
+  population cohorts, workforce, jobs, housing, food, materials, energy,
+  knowledge, needs, prosperity, stability, and demographic consequences.
+- Result Schema v1 has backward-compatible civil extensions; Telemetry and
+  Event Schemas v1 capture periodic player/settlement snapshots and
+  reason-coded civil transitions as JSONL.
+- Balanced growth, deterministic telemetry parity, food-scarcity mortality,
+  zero-combat Steward growth, and sub-1% observed CPU overhead passed.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-Batch infrastructure is proven only on short 100-tick matches; late-game
-memory/performance, natural outcomes, and telemetry overhead still need
-measurement. The initial 30-second tournament used the deprecated wall-clock
-cutoff and remains only a startup/scoring test. Time-series telemetry,
-population, settlements, civil resources, research, trade, migration, and
-dynamic diplomacy are not implemented yet.
+Late-game memory/performance and natural outcomes still need measurement. The
+initial 30-second tournament used the deprecated wall-clock cutoff and remains
+only a startup/scoring test. Civil telemetry covers the first settlement
+slice, but territory, research unlocks, trade, migration transfer, casualty
+coupling, and dynamic diplomacy are not implemented yet.
 
 ## Success criteria
 
@@ -94,3 +102,4 @@ The simulation becomes useful when it can:
 - [Deterministic headless runtime validation](experiments/2026-07-29-headless-runtime.md)
 - [Headless dummy-audio performance fix](experiments/2026-07-29-headless-performance-fix.md)
 - [Resumable batch runner v1 validation](experiments/2026-07-29-batch-runner-v1.md)
+- [Living Factions and Telemetry v1 validation](experiments/2026-07-29-living-factions-v1.md)
