@@ -35,7 +35,10 @@ This is the maintained entry point for the autonomous RTS simulation project.
   evidence.
 - [Deterministic headless runtime validation, 2026-07-29](experiments/2026-07-29-headless-runtime.md)
   — no-device execution, 1,500-tick graphical parity, repeat determinism, and
-  the still-open throughput gate.
+  the initial failed throughput gate.
+- [Headless dummy-audio performance fix, 2026-07-29](experiments/2026-07-29-headless-performance-fix.md)
+  — managed profile, 88% wall-time reduction, repeated 6.17×+ throughput, and
+  the closed Sprint 2 gate.
 
 ## Decisions
 

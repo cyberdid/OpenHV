@@ -1,10 +1,11 @@
 ---
 title: "Decision 0004: Accept the logic-only headless client runtime"
-status: accepted-with-performance-follow-up
+status: accepted
 updated: 2026-07-29
 sources:
   - ../architecture.md
   - ../experiments/2026-07-29-headless-runtime.md
+  - ../experiments/2026-07-29-headless-performance-fix.md
   - ../../../engine-patches/openra-headless.patch
 tags:
   - decision
@@ -54,9 +55,11 @@ simulates gameplay.
 - Bot randomness is now an explicit strategic stream for deterministic
   simulation.
 - No-op rendering removes device dependencies but not all render-trait work.
-- The architecture is accepted for correctness, but its throughput is not:
-  the measured 0.738× real time misses the 5× gate. Profiling and optimization
-  remain mandatory before a 100-match soak is considered routine.
+- The initial 0.738× result was dominated by repeated dummy-audio OGG decoding.
+  A narrow capability guard produced repeated 6.173×+ runs and closed the 5×
+  gate without changing synchronized results.
+- A 100-match soak is now gated by reliable batch orchestration rather than the
+  one-match runtime.
 
 ## Revisit conditions
 

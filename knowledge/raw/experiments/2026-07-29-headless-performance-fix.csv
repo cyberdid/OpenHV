@@ -1,0 +1,7 @@
+test,mode,map,seed,max_world_ticks,simulated_seconds,wall_seconds,realtime_multiple,synchronized_state_hash,observed,result
+pre-fix-final,headless,Cold Rage,424242,1500,30,40.66,0.738,0AC799D4,"dummy engine repeatedly decoded completed OGG music",fail
+managed-profile,headless,Cold Rage,424242,1000,20,15.00,,BBFA595B,"87.49% of sampled main-thread interval under OggFormat construction; 87.68% under LoadSound",diagnosed
+post-fix-run-a,headless,Cold Rage,424242,1500,30,4.73,6.342,0AC799D4,"DummyEngine bypasses effect and music decoding",pass
+post-fix-run-b,headless,Cold Rage,424242,1500,30,4.86,6.173,0AC799D4,"normalized artifact identical to graphical reference",pass
+graphical-headless-parity,both,Cold Rage,424242,1500,30,,,0AC799D4,"full normalized cross-mode result matched after optimization",pass
+release-build-tests,both,,,,,,,,"Release build; full OpenHV MiniYAML, map, Fluent, sprite sequence tests",pass

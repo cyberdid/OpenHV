@@ -15,6 +15,7 @@ sources:
   - ../../check-headless-equivalence.sh
   - ../../run-simulation.sh
   - ../../run-tournament.sh
+  - experiments/2026-07-29-headless-performance-fix.md
 tags:
   - architecture
   - runtime
@@ -116,6 +117,9 @@ shaders, cursors, and framebuffers without creating SDL, OpenGL, a native
 window, or an audio device. The headless loop advances `LogicTick` as fast as
 orders are available. UI/cursor work and device presentation are skipped, but
 world render-trait ticks remain because some content expects their lifecycle.
+The normal `Sound` manager also returns before opening sound/music assets when
+its backend reports `DummyEngine`; otherwise an immediately-complete no-op
+track would continuously advance and decode the music playlist.
 
 `Engine.DeterministicSimulation=true` is separate from headlessness and is
 enabled by every simulation launch. It seeds:
@@ -136,10 +140,13 @@ Windows build scripts. Patch compatibility is a required engine-upgrade gate.
 
 ## Current performance boundary
 
-Correctness and device isolation are verified at 1,500 ticks, but throughput is
-not yet acceptable. The measured headless run simulated 30 seconds in 40.66
-wall seconds (0.738× real time), below the 5× minimum. The no-op platform
-removed graphics/audio dependencies; synchronized logic, bot computation,
-allocations/GC, pathfinding, and local order transport are now the optimization
-surface. See the
-[headless runtime experiment](experiments/2026-07-29-headless-runtime.md).
+Correctness and device isolation are verified at 1,500 ticks. After profiling
+and bypassing dummy-engine media decoding, repeated runs simulated 30 seconds
+in 4.73 and 4.86 wall seconds (6.342× and 6.173× real time). This passes the 5×
+Sprint 2 minimum; the aspirational 20× target remains open.
+
+Batch performance must still be measured across maps, later-game unit counts,
+and controlled worker concurrency. Synchronized logic, bot computation,
+allocations/GC, pathfinding, and local order transport remain likely scaling
+surfaces rather than blockers established by the current evidence. See the
+[performance fix experiment](experiments/2026-07-29-headless-performance-fix.md).

@@ -8,6 +8,7 @@ sources:
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-simulation-contract-v1.md
   - experiments/2026-07-29-headless-runtime.md
+  - experiments/2026-07-29-headless-performance-fix.md
 tags:
   - vision
   - status
@@ -47,15 +48,17 @@ rather than a conventional player-controlled game.
 - Seeded bot randomness is isolated from renderer cosmetics. A 1,500-tick
   graphical/headless reference pair and a repeated headless run produced the
   same normalized result and synchronized hash.
+- Profiling removed repeated dummy-audio decoding; repeated 1,500-tick runs
+  reached 6.173×–6.342× real time and passed the 5× engineering gate.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-The headless runtime is correct but not yet fast: its measured 30 simulated
-seconds required 40.66 wall seconds (0.738× real time), below the 5× minimum.
-The initial 30-second tournament used the deprecated wall-clock cutoff and
-remains only a startup/scoring test. Batch orchestration, civil systems, and
-telemetry are not implemented yet.
+The one-match runtime is fast enough for the first batch implementation, but
+manifest/resume/failure isolation, controlled concurrency, and the 100-match
+soak are not implemented yet. The initial 30-second tournament used the
+deprecated wall-clock cutoff and remains only a startup/scoring test. Civil
+systems and strategic telemetry are also not implemented yet.
 
 ## Success criteria
 
@@ -81,3 +84,4 @@ The simulation becomes useful when it can:
 - [Baseline tournament](experiments/2026-07-29-baseline-tournament.md)
 - [Simulation contract v1 validation](experiments/2026-07-29-simulation-contract-v1.md)
 - [Deterministic headless runtime validation](experiments/2026-07-29-headless-runtime.md)
+- [Headless dummy-audio performance fix](experiments/2026-07-29-headless-performance-fix.md)

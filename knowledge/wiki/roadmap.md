@@ -7,6 +7,7 @@ sources:
   - architecture.md
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-headless-runtime.md
+  - experiments/2026-07-29-headless-performance-fix.md
 tags:
   - roadmap
   - planning
@@ -37,10 +38,13 @@ The headless correctness foundation is also complete:
 - tracked, idempotent OpenRA SDK patching on normal build paths;
 - no-op window/graphics/audio platform and unpaced logic loop;
 - seed-derived lobby RNG and a renderer-independent bot RNG stream;
-- 1,500-tick graphical/headless parity and repeat validation.
+- 1,500-tick graphical/headless parity and repeat validation;
+- dummy-audio profiling fix and repeated 6.173×+ real-time throughput.
 
 See
 [Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md).
+The performance follow-up is
+[Headless Dummy-Audio Performance Fix](experiments/2026-07-29-headless-performance-fix.md).
 
 ## P0 — Headless simulation loop
 
@@ -54,9 +58,9 @@ Acceptance:
 - deterministic reruns with the same map, composition, seed, and commit;
 - failed matches are isolated and reported without losing completed results.
 
-Status: one-match no-device execution and deterministic cross-mode parity are
-complete. Throughput is 0.738× rather than the required 5×, and the
-manifest/resume/failure-isolation runner plus 100-match soak remain open.
+Status: one-match no-device execution, deterministic cross-mode parity, and
+the 5× throughput gate are complete. The manifest/resume/failure-isolation
+runner plus 100-match soak remain open.
 
 ## P0 — Deterministic scenario lifecycle
 

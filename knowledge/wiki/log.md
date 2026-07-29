@@ -114,3 +114,20 @@ artifacts matched and passed Schema v1. Headless initialized no SDL, OpenGL, or
 audio backend. The 30 simulated seconds took 40.66 wall seconds (0.738×), so
 the 5× performance gate remains open. See
 [Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md).
+
+## [2026-07-29] experiment | Dummy-audio performance profile
+
+A 15-second managed CPU/GC trace attributed 87.49% of the sampled main-thread
+interval to OGG construction beneath `Sound.LoadSound`. The dummy sound
+reported tracks complete immediately, causing the normal playlist lifecycle to
+decode another file repeatedly. This replaced the earlier hypothesis that
+synchronized gameplay was already the dominant cost. See
+[Headless Dummy-Audio Performance Fix](experiments/2026-07-29-headless-performance-fix.md).
+
+## [2026-07-29] change | Close the Sprint 2 throughput gate
+
+Added a dummy-engine capability guard before lazy effect/music loading.
+Repeated 1,500-tick runs fell from 40.66 seconds to 4.73 and 4.86 seconds
+(6.342× and 6.173× real time) while preserving hash `0AC799D4`, graphical
+parity, Schema v1 validity, and the full test suite. Sprint 2 is complete; the
+next active work is the isolated manifest batch runner.

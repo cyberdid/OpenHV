@@ -1,6 +1,6 @@
 ---
 title: Deterministic Headless Runtime Validation
-status: complete-with-open-performance-gate
+status: complete-superseded-performance-result
 updated: 2026-07-29
 sources:
   - ../../raw/experiments/2026-07-29-headless-runtime.csv
@@ -15,6 +15,11 @@ tags:
 ---
 
 # Deterministic Headless Runtime Validation
+
+> Follow-up: the correctness result remains valid, but the performance failure
+> was resolved by the
+> [dummy-audio performance fix](2026-07-29-headless-performance-fix.md).
+> Repeated optimized runs reached at least 6.173× real time.
 
 ## Purpose
 
@@ -93,10 +98,11 @@ architecture is viable, no graphics/audio backend is required, and long
 graphical/headless parity is demonstrated. The architecture is accepted in
 [Decision 0004](../decisions/0004-logic-only-headless-runtime.md).
 
-Sprint 2 is not fully closed because its 5× throughput gate failed. Removing
-graphics and real-time sleeps exposed synchronized game logic, allocations,
-local networking, and bot work as the dominant cost. At 0.738×, the observed
-run is 6.78 times slower than the six-second wall budget required for 5×.
+At the time of this spike, Sprint 2 was not fully closed because its 5×
+throughput gate failed. The subsequent managed profile showed that repeated
+dummy-engine OGG decoding—not synchronized game logic—dominated this
+measurement. The follow-up fix reduced the same benchmark from 40.66 to
+4.73–4.86 seconds without changing the state hash.
 
 ## Limits and next experiment
 
@@ -106,7 +112,5 @@ run is 6.78 times slower than the six-second wall budget required for 5×.
   compatibility even though drawing operations are no-ops.
 - Windows patch application is implemented but was not executed on this macOS
   machine.
-- The next performance experiment will profile synchronized tick cost by bot
-  module, pathfinding, allocation/GC, and local server/order transport before
-  deciding whether to optimize the current loop or introduce a more isolated
-  runner.
+- The completed follow-up profile and optimization are recorded in
+  [Headless Dummy-Audio Performance Fix](2026-07-29-headless-performance-fix.md).

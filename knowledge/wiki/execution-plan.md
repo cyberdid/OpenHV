@@ -9,6 +9,7 @@ sources:
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-simulation-contract-v1.md
   - experiments/2026-07-29-headless-runtime.md
+  - experiments/2026-07-29-headless-performance-fix.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
 tags:
@@ -70,8 +71,8 @@ because the civil model also needs fast, reproducible experiments.
 - The accepted engine seam retains the production client world path but uses a
   no-op platform, an unpaced loop, seeded server RNG, and a renderer-independent
   bot RNG stream.
-- Current headless throughput is 0.738× real time, so the 5× minimum remains an
-  open performance gate.
+- After the dummy-audio profile/fix, repeated headless throughput is
+  6.173×–6.342× real time; the 5× minimum is complete.
 
 ## North-star qualities
 
@@ -177,11 +178,11 @@ the scenario suite when long-running headless tests are affordable.
 Goal: prove that the normal OpenRA simulation can advance without graphics or
 audio while preserving gameplay behavior.
 
-Status: architecture accepted on 2026-07-29 for correctness and device
-isolation; performance follow-up remains open. Evidence:
-[Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md)
-and
-[Decision 0004](decisions/0004-logic-only-headless-runtime.md).
+Status: complete on 2026-07-29 for correctness, device isolation, parity, and
+the 5× performance gate. Evidence is recorded in
+[Deterministic Headless Runtime Validation](experiments/2026-07-29-headless-runtime.md),
+[Headless Dummy-Audio Performance Fix](experiments/2026-07-29-headless-performance-fix.md),
+and [Decision 0004](decisions/0004-logic-only-headless-runtime.md).
 
 ### Candidate approaches
 
@@ -240,18 +241,20 @@ Gate result:
 - fixed-tick valid result: passed;
 - repeated deterministic result: passed at 1,500 ticks;
 - graphical/headless parity: passed at 1,500 ticks, hash `0AC799D4`;
-- minimum 5× speed: failed at 0.738× real time.
+- minimum 5× speed: passed twice at 6.342× and 6.173× real time.
 
-The spike implementation is retained because it passed behavioral compatibility
-without introducing a second gameplay engine. Sprint 2 remains open until
-profiling and optimization satisfy or deliberately revise the throughput gate.
+The initial 0.738× result failed because the dummy sound lifecycle repeatedly
+decoded completed OGG music. A managed profile isolated that cost, and an
+early dummy-engine media bypass closed the gate without changing synchronized
+state. The implementation is retained without introducing a second gameplay
+engine.
 
 ### Decision gate
 
 The architecture decision selected:
 
-- accept logic-only client mode for correctness;
-- continue profiling before batch soak;
+- accept logic-only client mode for correctness and batch work;
+- measure further scaling inside the batch soak;
 - revisit a thin or standalone runner only if the accepted path cannot reach
   useful throughput.
 
@@ -752,10 +755,9 @@ Status: complete on 2026-07-29.
 
 Exit: one verified no-window match, minimum 5× real-time.
 
-Status: SIM-003–005 and the no-window/parity part of the exit are complete.
-The measured 0.738× speed does not satisfy the 5× exit, so performance
-profiling/optimization remains the active Sprint 2 gate before Sprint 3's
-100-match soak.
+Status: complete on 2026-07-29. Profiling reduced the 1,500-tick benchmark from
+40.66 to 4.73–4.86 seconds, preserved hash `0AC799D4`, and passed the 5× exit.
+The next active gate is Sprint 3 / SIM-006–007.
 
 ### Sprint 3 — 5 to 8 focused days
 
