@@ -1,0 +1,10 @@
+key,value
+runId,ai004-candidate-112-v1
+gitCommit,7a94632540f2cecbabb9d72eaee9957ce91a147b
+matchCount,112
+pairedObservations,448
+baselineCommit,3308752a5c8f4a340b05d416f09b8ffc8ced2d3e
+baselineEndReasons,"{""world-tick-limit"": 112}"
+candidateEndReasons,"{""world-tick-limit"": 112}"
+baselineCollapsedFactions,15
+candidateCollapsedFactions,27

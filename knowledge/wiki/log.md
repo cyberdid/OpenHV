@@ -421,3 +421,27 @@ matched baseline and score-lead shares stayed inside 10–40%. The shared power
 definition did not remove Technologist/Fortress war regressions, falsifying
 that narrow hypothesis. AI-003 closes; measured war exposure, force loss, and
 100% tick ceilings move to active AI-004.
+
+## [2026-07-30] change | Implement the AI-004 combat planner
+
+Added squad target scoring, a finishing bonus, and retreat/regroup/re-engage
+with per-profile thresholds, captured the engine side in a tracked patch, and
+exported the decisions on the synchronized blackboard as counters plus
+reason-coded `combat-decision` events. Smoke evidence first showed zero
+retreats: protection squads run about 65% of combat and never evaluated
+retreat, and the profiles had widened the own-building flee veto above the
+engine default. Both were corrected; two 12,000-tick repeats then matched
+`7191667E` with retreats and regroups rising from zero.
+
+## [2026-07-30] experiment | Reject AI-004 candidate v1
+
+The clean `7a946325` exact-schedule matrix completed 112/112 matches in 9m15s
+with 448 paired observations against baseline `3308752a`. Retreats, regroups,
+re-engagements, and target selections rose significantly for every profile, so
+the mechanism works. Neither acceptance target moved: all 112 matches still
+ended at the tick ceiling and collapses rose from 15 to 27. Technologist lost
+2,527 army while taking 3,983 more damage, Fortress lost 1,343 army and 4.1
+more casualties, and both gained 0.7 active wars — the change reached the war
+decision instead of staying tactical. Recorded as a falsified hypothesis; v2
+must hold the war decision fixed while retreat changes. See
+[Combat Planner AI-004](experiments/2026-07-30-combat-planner-ai004.md).

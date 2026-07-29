@@ -226,9 +226,20 @@ its exact 112-match matrix is the final AI-003 promotion test.
 
 AI-003 is complete after the clean v3 held-out matrix. It established distinct
 economy and technology behavior without increasing total collapse or violating
-score-lead share bounds. AI-004 is now the active priority: target selection,
-retreat/regroup, force preservation, and finishing attacks must address the
-measured Technologist/Fortress war exposure and the 100% tick-ceiling rate.
+score-lead share bounds. AI-004 then took up the measured Technologist/Fortress
+war exposure and the 100% tick-ceiling rate.
+
+AI-004 candidate v1 is implemented and rejected. Target scoring, a finishing
+bonus, and retreat/regroup/re-engagement all fire significantly for every
+profile, including the defending squads that run most of the combat and
+previously never evaluated retreat at all. Neither acceptance target moved:
+all 112 matches still ended at the tick ceiling and collapses rose from 15 to
+27. Technologist and Fortress each gained 0.7 active wars while losing army, so
+preserved squads fed the war utility instead of surviving quietly. v2 must hold
+the war decision fixed while retreat changes — either exclude retreating
+strength from relative power, or raise the war threshold by what the preserved
+army adds. See
+[Combat Planner AI-004](experiments/2026-07-30-combat-planner-ai004.md).
 
 ## P2 — Strong societal and faction identity
 
