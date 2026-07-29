@@ -49,7 +49,7 @@ RESAMPLERS = {
 
 class Animation:
     OPTION_KEYS = frozenset(
-        {"facings", "length", "tick", "cells", "offset", "cols", "rows", "row"}
+        {"facings", "length", "tick", "cells", "offset", "cols", "rows", "row", "col"}
     )
 
     def __init__(self, name: str, spec: str):
@@ -62,6 +62,7 @@ class Animation:
         self.cols: int | None = None
         self.rows = 1
         self.row: int | None = None
+        self.col: int | None = None
 
         # Generated files are routinely named "Image July 29, 2026 - 6_46PM.jpg",
         # so the path cannot simply be everything before the first comma. Peel
@@ -109,6 +110,8 @@ class Animation:
                 self.rows = int(value)
             elif key == "row":
                 self.row = int(value)
+            elif key == "col":
+                self.col = int(value)
             else:
                 raise SystemExit(f"--animation {name}: unknown option {key!r}")
 
@@ -185,7 +188,11 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
 
     sheet = Image.open(path).convert("RGBA")
 
-    if animation.cols is not None or animation.row is not None:
+    if (
+        animation.cols is not None
+        or animation.row is not None
+        or animation.col is not None
+    ):
         # A rigid grid. Every cell must be the same size, so the layout has to be
         # exact rather than arranged by eye. Naming a row takes just that row;
         # omitting it reads the whole grid left to right, top to bottom, which is
@@ -198,21 +205,45 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
                 f"--animation {animation.name}: row {animation.row} is outside "
                 f"0..{animation.rows - 1}"
             )
-        if sheet.width % cols or sheet.height % animation.rows:
-            raise SystemExit(
-                f"--animation {animation.name}: sheet {sheet.width}x{sheet.height} "
-                f"does not divide into {cols}x{animation.rows} cells"
-            )
-
         cell_width = sheet.width // cols
         cell_height = sheet.height // animation.rows
-        wanted = (
+        if cell_width < 1 or cell_height < 1:
+            raise SystemExit(
+                f"--animation {animation.name}: sheet {sheet.width}x{sheet.height} "
+                f"is too small for {cols}x{animation.rows} cells"
+            )
+
+        # A generated sheet is rarely an exact multiple of its own grid - 5504
+        # does not divide by 3 - so drop the leftover strip rather than refusing
+        # the sheet. Anything larger than rounding means the grid is wrong.
+        spare_x = sheet.width - cell_width * cols
+        spare_y = sheet.height - cell_height * animation.rows
+        if spare_x >= cols or spare_y >= animation.rows:
+            raise SystemExit(
+                f"--animation {animation.name}: sheet {sheet.width}x{sheet.height} "
+                f"does not divide into {cols}x{animation.rows} cells; "
+                f"{spare_x}x{spare_y} pixels left over"
+            )
+        if spare_x or spare_y:
+            print(
+                f"Note: {animation.name} drops a {spare_x}x{spare_y} pixel remainder "
+                f"so the {cols}x{animation.rows} grid stays exact.",
+                file=sys.stderr,
+            )
+        if animation.col is not None and not 0 <= animation.col < cols:
+            raise SystemExit(
+                f"--animation {animation.name}: col {animation.col} is outside "
+                f"0..{cols - 1}"
+            )
+
+        wanted_rows = (
             [animation.row] if animation.row is not None else range(animation.rows)
         )
+        wanted_cols = [animation.col] if animation.col is not None else range(cols)
         frames = []
-        for row in wanted:
+        for row in wanted_rows:
             top = row * cell_height
-            for column in range(cols):
+            for column in wanted_cols:
                 left = column * cell_width
                 frames.append(
                     sheet.crop((left, top, left + cell_width, top + cell_height))
@@ -492,10 +523,10 @@ def parse_args() -> argparse.Namespace:
         action="append",
         required=True,
         metavar="NAME=PATH[,facings=8][,length=1][,tick=N][,cells=N]"
-        "[,cols=N,rows=M,row=K][,offset=X,Y]",
+        "[,cols=N,rows=M,row=K,col=J][,offset=X,Y]",
         help="Animation block, repeat in the order they should be packed. PATH is "
         "a folder of frames, one horizontal strip, or - with cols/rows/row - one "
-        "row of a shared rigid-grid sheet.",
+        "row or single cell of a shared rigid-grid sheet.",
     )
     parser.add_argument(
         "--frame-size",
@@ -591,8 +622,12 @@ def main() -> int:
         raise SystemExit("No frames to import")
 
     convert = build_index_map(palette)
+
+    # A single-frame sheet - an icon - must not be padded out to the default row
+    # width with seven transparent cells.
+    columns = max(1, min(args.columns, len(packed)))
     sheet = compose_sheet(
-        packed, size, args.columns, palette, convert, args.team_mask_threshold
+        packed, size, columns, palette, convert, args.team_mask_threshold
     )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
