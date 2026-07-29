@@ -23,6 +23,7 @@
         "match-end",
         "settlement-founded",
         "population-changed",
+        "technology-completed",
         "shortage-started",
         "shortage-resolved"
       ]

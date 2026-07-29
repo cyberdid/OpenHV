@@ -98,6 +98,10 @@ namespace OpenRA.Mods.HV
 		public int Prosperity { get; init; }
 		public int Stability { get; init; }
 		public int MigrationPressure { get; init; }
+		public string[] CompletedTechnologies { get; init; }
+		public string CurrentTechnology { get; init; }
+		public int ResearchProgress { get; init; }
+		public int ResearchCost { get; init; }
 		public SimulationSettlementResult[] Settlements { get; init; }
 	}
 

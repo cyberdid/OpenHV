@@ -1,0 +1,2 @@
+date,base_commit,map,bots,seed,max_ticks,telemetry_interval,sync_hash,unlock_tick,technology,next_technology,research_progress,research_cost,food_production,population
+2026-07-29,88cad02e,coldrage,steward,7701,6500,250,017BAB7D,5250,agricultural-systems,energy-grid,10,60,37,1012

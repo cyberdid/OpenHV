@@ -53,8 +53,14 @@ LIFE-001–003 are implemented and validated:
 Balanced, scarcity, determinism, peaceful-development, and overhead evidence
 is recorded in
 [Living Factions and Telemetry v1 Validation](experiments/2026-07-29-living-factions-v1.md).
-Neutral diplomacy, trade, migration transfer, research unlocks, and
-casualty-to-workforce coupling remain planned rather than implied.
+Neutral diplomacy, trade, migration transfer, and casualty-to-workforce
+coupling remain planned rather than implied.
+
+LIFE-004 is now implemented as a five-node deterministic graph. Knowledge is
+spent in actor-ID order on agricultural systems, energy grid, logistics,
+civil engineering, and research networks; unlocks modify food, energy,
+storage, housing, or knowledge production and emit telemetry events. See the
+[research validation](experiments/2026-07-29-civil-research-v1.md).
 
 ## What OpenCiv contributes
 

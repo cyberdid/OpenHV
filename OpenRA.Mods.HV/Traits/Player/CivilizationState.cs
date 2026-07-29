@@ -24,18 +24,47 @@ namespace OpenRA.Mods.HV.Traits
 		[Desc("Stable identifier for the first civilization model.")]
 		public readonly string Model = "living-factions-v1";
 
+		[Desc("Ticks between deterministic research spending decisions.")]
+		public readonly int ResearchInterval = 250;
+
 		public override object Create(ActorInitializer init) { return new CivilizationState(init, this); }
 	}
 
-	public sealed class CivilizationState : ISync
+	public sealed class CivilizationState : ITick, ISync
 	{
+		public static readonly string[] TechnologyNames =
+		[
+			"agricultural-systems",
+			"energy-grid",
+			"logistics",
+			"civil-engineering",
+			"research-networks"
+		];
+
+		static readonly int[] TechnologyCosts = [40, 60, 80, 100, 120];
+		static readonly int[] TechnologyPrerequisites = [0, 0, 1 << 0, 1 << 2, 1 << 1];
+
 		public readonly CivilizationStateInfo Info;
+		readonly Actor self;
 
 		[VerifySync]
 		public readonly int FoundedTick;
 
+		[VerifySync]
+		int researchTicks;
+
+		[VerifySync]
+		public int CurrentTechnologyIndex;
+
+		[VerifySync]
+		public int ResearchProgress;
+
+		[VerifySync]
+		public int CompletedTechnologyMask;
+
 		public CivilizationState(ActorInitializer init, CivilizationStateInfo info)
 		{
+			self = init.Self;
 			Info = info;
 			FoundedTick = init.Self.World.WorldTick;
 		}
@@ -45,6 +74,69 @@ namespace OpenRA.Mods.HV.Traits
 			return world.ActorsHavingTrait<SettlementCore>()
 				.Where(actor => !actor.IsDead && actor.Owner == owner)
 				.OrderBy(actor => actor.ActorID);
+		}
+
+		public string CurrentTechnology =>
+			CurrentTechnologyIndex < TechnologyNames.Length ? TechnologyNames[CurrentTechnologyIndex] : null;
+
+		public int CurrentTechnologyCost =>
+			CurrentTechnologyIndex < TechnologyCosts.Length ? TechnologyCosts[CurrentTechnologyIndex] : 0;
+
+		public string[] CompletedTechnologies =>
+			TechnologyNames.Where((_, index) => HasTechnology(index)).ToArray();
+
+		public bool HasTechnology(int index)
+		{
+			return (CompletedTechnologyMask & (1 << index)) != 0;
+		}
+
+		void ITick.Tick(Actor self)
+		{
+			if (++researchTicks < Math.Max(1, Info.ResearchInterval))
+				return;
+
+			researchTicks = 0;
+			SelectAvailableTechnology();
+			if (CurrentTechnologyIndex >= TechnologyNames.Length)
+				return;
+
+			var settlements = Settlements(self.World, self.Owner).ToArray();
+			var required = TechnologyCosts[CurrentTechnologyIndex] - ResearchProgress;
+			foreach (var actor in settlements)
+			{
+				var settlement = actor.Trait<SettlementCore>();
+				var contribution = Math.Min(settlement.Knowledge, required);
+				settlement.Knowledge -= contribution;
+				ResearchProgress += contribution;
+				required -= contribution;
+				if (required == 0)
+					break;
+			}
+
+			if (ResearchProgress < TechnologyCosts[CurrentTechnologyIndex])
+				return;
+
+			CompletedTechnologyMask |= 1 << CurrentTechnologyIndex;
+			ResearchProgress = 0;
+			SelectAvailableTechnology();
+		}
+
+		void SelectAvailableTechnology()
+		{
+			for (var index = 0; index < TechnologyNames.Length; index++)
+			{
+				if (HasTechnology(index))
+					continue;
+
+				if ((CompletedTechnologyMask & TechnologyPrerequisites[index]) ==
+					TechnologyPrerequisites[index])
+				{
+					CurrentTechnologyIndex = index;
+					return;
+				}
+			}
+
+			CurrentTechnologyIndex = TechnologyNames.Length;
 		}
 	}
 
@@ -303,6 +395,21 @@ namespace OpenRA.Mods.HV.Traits
 			MaterialsProduction = infrastructure.Sum(i => Math.Max(0, i.Materials));
 			EnergyProduction = infrastructure.Sum(i => Math.Max(0, i.Energy));
 			KnowledgeProduction = infrastructure.Sum(i => Math.Max(0, i.Knowledge));
+			var civilization = self.Owner.PlayerActor.TraitOrDefault<CivilizationState>();
+			if (civilization?.HasTechnology(0) == true)
+				FoodProduction = ApplyPercentage(FoodProduction, 125);
+			if (civilization?.HasTechnology(1) == true)
+				EnergyProduction = ApplyPercentage(EnergyProduction, 120);
+			if (civilization?.HasTechnology(2) == true)
+			{
+				FoodStorage = ApplyPercentage(FoodStorage, 125);
+				MaterialsStorage = ApplyPercentage(MaterialsStorage, 125);
+				EnergyStorage = ApplyPercentage(EnergyStorage, 125);
+			}
+			if (civilization?.HasTechnology(3) == true)
+				Housing = ApplyPercentage(Housing, 120);
+			if (civilization?.HasTechnology(4) == true)
+				KnowledgeProduction = ApplyPercentage(KnowledgeProduction, 125);
 			EnergyDemand = infrastructure.Sum(i => Math.Max(0, i.EnergyUse));
 			MaterialsDemand = infrastructure.Sum(i => Math.Max(0, i.MaterialsUse));
 			FoodDemand = Math.Max(1, DivideRoundUp((long)Population * info.FoodConsumptionPerThousand, 1000));
@@ -395,6 +502,11 @@ namespace OpenRA.Mods.HV.Traits
 				return 0;
 
 			return Math.Clamp(value, 0, capacity);
+		}
+
+		static int ApplyPercentage(int value, int percentage)
+		{
+			return (int)((long)value * percentage / 100);
 		}
 	}
 }

@@ -62,19 +62,23 @@ namespace OpenRA.Mods.HV.Traits
 		readonly CivilizationScenarioInfo info;
 
 		[VerifySync]
-		public string Profile { get; private set; }
+		int profile;
+
+		public string Profile =>
+			profile == 1 ? CivilizationScenarioInfo.Scarcity : CivilizationScenarioInfo.Balanced;
 
 		public CivilizationScenario(CivilizationScenarioInfo info)
 		{
 			this.info = info;
-			Profile = info.Default;
+			profile = info.Default == CivilizationScenarioInfo.Scarcity ? 1 : 0;
 		}
 
 		void INotifyCreated.Created(Actor self)
 		{
-			Profile = self.World.LobbyInfo.GlobalSettings.OptionOrDefault(
+			var selected = self.World.LobbyInfo.GlobalSettings.OptionOrDefault(
 				CivilizationScenarioInfo.OptionId,
 				info.Default);
+			profile = selected == CivilizationScenarioInfo.Scarcity ? 1 : 0;
 		}
 	}
 }

@@ -35,6 +35,7 @@ namespace OpenRA.Mods.HV
 		readonly StreamWriter telemetry;
 		readonly StreamWriter events;
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
+		readonly Dictionary<string, HashSet<string>> observedTechnologies = new(StringComparer.Ordinal);
 		bool completed;
 
 		public int LastSnapshotTick { get; private set; } = -1;
@@ -116,7 +117,10 @@ namespace OpenRA.Mods.HV
 			});
 
 			foreach (var player in players)
+			{
 				ObserveSettlements(world.WorldTick, player);
+				ObserveTechnologies(world.WorldTick, player);
+			}
 
 			LastSnapshotTick = world.WorldTick;
 		}
@@ -217,6 +221,33 @@ namespace OpenRA.Mods.HV
 				$"{need}-shortage",
 				satisfaction,
 				null);
+		}
+
+		void ObserveTechnologies(int worldTick, SimulationTelemetryPlayer player)
+		{
+			if (!observedTechnologies.TryGetValue(player.PlayerName, out var previous))
+			{
+				observedTechnologies.Add(
+					player.PlayerName,
+					player.Civilization.CompletedTechnologies.ToHashSet(StringComparer.Ordinal));
+				return;
+			}
+
+			foreach (var technology in player.Civilization.CompletedTechnologies.Where(t => !previous.Contains(t)))
+			{
+				WriteEvent(new SimulationEventRecord
+				{
+					SchemaVersion = SchemaVersion,
+					RecordType = "event",
+					MatchId = config.MatchId,
+					WorldTick = worldTick,
+					EventType = "technology-completed",
+					ReasonCode = technology,
+					PlayerName = player.PlayerName,
+					Value = player.Civilization.CompletedTechnologies.Length
+				});
+				previous.Add(technology);
+			}
 		}
 
 		void WriteSettlementEvent(

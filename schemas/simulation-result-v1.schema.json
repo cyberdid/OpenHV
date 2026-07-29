@@ -283,6 +283,16 @@
         "prosperity": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "stability": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "migrationPressure": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "completedTechnologies": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "currentTechnology": {
+          "type": ["string", "null"]
+        },
+        "researchProgress": { "type": "integer", "minimum": 0 },
+        "researchCost": { "type": "integer", "minimum": 0 },
         "settlements": {
           "type": "array",
           "items": { "$ref": "#/$defs/settlement" }

@@ -47,6 +47,10 @@ namespace OpenRA.Mods.HV
 				Prosperity = WeightedAverage(settlements, s => s.Prosperity),
 				Stability = WeightedAverage(settlements, s => s.Stability),
 				MigrationPressure = WeightedAverage(settlements, s => s.MigrationPressure),
+				CompletedTechnologies = civilization?.CompletedTechnologies ?? [],
+				CurrentTechnology = civilization?.CurrentTechnology,
+				ResearchProgress = civilization?.ResearchProgress ?? 0,
+				ResearchCost = civilization?.CurrentTechnologyCost ?? 0,
 				Settlements = settlements
 			};
 		}

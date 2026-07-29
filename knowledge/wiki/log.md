@@ -220,3 +220,16 @@ validated all five batch manifests; validated balanced, scarcity, and Steward
 result/snapshot/event artifacts; and confirmed that a legacy Result v1 object
 without the new optional civil fields still passes the backward-compatible
 schema.
+
+## [2026-07-29] correction | Hash civilization profile as an integer
+
+The first post-publication runtime build showed that OpenRA rejects
+`[VerifySync]` on strings. Replaced the civilization-profile sync member with
+an integer code and derived string label, then completed a 6,500-tick run.
+
+## [2026-07-29] change | Deterministic civil research graph
+
+Implemented LIFE-004 knowledge spending and five technology unlocks with
+food, energy, storage, housing, and research modifiers. Four Steward factions
+completed agricultural systems at tick 5,250 and emitted reason-coded events.
+See [Civil Research v1 Validation](experiments/2026-07-29-civil-research-v1.md).

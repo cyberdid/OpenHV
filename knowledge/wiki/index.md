@@ -45,6 +45,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Living Factions and Telemetry v1 validation, 2026-07-29](experiments/2026-07-29-living-factions-v1.md)
   — synchronized settlement life, balanced growth, food-scarcity mortality,
   peaceful Steward AI, JSONL schemas, determinism, and telemetry overhead.
+- [Civil Research v1 validation, 2026-07-29](experiments/2026-07-29-civil-research-v1.md)
+  — deterministic knowledge spending, first technology unlock, output modifier,
+  and reason-coded research event.
 
 ## Decisions
 
