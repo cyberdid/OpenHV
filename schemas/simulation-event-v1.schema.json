@@ -25,6 +25,8 @@
         "population-changed",
         "technology-completed",
         "strategy-transition",
+        "planner-transition",
+        "planner-request",
         "diplomacy-transition",
         "trade-route-state",
         "trade-shipment",
@@ -54,6 +56,10 @@
         "recovery"
       ]
     },
+    "plan": {
+      "enum": ["opening", "economy", "technology", "recovery"]
+    },
+    "actorType": { "type": "string", "minLength": 1 },
     "settlementId": { "type": "string", "minLength": 1 },
     "value": { "type": "integer" },
     "previousValue": { "type": "integer" },

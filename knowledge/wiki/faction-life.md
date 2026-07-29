@@ -463,7 +463,7 @@ The AI chooses goals such as:
 War is chosen when expected strategic value exceeds military, demographic,
 economic, diplomatic, and stability costs.
 
-The first planner is implemented. A 250-tick synchronized decision pulse
+The first strategic planner is implemented. A 250-tick synchronized decision pulse
 computes survival, research, trade, security, recovery, and pair-specific war
 utilities. It selects development, survival, research, trade, mobilization, or
 recovery; exports all utility values; emits transitions; changes research
@@ -476,8 +476,14 @@ casualties lower stability; peace can trigger a recovery phase before ordinary
 research/development resumes. See
 [Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
 
-The planner does not yet own tactical build queues, retreats, or attack target
-selection; those remain the next AI layer.
+AI-003 adds a second, executable planning layer. It selects opening, economy,
+technology, or recovery, applies explicit civil production trade-offs, chooses
+profile-specific research paths, and makes bounded unit-production requests
+through the native bot queue interface. The request budget is synchronized and
+reason-coded so a consumed builder or failed queue cannot create an unbounded
+order loop.
+
+Attack target selection, retreat, regrouping, and re-engagement remain AI-004.
 
 ## Consequences of war
 

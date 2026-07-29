@@ -42,6 +42,9 @@ Player:
 		Bots: fortress
 	BaseBotModule@UniverseAI:
 		RequiresCondition: enable-universe-ai
+	CivilizationPlannerBotModule@UniverseAI:
+		RequiresCondition: enable-universe-ai
+		DecisionInterval: 1000
 	BuilderBotModule@UniverseAI:
 		RequiresCondition: enable-universe-ai
 		BuilderTypes: builder, builder2

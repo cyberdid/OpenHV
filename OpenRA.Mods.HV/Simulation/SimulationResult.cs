@@ -115,6 +115,13 @@ namespace OpenRA.Mods.HV
 		public string Strategy { get; init; }
 		public int StrategySequence { get; init; }
 		public int StrategyTransitionTick { get; init; }
+		public string Plan { get; init; }
+		public string PlanReason { get; init; }
+		public int PlanSequence { get; init; }
+		public int PlanTransitionTick { get; init; }
+		public int PlannerRequestSequence { get; init; }
+		public int LastPlannerRequestTick { get; init; }
+		public string LastPlannerRequestActor { get; init; }
 		public int SurvivalUtility { get; init; }
 		public int ResearchUtility { get; init; }
 		public int TradeUtility { get; init; }

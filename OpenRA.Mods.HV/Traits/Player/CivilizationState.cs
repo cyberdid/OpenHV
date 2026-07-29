@@ -27,6 +27,24 @@ namespace OpenRA.Mods.HV.Traits
 		Recovery
 	}
 
+	public enum CivilizationPlan
+	{
+		Opening,
+		Economy,
+		Technology,
+		Recovery
+	}
+
+	public enum CivilizationPlanReason
+	{
+		OpeningWindow,
+		CrisisRecovery,
+		TechnologistDoctrine,
+		EconomistDoctrine,
+		ResearchStrategy,
+		DevelopmentDoctrine
+	}
+
 	[TraitLocation(SystemActors.Player)]
 	[Desc("Stores deterministic civilization-level identity and exposes the player's settlements.")]
 	public sealed class CivilizationStateInfo : TraitInfo
@@ -49,6 +67,18 @@ namespace OpenRA.Mods.HV.Traits
 			"logistics",
 			"civil-engineering",
 			"research-networks"
+		];
+
+		public static readonly string[] PlannerActorNames =
+		[
+			null,
+			"miner",
+			"builder",
+			"technician",
+			"observer",
+			"radartank",
+			"repairtank",
+			"builder2"
 		];
 
 		static readonly int[] TechnologyCosts = [40, 60, 80, 100, 120];
@@ -80,6 +110,30 @@ namespace OpenRA.Mods.HV.Traits
 
 		[VerifySync]
 		public int StrategyTransitionTick;
+
+		[VerifySync]
+		int plan;
+
+		[VerifySync]
+		int planReason;
+
+		[VerifySync]
+		public int PlanSequence;
+
+		[VerifySync]
+		public int PlanTransitionTick;
+
+		[VerifySync]
+		public int PlannerRequestSequence;
+
+		[VerifySync]
+		public int LastPlannerRequestTick;
+
+		[VerifySync]
+		public int LastPlannerRequestActorCode;
+
+		[VerifySync]
+		int plannerRequestCounts;
 
 		[VerifySync]
 		public int SurvivalUtility;
@@ -117,6 +171,18 @@ namespace OpenRA.Mods.HV.Traits
 			set => strategy = (int)value;
 		}
 
+		public CivilizationPlan Plan
+		{
+			get => (CivilizationPlan)plan;
+			private set => plan = (int)value;
+		}
+
+		public CivilizationPlanReason PlanReason
+		{
+			get => (CivilizationPlanReason)planReason;
+			private set => planReason = (int)value;
+		}
+
 		public CivilizationState(ActorInitializer init, CivilizationStateInfo info)
 		{
 			Info = info;
@@ -139,6 +205,26 @@ namespace OpenRA.Mods.HV.Traits
 
 		public string[] CompletedTechnologies =>
 			TechnologyNames.Where((_, index) => HasTechnology(index)).ToArray();
+
+		public string LastPlannerRequestActor =>
+			LastPlannerRequestActorCode > 0 &&
+			LastPlannerRequestActorCode < PlannerActorNames.Length
+				? PlannerActorNames[LastPlannerRequestActorCode]
+				: null;
+
+		public static int PlannerActorCode(string actorType)
+		{
+			return Array.IndexOf(PlannerActorNames, actorType);
+		}
+
+		public int PlannerRequestsFor(string actorType)
+		{
+			var actorCode = PlannerActorCode(actorType);
+			if (actorCode <= 0 || actorCode >= PlannerActorNames.Length)
+				return 0;
+
+			return plannerRequestCounts >> (actorCode * 4) & 0xF;
+		}
 
 		public bool HasTechnology(int index)
 		{
@@ -198,7 +284,15 @@ namespace OpenRA.Mods.HV.Traits
 
 		void SelectAvailableTechnology()
 		{
-			for (var index = 0; index < TechnologyNames.Length; index++)
+			if (ResearchProgress > 0 &&
+				CurrentTechnologyIndex >= 0 &&
+				CurrentTechnologyIndex < TechnologyNames.Length &&
+				!HasTechnology(CurrentTechnologyIndex) &&
+				(CompletedTechnologyMask & TechnologyPrerequisites[CurrentTechnologyIndex]) ==
+				TechnologyPrerequisites[CurrentTechnologyIndex])
+				return;
+
+			foreach (var index in TechnologyPriority())
 			{
 				if (HasTechnology(index))
 					continue;
@@ -212,6 +306,17 @@ namespace OpenRA.Mods.HV.Traits
 			}
 
 			CurrentTechnologyIndex = TechnologyNames.Length;
+		}
+
+		int[] TechnologyPriority()
+		{
+			return owner.BotType switch
+			{
+				"technologist" => [1, 4, 0, 2, 3],
+				"economist" => [0, 2, 3, 1, 4],
+				"fortress" => [1, 0, 2, 3, 4],
+				_ => [0, 2, 1, 3, 4]
+			};
 		}
 
 		public int StrategicPressureAgainst(Player other, DiplomaticRelation relation)
@@ -321,12 +426,105 @@ namespace OpenRA.Mods.HV.Traits
 								: ResearchUtility >= 500
 									? CivilizationStrategy.Research
 									: CivilizationStrategy.Development;
-			if (Strategy == next)
+			if (Strategy != next)
+			{
+				Strategy = next;
+				StrategySequence++;
+				StrategyTransitionTick = self.World.WorldTick;
+			}
+
+			UpdatePlan(self, stability);
+		}
+
+		void UpdatePlan(Actor self, int stability)
+		{
+			CivilizationPlan next;
+			CivilizationPlanReason reason;
+			if (self.World.WorldTick < 3000)
+			{
+				next = CivilizationPlan.Opening;
+				reason = CivilizationPlanReason.OpeningWindow;
+			}
+			else if (Strategy is CivilizationStrategy.Survival or CivilizationStrategy.Recovery ||
+				stability < 650)
+			{
+				next = CivilizationPlan.Recovery;
+				reason = CivilizationPlanReason.CrisisRecovery;
+			}
+			else if (owner.BotType == "technologist")
+			{
+				next = CivilizationPlan.Technology;
+				reason = CivilizationPlanReason.TechnologistDoctrine;
+			}
+			else if (owner.BotType == "economist")
+			{
+				next = CivilizationPlan.Economy;
+				reason = CivilizationPlanReason.EconomistDoctrine;
+			}
+			else if (Strategy == CivilizationStrategy.Research && owner.BotType == "steward")
+			{
+				next = CivilizationPlan.Technology;
+				reason = CivilizationPlanReason.ResearchStrategy;
+			}
+			else
+			{
+				next = CivilizationPlan.Economy;
+				reason = CivilizationPlanReason.DevelopmentDoctrine;
+			}
+
+			if (Plan == next && PlanReason == reason)
 				return;
 
-			Strategy = next;
-			StrategySequence++;
-			StrategyTransitionTick = self.World.WorldTick;
+			Plan = next;
+			PlanReason = reason;
+			PlanSequence++;
+			PlanTransitionTick = self.World.WorldTick;
+		}
+
+		public void ApplyPlanProduction(
+			ref int food,
+			ref int materials,
+			ref int energy,
+			ref int knowledge)
+		{
+			switch (Plan)
+			{
+				case CivilizationPlan.Opening:
+					food = ApplyPercentage(food, 105);
+					materials = ApplyPercentage(materials, 110);
+					break;
+				case CivilizationPlan.Economy:
+					food = ApplyPercentage(food, 110);
+					materials = ApplyPercentage(materials, 115);
+					energy = ApplyPercentage(energy, 110);
+					knowledge = ApplyPercentage(knowledge, 80);
+					break;
+				case CivilizationPlan.Technology:
+					materials = ApplyPercentage(materials, 90);
+					energy = ApplyPercentage(energy, 90);
+					knowledge = ApplyPercentage(knowledge, 160);
+					break;
+				case CivilizationPlan.Recovery:
+					food = ApplyPercentage(food, 120);
+					materials = ApplyPercentage(materials, 90);
+					knowledge = ApplyPercentage(knowledge, 60);
+					break;
+			}
+		}
+
+		public void RecordPlannerRequest(int actorCode, int worldTick)
+		{
+			if (actorCode <= 0 || actorCode >= PlannerActorNames.Length)
+				return;
+
+			PlannerRequestSequence++;
+			LastPlannerRequestTick = worldTick;
+			LastPlannerRequestActorCode = actorCode;
+			var shift = actorCode * 4;
+			var count = Math.Min(15, (plannerRequestCounts >> shift & 0xF) + 1);
+			plannerRequestCounts =
+				plannerRequestCounts & ~(0xF << shift) |
+				count << shift;
 		}
 
 		static int TotalTradeDependency(World world, Player player)
@@ -396,6 +594,11 @@ namespace OpenRA.Mods.HV.Traits
 		static int DivideRoundUp(int value, int divisor)
 		{
 			return (value + divisor - 1) / divisor;
+		}
+
+		static int ApplyPercentage(int value, int percentage)
+		{
+			return (int)((long)value * percentage / 100);
 		}
 	}
 
@@ -735,6 +938,11 @@ namespace OpenRA.Mods.HV.Traits
 				Housing = ApplyPercentage(Housing, 120);
 			if (civilization?.HasTechnology(4) == true)
 				KnowledgeProduction = ApplyPercentage(KnowledgeProduction, 125);
+			civilization?.ApplyPlanProduction(
+				ref FoodProduction,
+				ref MaterialsProduction,
+				ref EnergyProduction,
+				ref KnowledgeProduction);
 			UpdateWarCosts();
 			var laborModifier = Adults == 0 ? 1000 : Ratio(AvailableWorkforce, Adults);
 			FoodProduction = ApplyPerMille(FoodProduction, laborModifier);

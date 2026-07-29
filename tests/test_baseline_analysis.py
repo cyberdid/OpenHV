@@ -23,6 +23,7 @@ generator = load_script(
     "generate_baseline_manifest", "generate-baseline-manifest.py"
 )
 analysis = load_script("analyze_baseline", "analyze-baseline.py")
+comparison = load_script("compare_candidate", "compare-candidate.py")
 
 
 class BaselineSuiteTests(unittest.TestCase):
@@ -32,6 +33,9 @@ class BaselineSuiteTests(unittest.TestCase):
         self.assertEqual(len(matches), 112)
         self.assertEqual(len({match["id"] for match in matches}), 112)
         self.assertEqual(len({match["seed"] for match in matches}), 112)
+        candidate = generator.build_manifest("ai003-candidate")
+        self.assertEqual(candidate["matches"], matches)
+        self.assertEqual(candidate["defaults"], manifest["defaults"])
 
         map_counts = Counter(match["map"] for match in matches)
         self.assertEqual(set(map_counts.values()), {28})
@@ -81,6 +85,12 @@ class BaselineSuiteTests(unittest.TestCase):
                     "scoreLead": int(index < 2),
                     "collapsed": int(index == 7),
                     "strategy": "research" if index % 2 == 0 else "mobilization",
+                    "plan": "technology" if index % 2 == 0 else "economy",
+                    "planReason": (
+                        "technologist-doctrine"
+                        if index % 2 == 0
+                        else "economist-doctrine"
+                    ),
                 }
             )
             rows.append(row)
@@ -95,6 +105,7 @@ class BaselineSuiteTests(unittest.TestCase):
         self.assertEqual(
             first["strategies"], {"mobilization": 4, "research": 4}
         )
+        self.assertEqual(first["plans"], {"economy": 4, "technology": 4})
         self.assertLess(
             first["metrics"]["population"]["meanBootstrap95"][0],
             first["metrics"]["population"]["meanBootstrap95"][1],
@@ -118,6 +129,37 @@ class BaselineSuiteTests(unittest.TestCase):
         for metric in aggressor_minus_fortress["metrics"].values():
             self.assertEqual(metric["mean"], -3)
             self.assertEqual(metric["meanBootstrap95"], [-3.0, -3.0])
+
+    def test_candidate_comparison_is_paired_by_match_and_profile(self) -> None:
+        baseline = []
+        candidate = []
+        for profile_index, profile in enumerate(analysis.PROFILES):
+            before = {
+                "matchId": "match-1",
+                "profile": profile,
+                "mapUid": "map",
+                "seed": 42,
+                "faction": "sc",
+                "spawnPoint": profile_index + 1,
+                "plan": "unavailable",
+                "planReason": "unavailable",
+            }
+            for field in comparison.COMPARISON_FIELDS:
+                before[field] = profile_index
+            after = dict(before)
+            after["plan"] = "technology"
+            after["planReason"] = "technologist-doctrine"
+            for field in comparison.COMPARISON_FIELDS:
+                after[field] = before[field] + 2
+            baseline.append(before)
+            candidate.append(after)
+
+        report = comparison.compare_rows(baseline, candidate)
+        self.assertEqual(report["pairedObservations"], 4)
+        for profile in analysis.PROFILES:
+            metrics = report["byProfile"][profile]["candidateMinusBaseline"]
+            for metric in metrics.values():
+                self.assertEqual(metric["mean"], 2)
 
 
 if __name__ == "__main__":

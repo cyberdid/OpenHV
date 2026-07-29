@@ -148,10 +148,15 @@ test: all
 	@./utility.sh --check-missing-sprites
 
 test-simulation:
-	@python3 -m py_compile analyze-baseline.py generate-baseline-manifest.py \
+	@python3 -m py_compile analyze-baseline.py compare-candidate.py \
+		generate-baseline-manifest.py \
 		run-batch.py tests/fake-simulation.py tests/test_baseline_analysis.py \
 		tests/test_batch_runner.py
 	@python3 generate-baseline-manifest.py --check
+	@python3 generate-baseline-manifest.py \
+		--variant ai003-candidate \
+		--output batch-manifests/ai003-candidate-112-v1.json \
+		--check
 	@python3 -m unittest -v tests.test_baseline_analysis tests.test_batch_runner
 	@sh -n apply-engine-patches.sh check-headless-equivalence.sh \
 		check-simulation-determinism.sh fetch-engine.sh launch-game.sh \

@@ -352,3 +352,22 @@ coverage, and relative links; checked four JSON schemas; and parsed the
 immutable one-row/37-column provenance and 20-row/23-column metric records.
 The six-row/17-column paired-difference record preserves every quoted
 within-match comparison.
+
+## [2026-07-29] change | Executable civilization planners
+
+Implemented AI-003's opening, economy, technology, and recovery layer.
+Civilization plans now change synchronized civil production, choose
+profile-specific technology paths, and issue bounded native production
+requests for economic, information, technical, and repair units. Added final
+state fields plus reason-coded plan transition/request events. A synchronized
+per-type request budget prevents endless orders after units deploy, die, or
+cannot enter a queue. See
+[Civilization Planner AI-003](experiments/2026-07-29-civilization-planner-ai003.md).
+
+## [2026-07-29] experiment | Freeze the paired AI-003 candidate gate
+
+Two 12,000-tick smoke runs matched hash `DEB138AE` and identical final
+plan/request metrics. Added a generated candidate manifest that reuses all 112
+baseline map/slot/profile/seed cells, extended aggregation with plan fields,
+and added an identity-checking paired comparison tool. Full held-out execution
+is the remaining AI-003 acceptance step.

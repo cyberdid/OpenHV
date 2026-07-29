@@ -40,6 +40,7 @@ PLAYER_FIELDS = (
     "availableWorkforce",
     "warCasualties",
     "activeWars",
+    "plannerRequests",
 )
 PAIRED_FIELDS = (
     "scoreLead",
@@ -206,6 +207,8 @@ def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
             ),
             "collapsed": int(player_name in collapsed),
             "strategy": civilization.get("strategy", "unavailable"),
+            "plan": civilization.get("plan", "unavailable"),
+            "planReason": civilization.get("planReason", "unavailable"),
             "score": player["score"],
             "armyValue": player["armyValue"],
             "assetsValue": player["assetsValue"],
@@ -236,6 +239,7 @@ def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
             ),
             "warCasualties": civilization.get("warCasualties", 0),
             "activeWars": relations[player_name]["war"],
+            "plannerRequests": civilization.get("plannerRequestSequence", 0),
         }
         rows.append(row)
     return rows
@@ -253,6 +257,10 @@ def aggregate_group(rows: list[dict[str, Any]], seed: int) -> dict[str, Any]:
         "scoreLeadWilson95": wilson_interval(score_leads, len(rows)),
         "collapses": collapses,
         "strategies": dict(sorted(Counter(row["strategy"] for row in rows).items())),
+        "plans": dict(sorted(Counter(row["plan"] for row in rows).items())),
+        "planReasons": dict(
+            sorted(Counter(row["planReason"] for row in rows).items())
+        ),
         "metrics": {
             field: summarize_numeric(
                 (row[field] for row in rows),

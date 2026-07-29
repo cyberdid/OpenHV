@@ -103,3 +103,26 @@ These are current-system observations, not permanent identity definitions.
 They show that AI-003 must connect strategic state to real opening/economy/
 technology plans, and AI-004 must add finishing, retreat, and regroup logic.
 Every match ended at the tick ceiling, so timed score leaders are not winners.
+
+## Civilization AI v2 planner implementation
+
+AI-003 now separates high-level strategy from an executable civil plan:
+
+- all profiles use an `opening` plan through tick 3,000;
+- Economist then prefers `economy`, Technologist prefers `technology`, and
+  other combat profiles use an economy/development plan unless crisis forces
+  `recovery`;
+- economy raises food, materials, and energy output while reducing knowledge
+  investment; technology makes the inverse opportunity-cost trade; recovery
+  prioritizes food and repair capacity;
+- profile-specific technology priorities stop every faction from traversing
+  the same early research order;
+- a 1,000-tick bot pulse issues bounded miner, technician, observer, radar, or
+  repair requests. Per-type synchronized budgets prevent consumed builders,
+  deaths, or unavailable queues from causing an infinite request loop;
+- final results and events expose the plan, reason, transition sequence, last
+  requested actor, and request count.
+
+Two identical 12,000-tick smoke runs produced hash `DEB138AE` and identical
+plan/request/final metrics. The exact 112-match candidate schedule is frozen;
+promotion remains conditional on its paired held-out report.

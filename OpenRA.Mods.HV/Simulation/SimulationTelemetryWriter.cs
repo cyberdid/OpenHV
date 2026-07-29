@@ -38,6 +38,8 @@ namespace OpenRA.Mods.HV
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
 		readonly Dictionary<string, HashSet<string>> observedTechnologies = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedStrategySequences = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedPlanSequences = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedPlannerRequestSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeStatusSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeShipmentSequences = new(StringComparer.Ordinal);
@@ -135,6 +137,7 @@ namespace OpenRA.Mods.HV
 				ObserveSettlements(world.WorldTick, player);
 				ObserveTechnologies(world.WorldTick, player);
 				ObserveStrategy(world.WorldTick, player);
+				ObservePlan(world.WorldTick, player);
 			}
 
 			ObserveDiplomacy(world.WorldTick, diplomacy);
@@ -288,6 +291,52 @@ namespace OpenRA.Mods.HV
 				Strategy = player.Civilization.Strategy,
 				Value = player.Civilization.WarUtility,
 				PreviousValue = player.Civilization.StrategySequence
+			});
+		}
+
+		void ObservePlan(int worldTick, SimulationTelemetryPlayer player)
+		{
+			if (!observedPlanSequences.TryGetValue(player.PlayerName, out var planSequence) ||
+				planSequence != player.Civilization.PlanSequence)
+			{
+				observedPlanSequences[player.PlayerName] = player.Civilization.PlanSequence;
+				WriteEvent(new SimulationEventRecord
+				{
+					SchemaVersion = SchemaVersion,
+					RecordType = "event",
+					MatchId = config.MatchId,
+					WorldTick = worldTick,
+					EventType = "planner-transition",
+					ReasonCode = player.Civilization.PlanReason,
+					PlayerName = player.PlayerName,
+					Plan = player.Civilization.Plan,
+					Value = player.Civilization.PlanSequence,
+					PreviousValue = player.Civilization.PlanTransitionTick
+				});
+			}
+
+			if (player.Civilization.PlannerRequestSequence <= 0 ||
+				(observedPlannerRequestSequences.TryGetValue(
+					player.PlayerName,
+					out var requestSequence) &&
+					requestSequence == player.Civilization.PlannerRequestSequence))
+				return;
+
+			observedPlannerRequestSequences[player.PlayerName] =
+				player.Civilization.PlannerRequestSequence;
+			WriteEvent(new SimulationEventRecord
+			{
+				SchemaVersion = SchemaVersion,
+				RecordType = "event",
+				MatchId = config.MatchId,
+				WorldTick = worldTick,
+				EventType = "planner-request",
+				ReasonCode = player.Civilization.PlanReason,
+				PlayerName = player.PlayerName,
+				Plan = player.Civilization.Plan,
+				ActorType = player.Civilization.LastPlannerRequestActor,
+				Value = player.Civilization.PlannerRequestSequence,
+				PreviousValue = player.Civilization.LastPlannerRequestTick
 			});
 		}
 
@@ -529,5 +578,7 @@ namespace OpenRA.Mods.HV
 		public string ResourceType { get; init; }
 		public int? Amount { get; init; }
 		public string Strategy { get; init; }
+		public string Plan { get; init; }
+		public string ActorType { get; init; }
 	}
 }

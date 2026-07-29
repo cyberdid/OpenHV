@@ -63,6 +63,10 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Civilization Planner AI-003, 2026-07-29](experiments/2026-07-29-civilization-planner-ai003.md)
+  — executable opening/economy/technology/recovery plans, bounded native
+  production requests, decision telemetry, deterministic smoke evidence, and
+  the frozen paired candidate gate.
 
 ## Decisions
 

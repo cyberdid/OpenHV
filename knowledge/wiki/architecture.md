@@ -70,15 +70,19 @@ tags:
 9. `SettlementCore` actors advance civil and demographic pulses using only
    synchronized integer state; infrastructure is assigned by distance and
    actor-ID tie-breaking.
-10. When enabled, a mod-owned observer writes periodic JSONL snapshots and
+10. `CivilizationState` selects an opening, economy, technology, or recovery
+    plan. A conditional bot module converts the plan into bounded production
+    requests while the settlement model applies its synchronized opportunity
+    costs and output bonuses.
+11. When enabled, a mod-owned observer writes periodic JSONL snapshots and
     derives reason-coded civil events without mutating synchronized state.
-11. A mod-owned callback checks `WorldTick` before each following logic tick.
-12. Natural game-over, the synchronized tick limit, or the deadlock watchdog
+12. A mod-owned callback checks `WorldTick` before each following logic tick.
+13. Natural game-over, the synchronized tick limit, or the deadlock watchdog
     calls `SimulationResultWriter`.
-13. Artificial terminal conditions finalize the `World` after result capture
+14. Artificial terminal conditions finalize the `World` after result capture
     so replay metadata records the terminal tick without changing the captured
     synchronized state.
-14. The batch runner validates Result Schema v1 plus config correspondence,
+15. The batch runner validates Result Schema v1 plus config correspondence,
     classifies the attempt, harvests replay/support diagnostics, atomically
     writes status, and aggregates only valid completed results.
 
@@ -94,6 +98,7 @@ tags:
 | `SimulationResultWriter.cs` | Captures synchronized state/statistics and atomically writes JSON |
 | `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
+| `CivilizationPlannerBotModule.cs` | Converts civilization plans into bounded economic, technical, and recovery production requests |
 | `CivilizationScenario.cs` | Defines synchronized balanced/scarcity lobby profiles |
 | `schemas/simulation-result-v1.schema.json` | Validates serialized result artifacts |
 | `schemas/simulation-telemetry-v1.schema.json` | Validates each periodic snapshot record |
@@ -105,6 +110,7 @@ tags:
 | `run-batch.py` | Resolves manifests and runs isolated, resumable, validated attempts |
 | `schemas/simulation-batch-manifest-v1.schema.json` | Validates schedule and execution controls |
 | `batch-manifests/*.json` | Stores reproducible smoke, soak, failure, and Living Factions schedules |
+| `analyze-baseline.py` / `compare-candidate.py` | Aggregates clean runs and performs paired exact-schedule candidate comparisons |
 | `tests/test_batch_runner.py` | Exercises retry, timeout, signals, resume, drift, and partial artifacts |
 | `run-tournament.sh` | Runs a map/seed series and creates standings |
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
@@ -135,7 +141,8 @@ Telemetry-enabled matches additionally write:
   snapshots;
 - `events.jsonl`: match lifecycle, settlement founding, population changes,
   research, shortage start/resolution, and diplomacy transitions with stable
-  reason codes, plus route-state and stock-shipment events.
+  reason codes, plus route-state, stock-shipment, plan-transition, and bounded
+  planner-request events.
 
 Both streams are line-flushed so a process failure retains complete prior
 records. A retry or resume moves an existing stream to an attempt-qualified

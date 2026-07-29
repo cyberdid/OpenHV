@@ -330,6 +330,24 @@
         },
         "strategySequence": { "type": "integer", "minimum": 0 },
         "strategyTransitionTick": { "type": "integer", "minimum": 0 },
+        "plan": {
+          "enum": ["opening", "economy", "technology", "recovery"]
+        },
+        "planReason": {
+          "enum": [
+            "opening-window",
+            "crisis-recovery",
+            "technologist-doctrine",
+            "economist-doctrine",
+            "research-strategy",
+            "development-doctrine"
+          ]
+        },
+        "planSequence": { "type": "integer", "minimum": 0 },
+        "planTransitionTick": { "type": "integer", "minimum": 0 },
+        "plannerRequestSequence": { "type": "integer", "minimum": 0 },
+        "lastPlannerRequestTick": { "type": "integer", "minimum": 0 },
+        "lastPlannerRequestActor": { "type": ["string", "null"] },
         "survivalUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "researchUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "tradeUtility": { "type": "integer", "minimum": 0, "maximum": 1000 },

@@ -61,6 +61,14 @@ namespace OpenRA.Mods.HV
 				Strategy = StrategyIdentifier(civilization?.Strategy ?? CivilizationStrategy.Development),
 				StrategySequence = civilization?.StrategySequence ?? 0,
 				StrategyTransitionTick = civilization?.StrategyTransitionTick ?? 0,
+				Plan = PlanIdentifier(civilization?.Plan ?? CivilizationPlan.Opening),
+				PlanReason = PlanReasonIdentifier(
+					civilization?.PlanReason ?? CivilizationPlanReason.OpeningWindow),
+				PlanSequence = civilization?.PlanSequence ?? 0,
+				PlanTransitionTick = civilization?.PlanTransitionTick ?? 0,
+				PlannerRequestSequence = civilization?.PlannerRequestSequence ?? 0,
+				LastPlannerRequestTick = civilization?.LastPlannerRequestTick ?? 0,
+				LastPlannerRequestActor = civilization?.LastPlannerRequestActor,
 				SurvivalUtility = civilization?.SurvivalUtility ?? 0,
 				ResearchUtility = civilization?.ResearchUtility ?? 0,
 				TradeUtility = civilization?.TradeUtility ?? 0,
@@ -133,6 +141,32 @@ namespace OpenRA.Mods.HV
 				CivilizationStrategy.Trade => "trade",
 				CivilizationStrategy.Mobilization => "mobilization",
 				CivilizationStrategy.Recovery => "recovery",
+				_ => "unknown"
+			};
+		}
+
+		static string PlanIdentifier(CivilizationPlan plan)
+		{
+			return plan switch
+			{
+				CivilizationPlan.Opening => "opening",
+				CivilizationPlan.Economy => "economy",
+				CivilizationPlan.Technology => "technology",
+				CivilizationPlan.Recovery => "recovery",
+				_ => "unknown"
+			};
+		}
+
+		static string PlanReasonIdentifier(CivilizationPlanReason reason)
+		{
+			return reason switch
+			{
+				CivilizationPlanReason.OpeningWindow => "opening-window",
+				CivilizationPlanReason.CrisisRecovery => "crisis-recovery",
+				CivilizationPlanReason.TechnologistDoctrine => "technologist-doctrine",
+				CivilizationPlanReason.EconomistDoctrine => "economist-doctrine",
+				CivilizationPlanReason.ResearchStrategy => "research-strategy",
+				CivilizationPlanReason.DevelopmentDoctrine => "development-doctrine",
 				_ => "unknown"
 			};
 		}

@@ -194,6 +194,14 @@ Technologist showed no technology edge. All matches hit the tick ceiling, so
 AI-003–004 must be compared against this exact schedule before promotion. See
 [Civil and Military Baseline 112 v1](experiments/2026-07-29-baseline-112-v1.md).
 
+AI-003 is implemented and awaiting its full held-out gate. The runtime now
+selects explicit opening, economy, technology, and recovery plans; couples
+them to civil output trade-offs, profile-specific research ordering, and
+bounded native production requests; and records plan decisions in final and
+event telemetry. The candidate manifest reuses all 112 baseline map, slot,
+profile, and seed cells exactly, and `compare-candidate.py` pairs every
+match/profile observation before estimating differences.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

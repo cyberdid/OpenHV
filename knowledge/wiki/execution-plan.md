@@ -836,7 +836,7 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | DIP-002 ✅ | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
 | AI-001 ✅ | Shared perception blackboard | SIM-008 | decision/telemetry traces |
 | AI-002 ✅ | Strategic state machine | AI-001 | distinct measured transitions |
-| AI-003 | Opening/economy/tech planners | AI-002 | held-out behavior report |
+| AI-003 ◐ | Opening/economy/tech planners | AI-002 | implementation and exact candidate schedule complete; held-out report running next |
 | AI-004 | Combat target/retreat planners | AI-002 | combat efficiency report |
 | FAC-001 | Separate faction/profile inputs | SIM-001 | factorial test schedule |
 | FAC-002 | Define faction gameplay pillars | FAC-001 | accepted design decision |
@@ -927,6 +927,13 @@ collapse, advisory stalemate, and hard limits. The 112-match baseline exposed
 profile/map effects and a 100% natural-outcome cutoff rate. Sprint 6 begins
 with AI-003 opening/economy/technology planning, then AI-004 finishing,
 retreat, and regroup behavior.
+
+AI-003 implementation status: opening/economy/technology/recovery plans,
+profile-specific research ordering, synchronized production opportunity costs,
+bounded native production requests, plan telemetry, exact candidate manifest,
+and paired comparison tooling are complete. Two 12,000-tick repeats matched
+hash `DEB138AE`. The item remains open until the clean-commit 112-match
+candidate report passes or records its guardrails.
 
 ### Following 4 to 8 weeks
 
