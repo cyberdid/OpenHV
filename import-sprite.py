@@ -55,6 +55,9 @@ class Animation:
         self.tick: int | None = None
         self.cells: int | None = None
         self.offset: str | None = None
+        self.cols: int | None = None
+        self.rows = 1
+        self.row: int | None = None
 
         parts = spec.split(",")
         self.path = Path(parts[0]).expanduser()
@@ -75,6 +78,12 @@ class Animation:
                 self.cells = int(value)
             elif key == "offset":
                 self.offset = value
+            elif key == "cols":
+                self.cols = int(value)
+            elif key == "rows":
+                self.rows = int(value)
+            elif key == "row":
+                self.row = int(value)
             else:
                 raise SystemExit(f"--animation {name}: unknown option {key!r}")
 
@@ -149,18 +158,43 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
     if not path.is_file():
         raise SystemExit(f"--animation {animation.name}: {path} does not exist")
 
-    strip = Image.open(path).convert("RGBA")
+    sheet = Image.open(path).convert("RGBA")
+
+    if animation.row is not None:
+        # One row of a shared multi-animation sheet. Every cell must be the same
+        # size, so the grid has to be rigid rather than laid out by eye.
+        cols = animation.cols or animation.cells or animation.expected
+        if cols < 1 or animation.rows < 1:
+            raise SystemExit(f"--animation {animation.name}: cols/rows must be positive")
+        if not 0 <= animation.row < animation.rows:
+            raise SystemExit(
+                f"--animation {animation.name}: row {animation.row} is outside "
+                f"0..{animation.rows - 1}"
+            )
+        if sheet.width % cols or sheet.height % animation.rows:
+            raise SystemExit(
+                f"--animation {animation.name}: sheet {sheet.width}x{sheet.height} "
+                f"does not divide into {cols}x{animation.rows} cells"
+            )
+        cell_width = sheet.width // cols
+        cell_height = sheet.height // animation.rows
+        top = animation.row * cell_height
+        return [
+            sheet.crop((i * cell_width, top, (i + 1) * cell_width, top + cell_height))
+            for i in range(cols)
+        ]
+
     cells = animation.cells or animation.expected
     if cells < 1:
         raise SystemExit(f"--animation {animation.name}: cells must be positive")
-    if strip.width % cells:
+    if sheet.width % cells:
         raise SystemExit(
-            f"--animation {animation.name}: strip width {strip.width} is not "
+            f"--animation {animation.name}: strip width {sheet.width} is not "
             f"divisible by {cells} cells"
         )
-    cell = strip.width // cells
+    cell = sheet.width // cells
     return [
-        strip.crop((i * cell, 0, (i + 1) * cell, strip.height)) for i in range(cells)
+        sheet.crop((i * cell, 0, (i + 1) * cell, sheet.height)) for i in range(cells)
     ]
 
 
@@ -308,9 +342,11 @@ def parse_args() -> argparse.Namespace:
         "--animation",
         action="append",
         required=True,
-        metavar="NAME=PATH[,facings=8][,length=1][,tick=N][,cells=N][,offset=X,Y]",
-        help="Animation block, repeat in the order they should be packed. "
-        "PATH is a folder of frames or one horizontal strip.",
+        metavar="NAME=PATH[,facings=8][,length=1][,tick=N][,cells=N]"
+        "[,cols=N,rows=M,row=K][,offset=X,Y]",
+        help="Animation block, repeat in the order they should be packed. PATH is "
+        "a folder of frames, one horizontal strip, or - with cols/rows/row - one "
+        "row of a shared rigid-grid sheet.",
     )
     parser.add_argument(
         "--frame-size",
