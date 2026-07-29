@@ -210,6 +210,36 @@ diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
  
  			var worldActorType = type == WorldType.Editor ? SystemActors.EditorWorld : SystemActors.World;
  			WorldActor = CreateActor(worldActorType.ToString(), []);
+diff --git a/OpenRA.Game/Sound/Sound.cs b/OpenRA.Game/Sound/Sound.cs
+--- a/OpenRA.Game/Sound/Sound.cs
++++ b/OpenRA.Game/Sound/Sound.cs
+@@ -113,7 +113,7 @@ namespace OpenRA
+ 
+ 		ISound Play(SoundType type, Player player, string name, bool headRelative, WPos pos, float volumeModifier = 1f, bool loop = false)
+ 		{
+-			if (string.IsNullOrEmpty(name) || DisableAllSounds || (DisableWorldSounds && type == SoundType.World))
++			if (DummyEngine || string.IsNullOrEmpty(name) || DisableAllSounds || (DisableWorldSounds && type == SoundType.World))
+ 				return null;
+ 
+ 			if (player != null && player != player.World.LocalPlayer)
+@@ -230,7 +230,7 @@ namespace OpenRA
+ 
+ 		public void PlayMusicThen(MusicInfo m, Action then)
+ 		{
+-			if (m == null || !m.Exists)
++			if (DummyEngine || m == null || !m.Exists)
+ 				return;
+ 
+ 			onMusicComplete = then;
+@@ -247,7 +247,7 @@ namespace OpenRA
+ 
+ 		public void PlayMusic(MusicInfo m, bool looped = false)
+ 		{
+-			if (m == null || !m.Exists)
++			if (DummyEngine || m == null || !m.Exists)
+ 				return;
+ 
+ 			StopMusic();
 diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
 --- a/OpenRA.Game/Server/Server.cs
 +++ b/OpenRA.Game/Server/Server.cs
