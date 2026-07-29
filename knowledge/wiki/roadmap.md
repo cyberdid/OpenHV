@@ -215,6 +215,12 @@ civilian/support actors no longer consume military mobilization, and native
 request budgets are smaller. Two corrected repeats matched `9419B52D`; the
 clean 112-match v2 report is the remaining AI-003 gate.
 
+Candidate v2 is also retained but not promoted. It delivered a real
+Technologist edge and substantially improved Economist wellbeing, but an
+inconsistent military-power definition drove significant Technologist and
+Fortress war/casualty regressions. v3 is limited to sharing the civilian-aware
+army calculation between mobilization and diplomacy.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

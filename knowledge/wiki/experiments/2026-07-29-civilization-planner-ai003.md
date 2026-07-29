@@ -5,6 +5,8 @@ updated: 2026-07-29
 sources:
   - ../../raw/experiments/2026-07-29-ai003-candidate-112-v1-run.csv
   - ../../raw/experiments/2026-07-29-ai003-candidate-112-v1-metrics.csv
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v2-run.csv
+  - ../../raw/experiments/2026-07-29-ai003-candidate-112-v2-metrics.csv
   - ../../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../../OpenRA.Mods.HV/Traits/BotModules/CivilizationPlannerBotModule.cs
   - ../../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
@@ -149,3 +151,36 @@ technology; Technologist completed energy-grid, research-networks, and
 agriculture, survived the seed that collapsed under v1, and issued four
 bounded requests. The clean exact-schedule v2 batch remains the promotion
 gate.
+
+## Candidate v2 result
+
+The clean `0afb8b5c` candidate completed 112/112 attempt-1 matches in 804.568
+seconds. All 112 results, 1,456 snapshots, and 10,959 events validated, and
+four sampled replays ended at tick 12,000. See the immutable
+[run record](../../raw/experiments/2026-07-29-ai003-candidate-112-v2-run.csv)
+and [paired metrics](../../raw/experiments/2026-07-29-ai003-candidate-112-v2-metrics.csv).
+
+v2 fixed the v1 research/wellbeing failure:
+
+- Technologist completed 2.455 technologies, +1.464 over baseline
+  (bootstrap 95% 1.366 to 1.571);
+- Economist prosperity rose 41.473 (21.651 to 53.750), stability rose 45.777
+  (27.035 to 56.938), available workforce rose 122.205
+  (106.561 to 135.914), and mobilization fell 126.714;
+- total collapse count matched baseline at 15; all score-lead shares remained
+  within the provisional 10–40% four-way range.
+
+It still fails promotion because military/diplomatic regressions reveal an
+inconsistent power definition. Technologist army fell 1,635
+(−2,911 to −420), casualties rose 7.661 (4.723 to 10.911), and active wars rose
+0.705 (0.607 to 0.804). Fortress army fell 1,760
+(−2,758 to −759), casualties rose 3.661 (1.973 to 5.215), active wars rose
+0.714 (0.625 to 0.804), and stability fell 38.725
+(−55.511 to −17.024).
+
+Mobilization subtracts civilian/support value, but diplomacy's relative-power
+calculation still uses raw `PlayerStatistics.ArmyValue`. The same worker and
+support investment is therefore “civilian” to production but “military” to
+war pressure. Candidate v2 is retained but not promoted. v3 will centralize
+military army value and use it consistently in both systems without changing
+plan bonuses or request budgets.

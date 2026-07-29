@@ -948,6 +948,14 @@ The v2 implementation now satisfies those mechanical corrections. Two
 profile-specific technology and Technologist completed three. Promotion still
 requires the clean 112-match paired report.
 
+Candidate v2 passed research and Economist-wellbeing targets but exposed a
+second consistency defect: civilian/support value was removed from mobilized
+workforce while still counted as army in diplomatic relative power.
+Technologist and Fortress consequently showed significant army, casualty,
+active-war, and Fortress-stability regressions. v3 will share one
+military-value definition between mobilization and diplomacy before the final
+AI-003 gate.
+
 ### Following 4 to 8 weeks
 
 - Civilization AI v2 in small, separately measured increments.

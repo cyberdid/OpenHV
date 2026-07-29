@@ -392,3 +392,13 @@ production budgets, and excludes explicit civilian/support actor value from
 military mobilization. Two 12,000-tick repeats matched hash `9419B52D`;
 ordinary profiles retained a first technology and Technologist completed
 three. The generated v2 manifest preserves all 112 baseline cells.
+
+## [2026-07-29] experiment | Reject AI-003 candidate v2
+
+The clean `0afb8b5c` matrix completed 112/112 attempt-1 matches with 112 valid
+results, 1,456 snapshots, 10,959 events, and four tick-12,000 replays.
+Technologist gained 1.464 technologies and Economist wellbeing/workforce
+improved significantly, correcting v1. Promotion still failed: diplomacy
+continued treating civilian/support value as army after mobilization stopped
+doing so, and Technologist/Fortress wars, casualties, and retained army
+regressed significantly. v3 will centralize that power calculation.
