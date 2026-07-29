@@ -4,17 +4,41 @@ Player:
 	ModularBot@RogueAI:
 		Name: bot-rogue-ai.name
 		Type: rogue
-	GrantConditionOnBotOwner@RogueAI:
-		Condition: enable-rogue-ai
-		Bots: rogue
-	BaseBotModule@RogueAI:
-		RequiresCondition: enable-rogue-ai
-	BuilderBotModule@RogueAI:
-		RequiresCondition: enable-rogue-ai
+	ModularBot@AggressorAI:
+		Name: bot-aggressor-ai.name
+		Type: aggressor
+	ModularBot@EconomistAI:
+		Name: bot-economist-ai.name
+		Type: economist
+	ModularBot@TechnologistAI:
+		Name: bot-technologist-ai.name
+		Type: technologist
+	ModularBot@FortressAI:
+		Name: bot-fortress-ai.name
+		Type: fortress
+	GrantConditionOnBotOwner@UniverseAI:
+		Condition: enable-universe-ai
+		Bots: rogue, aggressor, economist, technologist, fortress
+	GrantConditionOnBotOwner@AggressorAI:
+		Condition: enable-aggressor-ai
+		Bots: rogue, aggressor
+	GrantConditionOnBotOwner@EconomistAI:
+		Condition: enable-economist-ai
+		Bots: economist
+	GrantConditionOnBotOwner@TechnologistAI:
+		Condition: enable-technologist-ai
+		Bots: technologist
+	GrantConditionOnBotOwner@FortressAI:
+		Condition: enable-fortress-ai
+		Bots: fortress
+	BaseBotModule@UniverseAI:
+		RequiresCondition: enable-universe-ai
+	BuilderBotModule@UniverseAI:
+		RequiresCondition: enable-universe-ai
 		BuilderTypes: builder, builder2
 		MinimumBaseRadius: 15
-	BaseBuilderBotModule@RogueAI:
-		RequiresCondition: enable-rogue-ai
+	BaseBuilderBotModule@UniverseAI:
+		RequiresCondition: enable-universe-ai
 		MinimumExcessPower: 40
 		MaximumExcessPower: 500
 		InititalMinimumRefineryCount: 1
@@ -92,54 +116,93 @@ Player:
 			silo: 13000
 			uplink: 13000
 	BuildingRepairBotModule:
-		RequiresCondition: enable-rogue-ai
-	SquadManagerBotModule@RogueAI:
-		RequiresCondition: enable-rogue-ai
-		SquadSize: 20
+		RequiresCondition: enable-universe-ai
+	SquadManagerBotModule@AggressorAI:
+		RequiresCondition: enable-aggressor-ai
+		SquadSize: 8
+		SquadSizeRandomBonus: 6
+		RushInterval: 250
+		MinimumAttackForceDelay: 100
 		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee
 		ConstructionYardTypes: base, base2
 		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
-	UnitBuilderBotModule@RogueAI:
-		IdleBaseUnitsMaximum: 30
-		RequiresCondition: enable-rogue-ai
+	SquadManagerBotModule@EconomistAI:
+		RequiresCondition: enable-economist-ai
+		SquadSize: 24
+		SquadSizeRandomBonus: 12
+		RushInterval: 900
+		MinimumAttackForceDelay: 500
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
+		AirUnitsTypes: gunship, jet, copter, banshee
+		ConstructionYardTypes: base, base2
+		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
+	SquadManagerBotModule@TechnologistAI:
+		RequiresCondition: enable-technologist-ai
+		SquadSize: 16
+		SquadSizeRandomBonus: 10
+		RushInterval: 600
+		MinimumAttackForceDelay: 300
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
+		AirUnitsTypes: gunship, jet, copter, banshee
+		ConstructionYardTypes: base, base2
+		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
+	SquadManagerBotModule@FortressAI:
+		RequiresCondition: enable-fortress-ai
+		SquadSize: 30
+		SquadSizeRandomBonus: 10
+		RushInterval: 1200
+		MinimumAttackForceDelay: 800
+		ProtectUnitScanRadius: 25
+		ProtectionScanRadius: 14
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
+		AirUnitsTypes: gunship, jet, copter, banshee
+		ConstructionYardTypes: base, base2
+		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
+	UnitBuilderBotModule@AggressorAI:
+		IdleBaseUnitsMaximum: 16
+		ProductionMinCashRequirement: 250
+		RequiresCondition: enable-aggressor-ai
 		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
 		UnitsToBuild:
 			miner: 3
 			builder: 1
 			builder2: 1
 			radartank: 1
-			buggy: 3
-			bike: 3
-			mbt: 5
-			mbt2: 5
-			railguntank: 5
-			lightningtank: 5
+			buggy: 12
+			bike: 12
+			mbt: 10
+			mbt2: 10
+			railguntank: 2
+			lightningtank: 2
 			minelayer: 1
-			stealthtank: 5
-			aatank: 4
-			aatank2: 4
+			stealthtank: 3
+			aatank: 3
+			aatank2: 3
 			ecmtank: 1
 			hackertank: 1
 			repairtank: 1
 			apc: 1
 			apc2: 1
-			artillery: 5
-			rifleman: 1
-			rocketeer: 1
-			mortar: 1
-			jetpacker: 1
+			artillery: 2
+			rifleman: 10
+			rocketeer: 8
+			mortar: 3
+			jetpacker: 6
 			sniper: 1
-			shocker: 1
-			technician: 1
-			flamer: 1
+			shocker: 3
+			technician: 2
+			flamer: 6
 			blaster: 1
-			missiletank: 5
-			jet: 5
-			gunship: 5
-			copter: 5
-			banshee: 5
+			missiletank: 4
+			jet: 3
+			gunship: 3
+			copter: 3
+			banshee: 3
 			balloon: 1
 			observer: 1
 			torpedoboat: 2
@@ -173,53 +236,216 @@ Player:
 		UnitDelays:
 			builder: 7500
 			builder2: 7500
+	UnitBuilderBotModule@EconomistAI:
+		IdleBaseUnitsMaximum: 40
+		ProductionMinCashRequirement: 1200
+		RequiresCondition: enable-economist-ai
+		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
+		UnitsToBuild:
+			miner: 12
+			builder: 4
+			builder2: 4
+			radartank: 4
+			buggy: 3
+			bike: 3
+			mbt: 4
+			mbt2: 4
+			aatank: 3
+			aatank2: 3
+			repairtank: 4
+			apc: 2
+			apc2: 2
+			artillery: 3
+			rifleman: 3
+			rocketeer: 3
+			mortar: 2
+			technician: 4
+			missiletank: 3
+			jet: 2
+			gunship: 2
+			copter: 2
+			banshee: 2
+			balloon: 2
+			observer: 2
+			torpedoboat: 2
+			submarine: 2
+			lightboat: 2
+			patrolboat: 2
+			railgunboat: 2
+			lightningboat: 2
+			boomer: 1
+			carrier: 1
+			mineship: 1
+			mineship2: 1
+		UnitLimits:
+			miner: 4
+			builder: 2
+			builder2: 2
+			balloon: 3
+			observer: 3
+			radartank: 3
+			technician: 2
+			apc: 2
+			apc2: 2
+		UnitDelays:
+			builder: 5000
+			builder2: 5000
+	UnitBuilderBotModule@TechnologistAI:
+		IdleBaseUnitsMaximum: 32
+		ProductionMinCashRequirement: 800
+		RequiresCondition: enable-technologist-ai
+		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
+		UnitsToBuild:
+			miner: 4
+			builder: 1
+			builder2: 1
+			radartank: 4
+			mbt: 3
+			mbt2: 3
+			railguntank: 12
+			lightningtank: 12
+			stealthtank: 8
+			aatank: 5
+			aatank2: 5
+			ecmtank: 5
+			hackertank: 5
+			repairtank: 3
+			artillery: 8
+			rocketeer: 3
+			jetpacker: 4
+			sniper: 3
+			shocker: 5
+			technician: 3
+			missiletank: 8
+			jet: 8
+			gunship: 8
+			copter: 8
+			banshee: 8
+			balloon: 2
+			observer: 2
+			submarine: 4
+			railgunboat: 7
+			lightningboat: 7
+			boomer: 4
+			carrier: 4
+			battleship: 4
+			mothership: 2
+		UnitLimits:
+			miner: 2
+			builder: 1
+			builder2: 1
+			balloon: 2
+			observer: 2
+			radartank: 2
+			ecmtank: 3
+			hackertank: 3
+			technician: 2
+			mothership: 2
+		UnitDelays:
+			builder: 7500
+			builder2: 7500
+			railguntank: 3500
+			lightningtank: 3500
+			stealthtank: 3500
+	UnitBuilderBotModule@FortressAI:
+		IdleBaseUnitsMaximum: 50
+		ProductionMinCashRequirement: 600
+		RequiresCondition: enable-fortress-ai
+		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
+		UnitsToBuild:
+			miner: 5
+			builder: 2
+			builder2: 2
+			radartank: 3
+			mbt: 5
+			mbt2: 5
+			railguntank: 4
+			lightningtank: 4
+			minelayer: 6
+			aatank: 10
+			aatank2: 10
+			repairtank: 8
+			artillery: 12
+			missiletank: 10
+			rifleman: 4
+			rocketeer: 5
+			mortar: 10
+			sniper: 5
+			technician: 3
+			jet: 3
+			gunship: 3
+			copter: 3
+			banshee: 3
+			balloon: 2
+			observer: 3
+			torpedoboat: 4
+			submarine: 4
+			railgunboat: 6
+			lightningboat: 6
+			boomer: 4
+			carrier: 5
+			mineship: 4
+			mineship2: 4
+			battleship: 5
+		UnitLimits:
+			miner: 3
+			builder: 1
+			builder2: 1
+			balloon: 2
+			observer: 3
+			radartank: 2
+			minelayer: 4
+			technician: 2
+		UnitDelays:
+			builder: 6500
+			builder2: 6500
 	PriorityCaptureManagerBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		CapturingActorTypes: technician
 		PriorityCapturableActorTypes: reconstructor, extractor, comlink, dropzone
 		MinimumCaptureDelay: 0
 		MaximumCaptureTargetOptions: 25
 		CheckCaptureTargetsForVisibility: False
 	MinerBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		DeployableActorTypes: miner
 		DeployableTerrainTypes: Ore
 		DeployedActorTypes: miner2
 		VehiclesQueue: Utility
 	MinelayerBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		MinelayingActorTypes: minelayer, mineship, mineship2
 		IgnoredEnemyTargetTypes: Structure, Defense, Air
 		UseEnemyLocationTargetTypes: Structure, Defense
 		AwayFromAlliedTargetTypes: Structure, Defense
 		AwayFromEnemyTargetTypes: Structure, Defense
 	CubePickupBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		ExcludedUnitTypes: miner, tanker1, tanker2, broker
 	CargoBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		TransportTypes: apc
 		PassengerTypes: mortar, flamer, shocker, rifleman, rocketeer
 	DeployActorBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		DeployableActorTypes: radartank
 	PowerDownBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 	ScoutBotModule:
 		ScoutActorTypes: balloon, observer
 		MoveRadius: 20
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 	SendUnitToAttackBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		ActorTypesAndAttackDesire:
 			blaster: 30
 		ValidTargets: Structure, Vehicle
 		InvalidTargets: Air, Water
 	ExternalConditionPowerBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		OrderName: ShieldsUp
 	SupportPowerBotModule:
-		RequiresCondition: enable-rogue-ai
+		RequiresCondition: enable-universe-ai
 		Decisions:
 			Nuke:
 				OrderName: Nukem

@@ -47,7 +47,19 @@ namespace OpenRA.Mods.HV.LoadScreens
 				throw new ArgumentException($"Could not find simulation map '{Launch.Map}'.");
 
 			var botType = args.GetValue("Launch.SimulationBot", "rogue");
+			var botTypes = args.GetValue("Launch.SimulationBots", botType)
+				.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			if (botTypes.Length == 0)
+				throw new ArgumentException("Launch.SimulationBots must specify at least one bot type.");
+
 			var gameSpeed = args.GetValue("Launch.SimulationSpeed", "fastest");
+			var resultPath = args.GetValue("Launch.SimulationResult", "");
+			var durationSeconds = int.TryParse(args.GetValue("Launch.SimulationDuration", "0"), out var duration) ?
+				Math.Max(0, duration) : 0;
+			var randomSeed = int.TryParse(args.GetValue("Launch.SimulationSeed", ""), out var seed) ?
+				seed : (int?)null;
+			var startedUtc = DateTime.UtcNow;
+			var simulationComplete = false;
 
 			Ui.ResetAll();
 			Game.Settings.Save();
@@ -67,13 +79,53 @@ namespace OpenRA.Mods.HV.LoadScreens
 					.ToArray();
 
 				Console.WriteLine(
-					$"Starting autonomous simulation on {map.Title} with {simulationSlots.Length} {botType} bots.");
+					$"Starting autonomous simulation on {map.Title} with {simulationSlots.Length} bots: " +
+					string.Join(", ", simulationSlots.Select((_, i) => botTypes[i % botTypes.Length])) + ".");
+
+				if (randomSeed.HasValue)
+				{
+					orderManager.LobbyInfo.GlobalSettings.RandomSeed = randomSeed.Value;
+					orderManager.IssueOrder(Order.Command($"sync_lobby {orderManager.LobbyInfo.Serialize()}"));
+				}
 
 				orderManager.IssueOrder(Order.Command("spectate"));
-				foreach (var slot in simulationSlots)
-					orderManager.IssueOrder(Order.Command($"slot_bot {slot} {localClientIndex} {botType}"));
+				for (var i = 0; i < simulationSlots.Length; i++)
+				{
+					var slotBotType = botTypes[i % botTypes.Length];
+					orderManager.IssueOrder(Order.Command($"slot_bot {simulationSlots[i]} {localClientIndex} {slotBotType}"));
+				}
 
 				orderManager.IssueOrder(Order.Command($"option gamespeed {gameSpeed}"));
+
+				void FinishSimulation(bool timedOut)
+				{
+					if (simulationComplete)
+						return;
+
+					simulationComplete = true;
+					if (!string.IsNullOrEmpty(resultPath))
+						SimulationResultWriter.Write(
+							resultPath,
+							orderManager.World,
+							map.Title,
+							randomSeed,
+							timedOut,
+							startedUtc);
+
+					Console.WriteLine(timedOut ? "Simulation time limit reached." : "Simulation completed naturally.");
+					Game.Exit();
+				}
+
+				void GameStarted()
+				{
+					Game.AfterGameStart -= GameStarted;
+					orderManager.World.GameOver += () => FinishSimulation(false);
+
+					if (durationSeconds > 0)
+						Game.RunAfterDelay(durationSeconds * 1000, () => FinishSimulation(true));
+				}
+
+				Game.AfterGameStart += GameStarted;
 				orderManager.IssueOrder(Order.Command("startgame"));
 			}
 

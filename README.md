@@ -16,7 +16,25 @@ The local development fork can launch a hands-off AI match with the local client
 ./run-simulation.sh coldrage
 ```
 
-The first argument is a map folder name. `coldrage` is the default and starts four Rogue AI factions in a free-for-all match at the fastest game speed. The bot type and speed can be overridden with `SIMULATION_BOT` and `SIMULATION_SPEED`.
+The first argument is a map folder name. `coldrage` is the default and starts four AI factions in a free-for-all match at the fastest game speed.
+
+Four strategy profiles are available: `aggressor`, `economist`, `technologist`, and `fortress`. A mixed match that stops after 30 real-time seconds and writes a machine-readable result can be launched with:
+
+```sh
+SIMULATION_BOTS=aggressor,economist,technologist,fortress \
+SIMULATION_DURATION=30 \
+SIMULATION_SEED=42 \
+SIMULATION_RESULT=/tmp/openhv-match.json \
+./run-simulation.sh coldrage
+```
+
+Run a ten-match tournament across several maps with:
+
+```sh
+./run-tournament.sh
+```
+
+The tournament writes each match and an aggregate `tournament.json` under `../tournament-results`. `MATCH_COUNT`, `MATCH_DURATION`, `TOURNAMENT_SEED`, `TOURNAMENT_BOTS`, `TOURNAMENT_MAPS`, and `TOURNAMENT_RESULTS_DIR` can be overridden through the environment.
 
 ![MiniYAML](https://www.openhv.net/images/readme/miniyaml.png)
 

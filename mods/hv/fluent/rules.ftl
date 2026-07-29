@@ -82,6 +82,14 @@ bridge-shadow = Bridge Shadow
 ## Player
 bot-rogue-ai =
    .name = Rogue AI
+bot-aggressor-ai =
+   .name = Vanguard AI
+bot-economist-ai =
+   .name = Foundry AI
+bot-technologist-ai =
+   .name = Ascendant AI
+bot-fortress-ai =
+   .name = Bastion AI
 
 ## Notifications
 notification-game-loaded = Game loaded.
