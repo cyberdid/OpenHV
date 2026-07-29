@@ -270,3 +270,22 @@ settlements from the disabled control's 280 to 680 and prevented the observed
 population decline from 1,000 to 984–992. A 6,000-tick conflict suspended
 exactly five routes for five bilateral wars. All current artifacts passed
 Schema v1; post-pulse stocks remained within storage.
+
+## [2026-07-29] change | Multi-objective Civilization AI and war costs
+
+Completed AI-001–002's first layer. `CivilizationState` now scores survival,
+research, trade, security, recovery, and pair-specific war utility; selects
+six observable strategies; budgets physical-input research; and replaces
+fixed diplomacy pressure. Army value reserves workforce, active war increases
+mobilization, death value removes adults, and war/casualties damage stability.
+See
+[Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
+
+## [2026-07-29] experiment | Dependency-driven peace and recovery
+
+With trade enabled, dependency reached 616 and an Aggressor/Economist scenario
+kept all six pairs neutral; the identical no-trade control produced one war,
+five casualties, survival/mobilization states, lower population, and minimum
+stability 678. A paired war run matched hash `8431018E` with 382 mobilized
+adults and 32 casualties. A longer case entered recovery at tick 10,000 after
+peace, then returned to research as stability recovered.

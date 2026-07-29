@@ -14,6 +14,7 @@ sources:
   - experiments/2026-07-29-civil-research-v1.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
+  - experiments/2026-07-29-civilization-ai-war-cost-v1.md
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -786,8 +787,8 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | LIFE-004 ✅ | Research and small civil technology graph | LIFE-002–003 | deterministic unlock test |
 | DIP-001 ✅ | Runtime diplomacy manager | LIFE-001 | neutral/war/peace transition tests |
 | DIP-002 ✅ | Resource trade and route model | DIP-001, LIFE-003 | scarcity/trade scenario |
-| AI-001 | Shared perception blackboard | SIM-008 | decision/telemetry traces |
-| AI-002 | Strategic state machine | AI-001 | distinct measured transitions |
+| AI-001 ✅ | Shared perception blackboard | SIM-008 | decision/telemetry traces |
+| AI-002 ✅ | Strategic state machine | AI-001 | distinct measured transitions |
 | AI-003 | Opening/economy/tech planners | AI-002 | held-out behavior report |
 | AI-004 | Combat target/retreat planners | AI-002 | combat efficiency report |
 | FAC-001 | Separate faction/profile inputs | SIM-001 | factorial test schedule |
@@ -871,8 +872,10 @@ five-node civil graph; all factions begin neutral; explicit rivalry can set
 native enemy masks; losses drive exhaustion and peace; stock-backed routes
 move complementary resources and suspend at war. The enabled/disabled paired
 trade test, route-flow reconciliation, suspension case, and deterministic
-repeat passed. Civilization AI, war-cost coupling, lifecycle work, and
-baseline experiments are next.
+repeat passed. AI-001–002 and war-cost coupling then added observable utility
+selection, dependency-driven peace, mobilization, population casualties, and
+post-war recovery. SIM-009 lifecycle work is next, followed by tactical
+AI-003–004 and baseline experiments.
 
 ### Following 4 to 8 weeks
 

@@ -36,6 +36,7 @@ namespace OpenRA.Mods.HV
 		readonly StreamWriter events;
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
 		readonly Dictionary<string, HashSet<string>> observedTechnologies = new(StringComparer.Ordinal);
+		readonly Dictionary<string, int> observedStrategySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeStatusSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeShipmentSequences = new(StringComparer.Ordinal);
@@ -127,6 +128,7 @@ namespace OpenRA.Mods.HV
 			{
 				ObserveSettlements(world.WorldTick, player);
 				ObserveTechnologies(world.WorldTick, player);
+				ObserveStrategy(world.WorldTick, player);
 			}
 
 			ObserveDiplomacy(world.WorldTick, diplomacy);
@@ -258,6 +260,28 @@ namespace OpenRA.Mods.HV
 				});
 				previous.Add(technology);
 			}
+		}
+
+		void ObserveStrategy(int worldTick, SimulationTelemetryPlayer player)
+		{
+			if (observedStrategySequences.TryGetValue(player.PlayerName, out var sequence) &&
+				sequence == player.Civilization.StrategySequence)
+				return;
+
+			observedStrategySequences[player.PlayerName] = player.Civilization.StrategySequence;
+			WriteEvent(new SimulationEventRecord
+			{
+				SchemaVersion = SchemaVersion,
+				RecordType = "event",
+				MatchId = config.MatchId,
+				WorldTick = worldTick,
+				EventType = "strategy-transition",
+				ReasonCode = "utility-selection",
+				PlayerName = player.PlayerName,
+				Strategy = player.Civilization.Strategy,
+				Value = player.Civilization.WarUtility,
+				PreviousValue = player.Civilization.StrategySequence
+			});
 		}
 
 		void WriteSettlementEvent(
@@ -455,5 +479,6 @@ namespace OpenRA.Mods.HV
 		public string RouteStatus { get; init; }
 		public string ResourceType { get; init; }
 		public int? Amount { get; init; }
+		public string Strategy { get; init; }
 	}
 }

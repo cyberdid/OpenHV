@@ -31,6 +31,7 @@ sources:
   - decisions/0005-process-isolated-resumable-batches.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
+  - experiments/2026-07-29-civilization-ai-war-cost-v1.md
 tags:
   - architecture
   - runtime
@@ -252,6 +253,29 @@ six directional resource totals. `SimulationTradeSnapshotBuilder` exports
 these to final results and every snapshot; telemetry derives
 `trade-route-state` and `trade-shipment` events. See
 [Stock-Backed Trade v1 Validation](experiments/2026-07-29-stock-backed-trade-v1.md).
+
+## Civilization strategy and war-cost boundary
+
+`CivilizationState` owns the first synchronized strategic blackboard and state
+machine. At its 250-tick decision/research pulse it aggregates settlement
+needs and stability, diplomacy wars, trade-route dependency, player
+army/assets, completed/current research, and prior casualties. It stores six
+0–1000 utilities and one state: development, survival, research, trade,
+mobilization, or recovery.
+
+The pair-specific war utility replaces hard-coded diplomacy pressure. It
+combines personality, relative power, shortages, instability, import
+dependency on that partner, current research commitment, and casualty
+aversion. Strategy limits research spending; research consumes real knowledge,
+materials, and energy.
+
+`SettlementCore` translates military state into civil cost. Army value reserves
+adult workforce, with a higher ratio during active wars; available workforce
+scales all four civil outputs. New death value converts to adult casualties at
+the primary settlement. Wars and casualties lower the stability target and
+increase migration pressure. All fields and `strategy-transition` events are
+exported by existing civilization snapshots. See
+[Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
 
 ## Current performance boundary
 

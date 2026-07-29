@@ -13,6 +13,7 @@ sources:
   - experiments/2026-07-29-civil-research-v1.md
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
+  - experiments/2026-07-29-civilization-ai-war-cost-v1.md
 tags:
   - roadmap
   - planning
@@ -119,8 +120,9 @@ Status: LIFE-001–004 and DIP-001 complete. Four capitals run synchronized civi
 and demographic pulses; balanced growth, shortage mortality, explicit
 building flows, peaceful Steward development, deterministic research unlocks,
 default-neutral diplomacy, explicit war/peace, repeat hashes, and strategic
-telemetry passed. Stock-backed trade now stabilizes deficit settlements.
-Migration and military/civilian coupling remain open, so the full P0.5
+telemetry passed. Stock-backed trade stabilizes deficit settlements. Army
+mobilization reduces workforce/production, combat losses remove adults, and
+peace triggers recovery. Migration transfer remains open, so the full P0.5
 acceptance gate is not yet complete.
 
 ## P1 — Strategic telemetry
@@ -159,8 +161,12 @@ neutral is the effective default; rivalry declares war through native OpenRA
 enemy masks; losses drive exhaustion and peace; transition snapshots/events
 validated; repeated inputs produced hash `E5E13643`. Trade moves real food,
 materials, and energy under reserve/storage/capacity/risk constraints, and
-war suspends the matching route. The next step is richer Civilization AI
-utility followed by treaties and physical cargo/interception.
+war suspends the matching route. The first Civilization AI utility/state layer
+is also complete: trade dependency changed a paired war outcome; research
+spends physical inputs; mobilization, casualties, stability damage, and
+post-war recovery are synchronized and observable. Tactical
+build/retreat/target planners, richer treaties, and physical cargo remain
+open.
 
 ## P1 — Automated experiment loop
 

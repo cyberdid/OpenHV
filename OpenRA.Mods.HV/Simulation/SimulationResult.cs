@@ -86,7 +86,12 @@ namespace OpenRA.Mods.HV
 		public int Adults { get; init; }
 		public int Elders { get; init; }
 		public int Workforce { get; init; }
+		public int AvailableWorkforce { get; init; }
 		public int Employed { get; init; }
+		public int Mobilized { get; init; }
+		public int ActiveWars { get; init; }
+		public int WarCasualties { get; init; }
+		public int LastWarCasualties { get; init; }
 		public int Housing { get; init; }
 		public int Jobs { get; init; }
 		public int Food { get; init; }
@@ -104,6 +109,18 @@ namespace OpenRA.Mods.HV
 		public string CurrentTechnology { get; init; }
 		public int ResearchProgress { get; init; }
 		public int ResearchCost { get; init; }
+		public int ResearchMaterialsSpent { get; init; }
+		public int ResearchEnergySpent { get; init; }
+		public string Strategy { get; init; }
+		public int StrategySequence { get; init; }
+		public int StrategyTransitionTick { get; init; }
+		public int SurvivalUtility { get; init; }
+		public int ResearchUtility { get; init; }
+		public int TradeUtility { get; init; }
+		public int SecurityUtility { get; init; }
+		public int RecoveryUtility { get; init; }
+		public int WarUtility { get; init; }
+		public int TradeDependency { get; init; }
 		public SimulationSettlementResult[] Settlements { get; init; }
 	}
 
@@ -120,7 +137,12 @@ namespace OpenRA.Mods.HV
 		public int Adults { get; init; }
 		public int Elders { get; init; }
 		public int Workforce { get; init; }
+		public int AvailableWorkforce { get; init; }
 		public int Employed { get; init; }
+		public int Mobilized { get; init; }
+		public int ActiveWars { get; init; }
+		public int WarCasualties { get; init; }
+		public int LastWarCasualties { get; init; }
 		public int Housing { get; init; }
 		public int Jobs { get; init; }
 		public int Food { get; init; }

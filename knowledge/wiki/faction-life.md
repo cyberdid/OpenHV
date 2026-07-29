@@ -12,6 +12,7 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
+  - experiments/2026-07-29-civilization-ai-war-cost-v1.md
 tags:
   - civilization
   - population
@@ -445,6 +446,22 @@ The AI chooses goals such as:
 
 War is chosen when expected strategic value exceeds military, demographic,
 economic, diplomatic, and stability costs.
+
+The first planner is implemented. A 250-tick synchronized decision pulse
+computes survival, research, trade, security, recovery, and pair-specific war
+utilities. It selects development, survival, research, trade, mobilization, or
+recovery; exports all utility values; emits transitions; changes research
+budget; and supplies diplomacy grievance pressure.
+
+Research now spends real knowledge, materials, and energy. Standing armies and
+wartime mobilization reduce available adult workforce and scale all civil
+production. Combat death value removes adults from population; war and
+casualties lower stability; peace can trigger a recovery phase before ordinary
+research/development resumes. See
+[Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
+
+The planner does not yet own tactical build queues, retreats, or attack target
+selection; those remain the next AI layer.
 
 ## Consequences of war
 

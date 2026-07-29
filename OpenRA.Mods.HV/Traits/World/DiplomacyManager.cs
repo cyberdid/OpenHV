@@ -132,8 +132,18 @@ namespace OpenRA.Mods.HV.Traits
 			if (self.World.WorldTick < relation.PeaceCooldownUntil)
 				return;
 
-			relation.GrievanceA = Math.Min(1000, relation.GrievanceA + DispositionPressure(relation.PlayerA));
-			relation.GrievanceB = Math.Min(1000, relation.GrievanceB + DispositionPressure(relation.PlayerB));
+			relation.GrievanceA = Math.Min(
+				1000,
+				relation.GrievanceA + StrategicPressure(
+					relation.PlayerA,
+					relation.PlayerB,
+					relation));
+			relation.GrievanceB = Math.Min(
+				1000,
+				relation.GrievanceB + StrategicPressure(
+					relation.PlayerB,
+					relation.PlayerA,
+					relation));
 			relation.Trust = Math.Min(1000, relation.Trust + 25);
 			if (relation.GrievanceA + relation.GrievanceB >= info.WarGrievanceThreshold)
 				Transition(relation, DiplomaticRelationState.War, DiplomacyReason.StrategicRivalry);
@@ -191,17 +201,14 @@ namespace OpenRA.Mods.HV.Traits
 			}
 		}
 
-		static int DispositionPressure(Player player)
+		static int StrategicPressure(
+			Player player,
+			Player other,
+			DiplomaticRelation relation)
 		{
-			return player.BotType switch
-			{
-				"rogue" => 300,
-				"aggressor" => 300,
-				"technologist" => 160,
-				"economist" => 120,
-				"fortress" => 100,
-				_ => 0
-			};
+			return player.PlayerActor
+				.TraitOrDefault<CivilizationState>()?
+				.StrategicPressureAgainst(other, relation) ?? 0;
 		}
 
 		static IEnumerable<Player> ActivePlayers(World world)

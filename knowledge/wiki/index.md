@@ -54,6 +54,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Stock-Backed Trade v1 validation, 2026-07-29](experiments/2026-07-29-stock-backed-trade-v1.md)
   — real stock transfer, asymmetric production, route capacity/risk, war
   suspension, paired civil outcomes, and deterministic repeat.
+- [Civilization AI and War Cost v1 validation, 2026-07-29](experiments/2026-07-29-civilization-ai-war-cost-v1.md)
+  — multi-objective strategies, research opportunity costs, dependency-driven
+  peace, mobilization, population casualties, recovery, and repeatability.
 
 ## Decisions
 

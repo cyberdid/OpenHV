@@ -33,7 +33,12 @@ namespace OpenRA.Mods.HV
 				Adults = settlements.Sum(s => s.Adults),
 				Elders = settlements.Sum(s => s.Elders),
 				Workforce = settlements.Sum(s => s.Workforce),
+				AvailableWorkforce = settlements.Sum(s => s.AvailableWorkforce),
 				Employed = settlements.Sum(s => s.Employed),
+				Mobilized = settlements.Sum(s => s.Mobilized),
+				ActiveWars = civilization?.ActiveWars ?? 0,
+				WarCasualties = settlements.Sum(s => s.WarCasualties),
+				LastWarCasualties = settlements.Sum(s => s.LastWarCasualties),
 				Housing = settlements.Sum(s => s.Housing),
 				Jobs = settlements.Sum(s => s.Jobs),
 				Food = settlements.Sum(s => s.Food),
@@ -51,6 +56,18 @@ namespace OpenRA.Mods.HV
 				CurrentTechnology = civilization?.CurrentTechnology,
 				ResearchProgress = civilization?.ResearchProgress ?? 0,
 				ResearchCost = civilization?.CurrentTechnologyCost ?? 0,
+				ResearchMaterialsSpent = civilization?.ResearchMaterialsSpent ?? 0,
+				ResearchEnergySpent = civilization?.ResearchEnergySpent ?? 0,
+				Strategy = StrategyIdentifier(civilization?.Strategy ?? CivilizationStrategy.Development),
+				StrategySequence = civilization?.StrategySequence ?? 0,
+				StrategyTransitionTick = civilization?.StrategyTransitionTick ?? 0,
+				SurvivalUtility = civilization?.SurvivalUtility ?? 0,
+				ResearchUtility = civilization?.ResearchUtility ?? 0,
+				TradeUtility = civilization?.TradeUtility ?? 0,
+				SecurityUtility = civilization?.SecurityUtility ?? 0,
+				RecoveryUtility = civilization?.RecoveryUtility ?? 0,
+				WarUtility = civilization?.WarUtility ?? 0,
+				TradeDependency = civilization?.TradeDependency ?? 0,
 				Settlements = settlements
 			};
 		}
@@ -70,7 +87,12 @@ namespace OpenRA.Mods.HV
 				Adults = settlement.Adults,
 				Elders = settlement.Elders,
 				Workforce = settlement.Adults,
+				AvailableWorkforce = settlement.AvailableWorkforce,
 				Employed = settlement.Employed,
+				Mobilized = settlement.Mobilized,
+				ActiveWars = settlement.ActiveWars,
+				WarCasualties = settlement.WarCasualties,
+				LastWarCasualties = settlement.LastWarCasualties,
 				Housing = settlement.Housing,
 				Jobs = settlement.Jobs,
 				Food = settlement.Food,
@@ -98,6 +120,20 @@ namespace OpenRA.Mods.HV
 				CivilPulseCount = settlement.CivilPulseCount,
 				DemographicPulseCount = settlement.DemographicPulseCount,
 				InfrastructureCount = settlement.InfrastructureCount
+			};
+		}
+
+		static string StrategyIdentifier(CivilizationStrategy strategy)
+		{
+			return strategy switch
+			{
+				CivilizationStrategy.Development => "development",
+				CivilizationStrategy.Survival => "survival",
+				CivilizationStrategy.Research => "research",
+				CivilizationStrategy.Trade => "trade",
+				CivilizationStrategy.Mobilization => "mobilization",
+				CivilizationStrategy.Recovery => "recovery",
+				_ => "unknown"
 			};
 		}
 
