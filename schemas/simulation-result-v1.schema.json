@@ -67,6 +67,9 @@
     "tradeRoutes": {
       "type": "array",
       "items": { "$ref": "#/$defs/tradeRoute" }
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/lifecycle"
     }
   },
   "$defs": {
@@ -133,6 +136,12 @@
         },
         "effectiveRandomSeed": { "type": "integer" },
         "maxWorldTicks": { "type": "integer", "minimum": 1 },
+        "scenarioMode": { "enum": ["conflict", "living-world"] },
+        "observationHorizonTicks": { "type": "integer", "minimum": 0 },
+        "stalemateWindowTicks": { "type": "integer", "minimum": 0 },
+        "stalemateTerminates": { "type": "boolean" },
+        "collapsePopulationThreshold": { "type": "integer", "minimum": 0 },
+        "collapseStabilityThreshold": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "watchdogSeconds": { "type": "integer", "minimum": 0 },
         "telemetryIntervalTicks": { "type": "integer", "minimum": 0 },
         "civilizationProfile": { "enum": ["balanced", "scarcity", "trade"] },
@@ -429,6 +438,65 @@
         "materialsBToA": { "type": "integer", "minimum": 0 },
         "energyAToB": { "type": "integer", "minimum": 0 },
         "energyBToA": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenarioMode",
+        "observationHorizonTick",
+        "hardTickLimit",
+        "stalemateWindowTicks",
+        "stalemateTerminates",
+        "collapsePopulationThreshold",
+        "collapseStabilityThreshold",
+        "stalemateAdvisory",
+        "stalemateSinceTick",
+        "lastMeaningfulActivityTick",
+        "stalemateSequence",
+        "allFactionsCollapsed",
+        "collapsedFactions"
+      ],
+      "properties": {
+        "scenarioMode": { "enum": ["conflict", "living-world"] },
+        "observationHorizonTick": { "type": "integer", "minimum": 0 },
+        "hardTickLimit": { "type": "integer", "minimum": 1 },
+        "stalemateWindowTicks": { "type": "integer", "minimum": 0 },
+        "stalemateTerminates": { "type": "boolean" },
+        "collapsePopulationThreshold": { "type": "integer", "minimum": 0 },
+        "collapseStabilityThreshold": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "stalemateAdvisory": { "type": "boolean" },
+        "stalemateSinceTick": { "type": "integer", "minimum": 0 },
+        "lastMeaningfulActivityTick": { "type": "integer", "minimum": 0 },
+        "stalemateSequence": { "type": "integer", "minimum": 0 },
+        "allFactionsCollapsed": { "type": "boolean" },
+        "collapsedFactions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/collapsedFaction" }
+        }
+      }
+    },
+    "collapsedFaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "playerName",
+        "botType",
+        "faction",
+        "collapseTick",
+        "population",
+        "survivingAssetsValue",
+        "reasonCode"
+      ],
+      "properties": {
+        "playerName": { "type": "string", "minLength": 1 },
+        "botType": { "type": "string", "minLength": 1 },
+        "faction": { "type": "string", "minLength": 1 },
+        "collapseTick": { "type": "integer", "minimum": 0 },
+        "population": { "type": "integer", "minimum": 0 },
+        "survivingAssetsValue": { "type": "integer", "minimum": 0 },
+        "reasonCode": { "type": "string", "minLength": 1 }
       }
     },
     "settlement": {

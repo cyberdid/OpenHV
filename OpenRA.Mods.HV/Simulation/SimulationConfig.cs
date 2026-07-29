@@ -22,6 +22,8 @@ namespace OpenRA.Mods.HV
 		public const int CurrentSchemaVersion = 1;
 		public const int DefaultMaxWorldTicks = 1500;
 		public const int DefaultWatchdogSeconds = 120;
+		public const string ConflictScenario = "conflict";
+		public const string LivingWorldScenario = "living-world";
 
 		public int SchemaVersion { get; init; } = CurrentSchemaVersion;
 		public string MatchId { get; init; }
@@ -37,6 +39,12 @@ namespace OpenRA.Mods.HV
 		public int? RequestedRandomSeed { get; init; }
 		public int EffectiveRandomSeed { get; set; }
 		public int MaxWorldTicks { get; init; }
+		public string ScenarioMode { get; init; }
+		public int ObservationHorizonTicks { get; init; }
+		public int StalemateWindowTicks { get; init; }
+		public bool StalemateTerminates { get; init; }
+		public int CollapsePopulationThreshold { get; init; }
+		public int CollapseStabilityThreshold { get; init; }
 		public int WatchdogSeconds { get; init; }
 		public int TelemetryIntervalTicks { get; init; }
 		public string CivilizationProfile { get; init; }
@@ -85,6 +93,43 @@ namespace OpenRA.Mods.HV
 			maxWorldTicks ??= DefaultMaxWorldTicks;
 			if (maxWorldTicks <= 0)
 				throw new ArgumentException("Launch.SimulationMaxTicks must be greater than zero.");
+			var scenarioMode = args.GetValue("Launch.SimulationScenarioMode", ConflictScenario);
+			if (scenarioMode != ConflictScenario && scenarioMode != LivingWorldScenario)
+				throw new ArgumentException(
+					"Launch.SimulationScenarioMode must be 'conflict' or 'living-world', " +
+					$"but was '{scenarioMode}'.");
+			var observationHorizonTicks =
+				ParseOptionalNonNegativeInt(args, "Launch.SimulationObservationHorizonTicks") ??
+				(scenarioMode == LivingWorldScenario ? maxWorldTicks.Value : 0);
+			if (scenarioMode == ConflictScenario && observationHorizonTicks != 0)
+				throw new ArgumentException(
+					"Launch.SimulationObservationHorizonTicks must be zero in conflict mode.");
+			if (scenarioMode == LivingWorldScenario &&
+				(observationHorizonTicks <= 0 || observationHorizonTicks > maxWorldTicks.Value))
+				throw new ArgumentException(
+					"Living-world observation horizon must be greater than zero and no greater " +
+					"than Launch.SimulationMaxTicks.");
+			var stalemateWindowTicks =
+				ParseOptionalNonNegativeInt(args, "Launch.SimulationStalemateWindowTicks") ?? 0;
+			if (stalemateWindowTicks > 0 && stalemateWindowTicks < 250)
+				throw new ArgumentException(
+					"Launch.SimulationStalemateWindowTicks must be zero (disabled) or at least 250.");
+			var stalemateTerminatesText = args.GetValue("Launch.SimulationStalemateTerminates", "false");
+			if (!bool.TryParse(stalemateTerminatesText, out var stalemateTerminates))
+				throw new ArgumentException(
+					"Launch.SimulationStalemateTerminates must be 'true' or 'false', " +
+					$"but was '{stalemateTerminatesText}'.");
+			if (stalemateTerminates && stalemateWindowTicks == 0)
+				throw new ArgumentException(
+					"Launch.SimulationStalemateWindowTicks must be greater than zero when " +
+					"stalemate termination is enabled.");
+			var collapsePopulationThreshold =
+				ParseOptionalNonNegativeInt(args, "Launch.SimulationCollapsePopulationThreshold") ?? 250;
+			var collapseStabilityThreshold =
+				ParseOptionalNonNegativeInt(args, "Launch.SimulationCollapseStabilityThreshold") ?? 250;
+			if (collapseStabilityThreshold > 1000)
+				throw new ArgumentException(
+					"Launch.SimulationCollapseStabilityThreshold must be between zero and 1000.");
 
 			var watchdogSeconds =
 				ParseOptionalNonNegativeInt(args, "Launch.SimulationWatchdogSeconds") ?? DefaultWatchdogSeconds;
@@ -142,6 +187,12 @@ namespace OpenRA.Mods.HV
 				GameTimestepMilliseconds = speed.Timestep,
 				RequestedRandomSeed = randomSeed,
 				MaxWorldTicks = maxWorldTicks.Value,
+				ScenarioMode = scenarioMode,
+				ObservationHorizonTicks = observationHorizonTicks,
+				StalemateWindowTicks = stalemateWindowTicks,
+				StalemateTerminates = stalemateTerminates,
+				CollapsePopulationThreshold = collapsePopulationThreshold,
+				CollapseStabilityThreshold = collapseStabilityThreshold,
 				WatchdogSeconds = watchdogSeconds,
 				TelemetryIntervalTicks = telemetryIntervalTicks,
 				CivilizationProfile = civilizationProfile,

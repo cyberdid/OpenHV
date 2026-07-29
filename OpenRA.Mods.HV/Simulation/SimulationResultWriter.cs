@@ -30,6 +30,7 @@ namespace OpenRA.Mods.HV
 			string path,
 			World world,
 			SimulationConfig config,
+			SimulationLifecycleResult lifecycle,
 			SimulationEndReason endReason,
 			string endDetail,
 			DateTime startedUtc)
@@ -131,7 +132,8 @@ namespace OpenRA.Mods.HV
 				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
 				Players = players,
 				Diplomacy = SimulationDiplomacySnapshotBuilder.Build(world),
-				TradeRoutes = SimulationTradeSnapshotBuilder.Build(world)
+				TradeRoutes = SimulationTradeSnapshotBuilder.Build(world),
+				Lifecycle = lifecycle
 			};
 
 			var directory = Path.GetDirectoryName(path);

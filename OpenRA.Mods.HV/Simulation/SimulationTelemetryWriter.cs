@@ -32,6 +32,7 @@ namespace OpenRA.Mods.HV
 		};
 
 		readonly SimulationConfig config;
+		readonly SimulationLifecycleMonitor lifecycle;
 		readonly StreamWriter telemetry;
 		readonly StreamWriter events;
 		readonly Dictionary<string, ObservedSettlement> observedSettlements = new(StringComparer.Ordinal);
@@ -40,15 +41,18 @@ namespace OpenRA.Mods.HV
 		readonly Dictionary<string, int> observedDiplomacySequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeStatusSequences = new(StringComparer.Ordinal);
 		readonly Dictionary<string, int> observedTradeShipmentSequences = new(StringComparer.Ordinal);
+		readonly HashSet<string> observedCollapsedFactions = new(StringComparer.Ordinal);
+		int observedStalemateSequence;
 		bool completed;
 
 		public int LastSnapshotTick { get; private set; } = -1;
 		public string TelemetryPath { get; }
 		public string EventsPath { get; }
 
-		public SimulationTelemetryWriter(SimulationConfig config)
+		public SimulationTelemetryWriter(SimulationConfig config, SimulationLifecycleMonitor lifecycle)
 		{
 			this.config = config;
+			this.lifecycle = lifecycle;
 			var directory = Path.GetDirectoryName(config.ResultPath);
 			if (string.IsNullOrEmpty(directory))
 				directory = ".";
@@ -109,6 +113,7 @@ namespace OpenRA.Mods.HV
 				.ToArray();
 			var diplomacy = SimulationDiplomacySnapshotBuilder.Build(world);
 			var tradeRoutes = SimulationTradeSnapshotBuilder.Build(world);
+			var lifecycleSnapshot = lifecycle.BuildSnapshot();
 
 			WriteLine(telemetry, new SimulationTelemetryRecord
 			{
@@ -121,7 +126,8 @@ namespace OpenRA.Mods.HV
 					CultureInfo.InvariantCulture),
 				Players = players,
 				Diplomacy = diplomacy,
-				TradeRoutes = tradeRoutes
+				TradeRoutes = tradeRoutes,
+				Lifecycle = lifecycleSnapshot
 			});
 
 			foreach (var player in players)
@@ -133,6 +139,7 @@ namespace OpenRA.Mods.HV
 
 			ObserveDiplomacy(world.WorldTick, diplomacy);
 			ObserveTrade(world.WorldTick, tradeRoutes);
+			ObserveLifecycle(world.WorldTick, lifecycleSnapshot);
 
 			LastSnapshotTick = world.WorldTick;
 		}
@@ -384,6 +391,47 @@ namespace OpenRA.Mods.HV
 			}
 		}
 
+		void ObserveLifecycle(int worldTick, SimulationLifecycleResult snapshot)
+		{
+			foreach (var collapse in snapshot.CollapsedFactions)
+			{
+				if (!observedCollapsedFactions.Add(collapse.PlayerName))
+					continue;
+
+				WriteEvent(new SimulationEventRecord
+				{
+					SchemaVersion = SchemaVersion,
+					RecordType = "event",
+					MatchId = config.MatchId,
+					WorldTick = worldTick,
+					EventType = "faction-collapsed",
+					ReasonCode = collapse.ReasonCode,
+					PlayerName = collapse.PlayerName,
+					Value = collapse.Population,
+					PreviousValue = collapse.SurvivingAssetsValue
+				});
+			}
+
+			if (snapshot.StalemateSequence <= 0 ||
+				snapshot.StalemateSequence == observedStalemateSequence)
+				return;
+
+			observedStalemateSequence = snapshot.StalemateSequence;
+			WriteEvent(new SimulationEventRecord
+			{
+				SchemaVersion = SchemaVersion,
+				RecordType = "event",
+				MatchId = config.MatchId,
+				WorldTick = worldTick,
+				EventType = snapshot.StalemateAdvisory ? "stalemate-advisory" : "stalemate-cleared",
+				ReasonCode = snapshot.StalemateAdvisory
+					? "no-meaningful-progress-window"
+					: "meaningful-progress-resumed",
+				Value = snapshot.LastMeaningfulActivityTick,
+				PreviousValue = snapshot.StalemateSinceTick
+			});
+		}
+
 		void WriteEvent(SimulationEventRecord record)
 		{
 			WriteLine(events, record);
@@ -438,6 +486,7 @@ namespace OpenRA.Mods.HV
 		public SimulationTelemetryPlayer[] Players { get; init; }
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 		public SimulationTradeRoute[] TradeRoutes { get; init; }
+		public SimulationLifecycleResult Lifecycle { get; init; }
 	}
 
 	public sealed class SimulationTelemetryPlayer

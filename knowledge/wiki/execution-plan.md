@@ -15,6 +15,7 @@ sources:
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-scenario-lifecycle-v1.md
   - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
@@ -442,6 +443,11 @@ Current gate:
 Goal: support strategically meaningful conflict outcomes and open-ended
 observation of living factions.
 
+Status: complete for SIM-009 on 2026-07-29. Living-world observation repeats,
+partial and all-faction civil collapse, a conflict hard ceiling, and the
+active-war stalemate guard passed. See
+[Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
+
 ### Work
 
 1. Run conflict scenarios long enough for normal victory conditions.
@@ -468,6 +474,18 @@ observation of living factions.
 - Timeout and stalemate rates are separately reported.
 - Every termination reason is reproducible from artifacts.
 - No active combat match is incorrectly stopped in the reviewed sample.
+
+Gate result:
+
+- conflict cutoff: passed at tick 6,000 with five active wars;
+- living-world horizon: passed twice at tick 2,000, hash `5578A2DB`, with no
+  natural winner;
+- partial collapse continuity: passed; two collapses at tick 3,000 did not end
+  the 4,000-tick observation;
+- total collapse: passed as the distinct `faction-collapse` end reason;
+- stalemate separation: passed for active-war false-positive protection;
+  naturally saturated positive advisories remain replay-review evidence;
+- artifact reproducibility: all five results and their JSONL streams validated.
 
 ## Phase 5 — Benchmark and balance methodology
 
@@ -779,7 +797,7 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | SIM-006 ✅ | Isolated CLI process and exit codes | SIM-003 | 7 failure/signal/resume integration tests |
 | SIM-007 ✅ | Manifest-driven batch runner | SIM-006 | sequential and four-worker resumable 100-match soaks |
 | SIM-008 ✅ | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
-| SIM-009 | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
+| SIM-009 ✅ | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
 | SIM-010 | Baseline benchmark suite | SIM-007–009 | reproducible report |
 | LIFE-001 ✅ | CivilizationState and SettlementCore traits | SIM-001–003 | synchronized state tests |
 | LIFE-002 ✅ | Population, workforce, food, and housing | LIFE-001 | peaceful-growth scenario |
@@ -867,15 +885,17 @@ preserved determinism and passed the overhead gate. Sprint 5 is now active.
 
 Exit: trustworthy evidence about faction life, diplomacy, and warfare costs.
 
-Status: active. LIFE-004 and DIP-001–002 are complete. Knowledge unlocks a
-five-node civil graph; all factions begin neutral; explicit rivalry can set
+Status: active. LIFE-004, DIP-001–002, AI-001–002, and SIM-009 are complete.
+Knowledge unlocks a five-node civil graph; all factions begin neutral;
+explicit rivalry can set
 native enemy masks; losses drive exhaustion and peace; stock-backed routes
 move complementary resources and suspend at war. The enabled/disabled paired
 trade test, route-flow reconciliation, suspension case, and deterministic
 repeat passed. AI-001–002 and war-cost coupling then added observable utility
 selection, dependency-driven peace, mobilization, population casualties, and
-post-war recovery. SIM-009 lifecycle work is next, followed by tactical
-AI-003–004 and baseline experiments.
+post-war recovery. Scenario lifecycle now separates observation, partial/total
+collapse, advisory stalemate, and hard limits. SIM-010's statistically useful
+baseline is next, followed by tactical AI-003–004.
 
 ### Following 4 to 8 weeks
 

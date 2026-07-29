@@ -12,7 +12,8 @@
     "synchronizedStateHash",
     "players",
     "diplomacy",
-    "tradeRoutes"
+    "tradeRoutes",
+    "lifecycle"
   ],
   "properties": {
     "schemaVersion": { "const": 1 },
@@ -38,6 +39,9 @@
       "items": {
         "$ref": "simulation-result-v1.schema.json#/$defs/tradeRoute"
       }
+    },
+    "lifecycle": {
+      "$ref": "simulation-result-v1.schema.json#/$defs/lifecycle"
     }
   },
   "$defs": {

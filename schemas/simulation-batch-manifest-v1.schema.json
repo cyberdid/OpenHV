@@ -73,6 +73,32 @@
           "minimum": 1,
           "maximum": 2147483647
         },
+        "scenarioMode": {
+          "enum": ["conflict", "living-world"]
+        },
+        "observationHorizonTicks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stalemateWindowTicks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stalemateTerminates": {
+          "type": "boolean"
+        },
+        "collapsePopulationThreshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "collapseStabilityThreshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
         "watchdogSeconds": {
           "type": "integer",
           "minimum": 1,
@@ -114,6 +140,32 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 2147483647
+        },
+        "scenarioMode": {
+          "enum": ["conflict", "living-world"]
+        },
+        "observationHorizonTicks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stalemateWindowTicks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stalemateTerminates": {
+          "type": "boolean"
+        },
+        "collapsePopulationThreshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "collapseStabilityThreshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
         },
         "watchdogSeconds": {
           "type": "integer",

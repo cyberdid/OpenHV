@@ -34,6 +34,12 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
                 "headless": True,
                 "gameSpeed": "fastest",
                 "maxWorldTicks": 50,
+                "scenarioMode": "conflict",
+                "observationHorizonTicks": 0,
+                "stalemateWindowTicks": 0,
+                "stalemateTerminates": False,
+                "collapsePopulationThreshold": 250,
+                "collapseStabilityThreshold": 250,
                 "watchdogSeconds": 10,
                 "telemetryIntervalTicks": 0,
                 "civilizationProfile": "balanced",
@@ -204,6 +210,39 @@ class BatchRunnerIntegrationTests(unittest.TestCase):
         rejected = self.run_batch()
         self.assertEqual(rejected.returncode, 2)
         self.assertIn("minimum of 1", rejected.stderr)
+        self.assertFalse((self.results / "integration").exists())
+
+    def test_manifest_rejects_invalid_living_world_horizon(self) -> None:
+        self.manifest["matches"] = [
+            {
+                "id": "invalid-horizon",
+                "map": "valid",
+                "seed": 13,
+                "scenarioMode": "living-world",
+                "observationHorizonTicks": 51,
+            }
+        ]
+        self.write_manifest()
+
+        rejected = self.run_batch()
+        self.assertEqual(rejected.returncode, 2)
+        self.assertIn("no greater than maxWorldTicks", rejected.stderr)
+        self.assertFalse((self.results / "integration").exists())
+
+    def test_manifest_rejects_terminating_stalemate_without_window(self) -> None:
+        self.manifest["matches"] = [
+            {
+                "id": "invalid-stalemate",
+                "map": "valid",
+                "seed": 14,
+                "stalemateTerminates": True,
+            }
+        ]
+        self.write_manifest()
+
+        rejected = self.run_batch()
+        self.assertEqual(rejected.returncode, 2)
+        self.assertIn("requires a non-zero", rejected.stderr)
         self.assertFalse((self.results / "integration").exists())
 
     @unittest.skipUnless(os.name == "posix", "POSIX signal semantics required")

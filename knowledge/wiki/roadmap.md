@@ -14,6 +14,7 @@ sources:
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-scenario-lifecycle-v1.md
 tags:
   - roadmap
   - planning
@@ -93,11 +94,15 @@ Acceptance:
 - final world tick and the scenario-specific outcome are recorded;
 - timed leaders are never labeled as natural winners.
 
-Status: the v1 identifiers, natural victory, tick limit, watchdog, invalid
-configuration, process crash/desync classifications, retained failure
-artifacts, and external-cancel/resume path exist. Faction-collapse,
-observation-horizon, and reviewed stalemate detectors remain part of the
-scenario lifecycle work.
+Status: complete for SIM-009. The v1 identifiers, natural victory, observation
+horizon, partial and total faction collapse, hard tick limit, advisory-first
+stalemate detector, active-war guard, watchdog, invalid configuration,
+crash/desync, retained failure artifacts, and external-cancel/resume paths
+exist. Exact repeats preserved the observation hash; a reviewed five-war
+scenario was not falsely terminated. Default collapse thresholds and the
+first naturally raised stalemate advisory remain balance evidence questions,
+not missing lifecycle plumbing. See
+[Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
 
 ## P0.5 — Living Factions vertical slice
 

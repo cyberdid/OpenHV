@@ -15,6 +15,7 @@ sources:
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-scenario-lifecycle-v1.md
 tags:
   - vision
   - status
@@ -82,11 +83,16 @@ rather than a conventional player-controlled game.
   recovery, and war; trade dependency can suppress conflict, while
   mobilization and casualties reduce workforce, production, population, and
   stability.
+- Conflict and living-world scenarios now have distinct deterministic
+  lifecycle semantics. Observation horizons never invent winners; partial
+  faction collapses are recorded while survivors continue; total collapse,
+  explicit stalemate termination, and the hard tick ceiling have separate end
+  reasons.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-Late-game memory/performance and natural outcomes still need measurement. The
+Late-game memory/performance and natural victories still need measurement. The
 initial 30-second tournament used the deprecated wall-clock cutoff and remains
 only a startup/scoring test. Civil telemetry covers the first settlement,
 research, diplomacy, and first trade slices, but territory, physical cargo,
@@ -124,3 +130,4 @@ The simulation becomes useful when it can:
 - [Dynamic Diplomacy v1 validation](experiments/2026-07-29-dynamic-diplomacy-v1.md)
 - [Stock-Backed Trade v1 validation](experiments/2026-07-29-stock-backed-trade-v1.md)
 - [Civilization AI and War Cost v1 validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md)
+- [Scenario Lifecycle v1 validation](experiments/2026-07-29-scenario-lifecycle-v1.md)

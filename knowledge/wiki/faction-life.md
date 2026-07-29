@@ -13,6 +13,7 @@ sources:
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-scenario-lifecycle-v1.md
 tags:
   - civilization
   - population
@@ -66,6 +67,13 @@ spent in actor-ID order on agricultural systems, energy grid, logistics,
 civil engineering, and research networks; unlocks modify food, energy,
 storage, housing, or knowledge production and emit telemetry events. See the
 [research validation](experiments/2026-07-29-civil-research-v1.md).
+
+Civil continuity is now observable independently of OpenRA victory. A faction
+is recorded as collapsed on engine loss or when both population and weighted
+settlement stability cross configured thresholds. Partial collapse does not
+end a living world; surviving factions continue until their declared
+observation horizon. Only total collapse is terminal. See
+[Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
 
 ## What OpenCiv contributes
 

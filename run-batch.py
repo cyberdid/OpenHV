@@ -38,6 +38,12 @@ DEFAULT_OPTIONS = {
     "headless": True,
     "gameSpeed": "fastest",
     "maxWorldTicks": 1500,
+    "scenarioMode": "conflict",
+    "observationHorizonTicks": 0,
+    "stalemateWindowTicks": 0,
+    "stalemateTerminates": False,
+    "collapsePopulationThreshold": 250,
+    "collapseStabilityThreshold": 250,
     "watchdogSeconds": 120,
     "telemetryIntervalTicks": 0,
     "civilizationProfile": "balanced",
@@ -119,6 +125,34 @@ def validate_document(
     raise ValueError(f"{label} is invalid:\n" + "\n".join(rendered))
 
 
+def validate_lifecycle_options(options: dict[str, Any], label: str) -> None:
+    scenario_mode = options["scenarioMode"]
+    observation_horizon = options["observationHorizonTicks"]
+    max_ticks = options["maxWorldTicks"]
+    if scenario_mode == "conflict" and observation_horizon != 0:
+        raise ValueError(
+            f"{label}: observationHorizonTicks must be zero in conflict mode."
+        )
+    if scenario_mode == "living-world" and not (
+        0 < observation_horizon <= max_ticks
+    ):
+        raise ValueError(
+            f"{label}: living-world observationHorizonTicks must be greater "
+            "than zero and no greater than maxWorldTicks."
+        )
+
+    stalemate_window = options["stalemateWindowTicks"]
+    if 0 < stalemate_window < 250:
+        raise ValueError(
+            f"{label}: stalemateWindowTicks must be zero or at least 250."
+        )
+    if options["stalemateTerminates"] and stalemate_window == 0:
+        raise ValueError(
+            f"{label}: stalemateTerminates requires a non-zero "
+            "stalemateWindowTicks."
+        )
+
+
 def resolve_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
     defaults = copy.deepcopy(DEFAULT_OPTIONS)
     defaults.update(manifest.get("defaults", {}))
@@ -137,6 +171,7 @@ def resolve_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
         resolved.update(
             {key: value for key, value in requested.items() if key in OPTION_KEYS}
         )
+        validate_lifecycle_options(resolved, f"match {index + 1}")
         resolved["map"] = requested["map"]
         resolved["seed"] = requested["seed"]
         identity_source = {"index": index, **resolved}
@@ -372,6 +407,12 @@ class BatchRunner:
             "gameSpeed": match["gameSpeed"],
             "requestedRandomSeed": match["seed"],
             "maxWorldTicks": match["maxWorldTicks"],
+            "scenarioMode": match["scenarioMode"],
+            "observationHorizonTicks": match["observationHorizonTicks"],
+            "stalemateWindowTicks": match["stalemateWindowTicks"],
+            "stalemateTerminates": match["stalemateTerminates"],
+            "collapsePopulationThreshold": match["collapsePopulationThreshold"],
+            "collapseStabilityThreshold": match["collapseStabilityThreshold"],
             "watchdogSeconds": match["watchdogSeconds"],
             "telemetryIntervalTicks": match["telemetryIntervalTicks"],
             "civilizationProfile": match["civilizationProfile"],
@@ -482,6 +523,22 @@ class BatchRunner:
                 "SIMULATION_SPEED": match["gameSpeed"],
                 "SIMULATION_SEED": str(match["seed"]),
                 "SIMULATION_MAX_TICKS": str(match["maxWorldTicks"]),
+                "SIMULATION_SCENARIO_MODE": match["scenarioMode"],
+                "SIMULATION_OBSERVATION_HORIZON_TICKS": str(
+                    match["observationHorizonTicks"]
+                ),
+                "SIMULATION_STALEMATE_WINDOW_TICKS": str(
+                    match["stalemateWindowTicks"]
+                ),
+                "SIMULATION_STALEMATE_TERMINATES": str(
+                    match["stalemateTerminates"]
+                ).lower(),
+                "SIMULATION_COLLAPSE_POPULATION_THRESHOLD": str(
+                    match["collapsePopulationThreshold"]
+                ),
+                "SIMULATION_COLLAPSE_STABILITY_THRESHOLD": str(
+                    match["collapseStabilityThreshold"]
+                ),
                 "SIMULATION_WATCHDOG_SECONDS": str(match["watchdogSeconds"]),
                 "SIMULATION_TELEMETRY_INTERVAL_TICKS": str(
                     match["telemetryIntervalTicks"]

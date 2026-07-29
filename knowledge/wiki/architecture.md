@@ -9,6 +9,7 @@ sources:
   - ../../OpenRA.Mods.HV/Simulation/SimulationResult.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationResultWriter.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationLifecycleMonitor.cs
   - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
   - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
@@ -32,6 +33,7 @@ sources:
   - experiments/2026-07-29-dynamic-diplomacy-v1.md
   - experiments/2026-07-29-stock-backed-trade-v1.md
   - experiments/2026-07-29-civilization-ai-war-cost-v1.md
+  - experiments/2026-07-29-scenario-lifecycle-v1.md
 tags:
   - architecture
   - runtime
@@ -276,6 +278,30 @@ the primary settlement. Wars and casualties lower the stability target and
 increase migration pressure. All fields and `strategy-transition` events are
 exported by existing civilization snapshots. See
 [Civilization AI and War Cost v1 Validation](experiments/2026-07-29-civilization-ai-war-cost-v1.md).
+
+## Scenario lifecycle boundary
+
+`SimulationConfig` separates the scenario's semantic boundary from its hard
+safety ceiling. Conflict mode has only `maxWorldTicks`; living-world mode also
+requires a positive `observationHorizonTicks` no greater than that ceiling.
+`PanelLoadScreen` applies terminal conditions in deterministic order: all
+factions collapsed, living-world observation horizon, explicitly terminating
+stalemate advisory, hard tick limit, then normal engine victory.
+
+`SimulationLifecycleMonitor` owns civil/engine collapse observations and the
+conservative quiet-window signature. Civil collapse thresholds are checked
+every 250 synchronized ticks; one collapsed faction is recorded but does not
+stop the others. The detector regards changes in economy, combat, army/assets,
+population/stocks, research/technology, or trade shipments as meaningful
+activity. Active war always suppresses a stalemate advisory. Advisory mode is
+the default, and termination requires an explicit launch option.
+
+Every result and telemetry snapshot exports the complete lifecycle state.
+Events record `faction-collapsed`, `stalemate-advisory`, and
+`stalemate-cleared`; batch manifests and fingerprints include every lifecycle
+option. Result Schema v1 keeps the new top-level object optional for legacy
+artifacts, while current Telemetry Schema v1 requires it. See
+[Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
 
 ## Current performance boundary
 

@@ -28,6 +28,9 @@
         "diplomacy-transition",
         "trade-route-state",
         "trade-shipment",
+        "faction-collapsed",
+        "stalemate-advisory",
+        "stalemate-cleared",
         "shortage-started",
         "shortage-resolved"
       ]

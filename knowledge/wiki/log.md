@@ -289,3 +289,33 @@ five casualties, survival/mobilization states, lower population, and minimum
 stability 678. A paired war run matched hash `8431018E` with 382 mobilized
 adults and 32 casualties. A longer case entered recovery at tick 10,000 after
 peace, then returned to research as stability recovered.
+
+## [2026-07-29] change | Deterministic scenario lifecycle
+
+Completed SIM-009. Added explicit conflict/living-world modes, a declared
+observation horizon separate from the hard tick ceiling, partial and total
+faction-collapse recording, and advisory-first stalemate state with an
+explicit terminating option. Lifecycle state now appears in final results,
+telemetry, events, batch manifests, validation, and fingerprints. Civil
+collapse checks run at a synchronized 250-tick cadence.
+
+## [2026-07-29] experiment | Observation, collapse, and active-war guard
+
+Two identical living-world observations ended at tick 2,000 with no winner and
+hash `5578A2DB`. A partial-collapse case recorded two societies at tick 3,000
+and continued to tick 4,000; a deliberate all-collapse fixture ended as
+`faction-collapse`. A five-war case with terminating stalemate enabled reached
+its hard tick limit without false termination. Five results, 61 snapshots, and
+160 events passed Schema v1; all nine batch-runner integration tests passed.
+See
+[Scenario Lifecycle v1 Validation](experiments/2026-07-29-scenario-lifecycle-v1.md).
+
+## [2026-07-29] lint | Scenario lifecycle publication gate
+
+Ran the full `make check test test-simulation` gate: Release compilation,
+explicit-interface checks, conditional-trait checks, every OpenHV map's
+MiniYAML/Fluent validation, sprite-sequence validation, and nine batch
+integration tests passed. Validated all 24 wiki pages for required
+frontmatter, index coverage, and relative links; checked all four JSON schemas
+against Draft 2020-12; parsed the immutable five-row/30-column lifecycle CSV;
+and schema-validated every final lifecycle result, snapshot, and event.

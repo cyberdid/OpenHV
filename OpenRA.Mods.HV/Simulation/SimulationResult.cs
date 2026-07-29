@@ -30,6 +30,7 @@ namespace OpenRA.Mods.HV
 		public SimulationPlayerResult[] Players { get; init; }
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 		public SimulationTradeRoute[] TradeRoutes { get; init; }
+		public SimulationLifecycleResult Lifecycle { get; init; }
 	}
 
 	public sealed class SimulationBuildMetadata
@@ -211,5 +212,33 @@ namespace OpenRA.Mods.HV
 		public int MaterialsBToA { get; init; }
 		public int EnergyAToB { get; init; }
 		public int EnergyBToA { get; init; }
+	}
+
+	public sealed class SimulationLifecycleResult
+	{
+		public string ScenarioMode { get; init; }
+		public int ObservationHorizonTick { get; init; }
+		public int HardTickLimit { get; init; }
+		public int StalemateWindowTicks { get; init; }
+		public bool StalemateTerminates { get; init; }
+		public int CollapsePopulationThreshold { get; init; }
+		public int CollapseStabilityThreshold { get; init; }
+		public bool StalemateAdvisory { get; init; }
+		public int StalemateSinceTick { get; init; }
+		public int LastMeaningfulActivityTick { get; init; }
+		public int StalemateSequence { get; init; }
+		public bool AllFactionsCollapsed { get; init; }
+		public SimulationCollapsedFaction[] CollapsedFactions { get; init; }
+	}
+
+	public sealed class SimulationCollapsedFaction
+	{
+		public string PlayerName { get; init; }
+		public string BotType { get; init; }
+		public string Faction { get; init; }
+		public int CollapseTick { get; init; }
+		public int Population { get; init; }
+		public int SurvivingAssetsValue { get; init; }
+		public string ReasonCode { get; init; }
 	}
 }

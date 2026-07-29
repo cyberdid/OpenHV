@@ -57,6 +57,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civilization AI and War Cost v1 validation, 2026-07-29](experiments/2026-07-29-civilization-ai-war-cost-v1.md)
   — multi-objective strategies, research opportunity costs, dependency-driven
   peace, mobilization, population casualties, recovery, and repeatability.
+- [Scenario Lifecycle v1 validation, 2026-07-29](experiments/2026-07-29-scenario-lifecycle-v1.md)
+  — observation horizons, partial and total faction collapse, hard ceilings,
+  active-war stalemate protection, and deterministic repeat.
 
 ## Decisions
 

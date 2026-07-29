@@ -211,6 +211,22 @@ def main() -> int:
             "requestedRandomSeed": seed,
             "effectiveRandomSeed": seed,
             "maxWorldTicks": max_ticks,
+            "scenarioMode": os.environ["SIMULATION_SCENARIO_MODE"],
+            "observationHorizonTicks": int(
+                os.environ["SIMULATION_OBSERVATION_HORIZON_TICKS"]
+            ),
+            "stalemateWindowTicks": int(
+                os.environ["SIMULATION_STALEMATE_WINDOW_TICKS"]
+            ),
+            "stalemateTerminates": (
+                os.environ["SIMULATION_STALEMATE_TERMINATES"].lower() == "true"
+            ),
+            "collapsePopulationThreshold": int(
+                os.environ["SIMULATION_COLLAPSE_POPULATION_THRESHOLD"]
+            ),
+            "collapseStabilityThreshold": int(
+                os.environ["SIMULATION_COLLAPSE_STABILITY_THRESHOLD"]
+            ),
             "watchdogSeconds": watchdog,
             "telemetryIntervalTicks": telemetry,
             "civilizationProfile": os.environ["SIMULATION_CIVILIZATION_PROFILE"],

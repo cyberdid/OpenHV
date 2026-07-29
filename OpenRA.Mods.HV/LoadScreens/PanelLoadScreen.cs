@@ -50,6 +50,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 			var startedUtc = DateTime.UtcNow;
 			var simulationComplete = false;
 			SimulationTelemetryWriter telemetry = null;
+			SimulationLifecycleMonitor lifecycle = null;
 
 			Ui.ResetAll();
 			Game.Settings.Save();
@@ -138,6 +139,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 
 					simulationComplete = true;
 					orderManager.World.SetLocalPauseState(true);
+					lifecycle?.Update(orderManager.World);
 					telemetry?.Complete(orderManager.World, endReason);
 
 					if (!string.IsNullOrEmpty(config.ResultPath))
@@ -145,6 +147,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 							config.ResultPath,
 							orderManager.World,
 							config,
+							lifecycle?.BuildSnapshot(),
 							endReason,
 							endDetail,
 							startedUtc);
@@ -162,10 +165,12 @@ namespace OpenRA.Mods.HV.LoadScreens
 				void GameStarted()
 				{
 					Game.AfterGameStart -= GameStarted;
+					lifecycle = new SimulationLifecycleMonitor(config);
+					lifecycle.Update(orderManager.World);
 					var nextTelemetryTick = config.TelemetryIntervalTicks;
 					if (config.TelemetryIntervalTicks > 0 && !string.IsNullOrEmpty(config.ResultPath))
 					{
-						telemetry = new SimulationTelemetryWriter(config);
+						telemetry = new SimulationTelemetryWriter(config, lifecycle);
 						telemetry.Start(orderManager.World);
 					}
 
@@ -177,13 +182,30 @@ namespace OpenRA.Mods.HV.LoadScreens
 						if (simulationComplete)
 							return;
 
+						lifecycle.Update(orderManager.World);
 						if (telemetry != null && orderManager.World.WorldTick >= nextTelemetryTick)
 						{
 							telemetry.Capture(orderManager.World);
 							nextTelemetryTick += config.TelemetryIntervalTicks;
 						}
 
-						if (orderManager.World.WorldTick >= config.MaxWorldTicks)
+						if (lifecycle.AllFactionsCollapsed)
+							FinishSimulation(
+								SimulationEndReason.FactionCollapse,
+								"All autonomous factions crossed a configured collapse boundary.");
+						else if (config.ScenarioMode == SimulationConfig.LivingWorldScenario &&
+							orderManager.World.WorldTick >= config.ObservationHorizonTicks)
+							FinishSimulation(
+								SimulationEndReason.ObservationHorizon,
+								"Reached living-world observation horizon " +
+								$"{config.ObservationHorizonTicks}.");
+						else if (config.StalemateTerminates && lifecycle.StalemateAdvisory)
+							FinishSimulation(
+								SimulationEndReason.Stalemate,
+								"No meaningful progress since world tick " +
+								$"{lifecycle.LastMeaningfulActivityTick}; configured window " +
+								$"{config.StalemateWindowTicks}.");
+						else if (orderManager.World.WorldTick >= config.MaxWorldTicks)
 							FinishSimulation(
 								SimulationEndReason.WorldTickLimit,
 								$"Reached configured world tick limit {config.MaxWorldTicks}.");
