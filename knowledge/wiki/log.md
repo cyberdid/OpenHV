@@ -383,3 +383,12 @@ one technology. Economist prosperity/stability/workforce and Technologist
 casualties/active wars regressed significantly. Candidate v1 is retained as a
 failed hypothesis; v2 will correct production rounding, civilian mobilization,
 and request budgets.
+
+## [2026-07-29] change | Correct AI-003 candidate mechanics
+
+Candidate v2 preserves positive one-unit knowledge pulses with rounded plan
+production, triples Technologist knowledge directly, reduces external
+production budgets, and excludes explicit civilian/support actor value from
+military mobilization. Two 12,000-tick repeats matched hash `9419B52D`;
+ordinary profiles retained a first technology and Technologist completed
+three. The generated v2 manifest preserves all 112 baseline cells.

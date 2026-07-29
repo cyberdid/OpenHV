@@ -112,13 +112,15 @@ AI-003 now separates high-level strategy from an executable civil plan:
 - Economist then prefers `economy`, Technologist prefers `technology`, and
   other combat profiles use an economy/development plan unless crisis forces
   `recovery`;
-- economy raises food, materials, and energy output while reducing knowledge
-  investment; technology makes the inverse opportunity-cost trade; recovery
-  prioritizes food and repair capacity;
+- economy raises food, materials, and energy output while preserving ordinary
+  research; technology triples knowledge with a small materials/energy
+  opportunity cost; recovery prioritizes food and repair capacity;
 - profile-specific technology priorities stop every faction from traversing
   the same early research order;
 - a 1,000-tick bot pulse issues bounded miner, technician, observer, radar, or
-  repair requests. Per-type synchronized budgets prevent consumed builders,
+  repair requests. The corrected budgets are one opening worker, at most two
+  Economist miners, and one per technical/support type. Per-type synchronized
+  budgets prevent consumed builders,
   deaths, or unavailable queues from causing an infinite request loop;
 - final results and events expose the plan, reason, transition sequence, last
   requested actor, and request count.
@@ -126,3 +128,9 @@ AI-003 now separates high-level strategy from an executable civil plan:
 Two identical 12,000-tick smoke runs produced hash `DEB138AE` and identical
 plan/request/final metrics. The exact 112-match candidate schedule is frozen;
 promotion remains conditional on its paired held-out report.
+
+Candidate v1 was rejected because floor rounding erased non-Technologist
+knowledge and support-unit value inflated civilian mobilization. Candidate v2
+uses positive round-up, excludes explicit civilian/support actors from
+mobilization, and matched two 12,000-tick runs at hash `9419B52D`; its exact
+112-match gate is next.

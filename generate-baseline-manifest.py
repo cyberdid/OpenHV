@@ -31,6 +31,11 @@ VARIANTS = {
         "AI-003 opening/economy/technology planner candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "ai003-candidate-v2": (
+        "ai003-candidate-112-v2",
+        "AI-003 corrected planner candidate on the exact baseline-112-v1 "
+        "map, slot, profile, and seed schedule.",
+    ),
 }
 
 

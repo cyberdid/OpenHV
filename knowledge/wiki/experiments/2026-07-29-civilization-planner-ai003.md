@@ -9,6 +9,7 @@ sources:
   - ../../../OpenRA.Mods.HV/Traits/BotModules/CivilizationPlannerBotModule.cs
   - ../../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
   - ../../../batch-manifests/ai003-candidate-112-v1.json
+  - ../../../batch-manifests/ai003-candidate-112-v2.json
   - ../../../compare-candidate.py
   - 2026-07-29-baseline-112-v1.md
 tags:
@@ -35,10 +36,10 @@ The planner has four explicit states:
 
 | Plan | Entry rule | Civil effect | Bounded RTS requests |
 |---|---|---|---|
-| Opening | before tick 3,000 | +5% food, +10% materials | one miner request; Economist may invest twice |
-| Economy | Economist doctrine or normal development | +10% food/energy, +15% materials, −20% knowledge | up to four Economist miner requests; two for other profiles |
-| Technology | Technologist doctrine or Steward research | −10% materials/energy, +60% knowledge | two each of technician, observer, and radar tank |
-| Recovery | survival/recovery strategy or stability below 650 | +20% food, −10% materials, −40% knowledge | up to two repair tanks and four cumulative miners |
+| Opening | before tick 3,000 | rounded +5% food, +10% materials | one miner request |
+| Economy | Economist doctrine or normal development | rounded +10% food/energy, +15% materials; ordinary knowledge preserved | up to two Economist miner requests; one for other profiles |
+| Technology | Technologist doctrine or Steward research | rounded −5% materials/energy, +200% knowledge | one each of technician, observer, and radar tank |
+| Recovery | survival/recovery strategy or stability below 650 | rounded +20% food, −10% materials, −40% knowledge | one repair tank and up to two cumulative miners |
 
 Research order is also profile-specific. Technologist starts with energy-grid
 and research-networks; Economist prioritizes agriculture, logistics, and civil
@@ -128,3 +129,23 @@ ordinary research, exclude explicit civilian/support actors from mobilization,
 and lower planner request budgets. It must create a real Technologist gain
 without the significant Economist wellbeing or Technologist casualty
 regressions.
+
+## Candidate v2 correction
+
+The corrected implementation applies division-round-up only to positive plan
+production, so a one-unit knowledge pulse survives an economy plan. Technology
+now raises knowledge to 300% while charging only a 5% materials/energy
+opportunity cost. Native request budgets are one opening miner, at most two
+Economist miners, and one of each technical/support actor.
+
+Civil mobilization now subtracts the value of miners, builders, technicians,
+observers, brokers, and tankers before converting `ArmyValue` into mobilized
+adults. These actors still cost money and occupy real production queues, but
+the society no longer mistakes them for soldiers.
+
+Two identical corrected 12,000-tick smoke runs matched hash `9419B52D`.
+Aggressor, Economist, and Fortress each completed their profile-specific first
+technology; Technologist completed energy-grid, research-networks, and
+agriculture, survived the seed that collapsed under v1, and issued four
+bounded requests. The clean exact-schedule v2 batch remains the promotion
+gate.

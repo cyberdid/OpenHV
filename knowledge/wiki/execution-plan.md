@@ -943,6 +943,11 @@ active wars increased significantly. The v2 correction must preserve ordinary
 research, raise Technologist progress directly, exclude support units from
 civil mobilization, and reduce production-request budgets.
 
+The v2 implementation now satisfies those mechanical corrections. Two
+12,000-tick repeats matched `9419B52D`; ordinary profiles completed their first
+profile-specific technology and Technologist completed three. Promotion still
+requires the clean 112-match paired report.
+
 ### Following 4 to 8 weeks
 
 - Civilization AI v2 in small, separately measured increments.

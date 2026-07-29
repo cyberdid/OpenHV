@@ -490,24 +490,23 @@ namespace OpenRA.Mods.HV.Traits
 			switch (Plan)
 			{
 				case CivilizationPlan.Opening:
-					food = ApplyPercentage(food, 105);
-					materials = ApplyPercentage(materials, 110);
+					food = ApplyPercentageRoundedUp(food, 105);
+					materials = ApplyPercentageRoundedUp(materials, 110);
 					break;
 				case CivilizationPlan.Economy:
-					food = ApplyPercentage(food, 110);
-					materials = ApplyPercentage(materials, 115);
-					energy = ApplyPercentage(energy, 110);
-					knowledge = ApplyPercentage(knowledge, 80);
+					food = ApplyPercentageRoundedUp(food, 110);
+					materials = ApplyPercentageRoundedUp(materials, 115);
+					energy = ApplyPercentageRoundedUp(energy, 110);
 					break;
 				case CivilizationPlan.Technology:
-					materials = ApplyPercentage(materials, 90);
-					energy = ApplyPercentage(energy, 90);
-					knowledge = ApplyPercentage(knowledge, 160);
+					materials = ApplyPercentageRoundedUp(materials, 95);
+					energy = ApplyPercentageRoundedUp(energy, 95);
+					knowledge = ApplyPercentageRoundedUp(knowledge, 300);
 					break;
 				case CivilizationPlan.Recovery:
-					food = ApplyPercentage(food, 120);
-					materials = ApplyPercentage(materials, 90);
-					knowledge = ApplyPercentage(knowledge, 60);
+					food = ApplyPercentageRoundedUp(food, 120);
+					materials = ApplyPercentageRoundedUp(materials, 90);
+					knowledge = ApplyPercentageRoundedUp(knowledge, 60);
 					break;
 			}
 		}
@@ -596,9 +595,12 @@ namespace OpenRA.Mods.HV.Traits
 			return (value + divisor - 1) / divisor;
 		}
 
-		static int ApplyPercentage(int value, int percentage)
+		static int ApplyPercentageRoundedUp(int value, int percentage)
 		{
-			return (int)((long)value * percentage / 100);
+			if (value <= 0)
+				return 0;
+
+			return (int)(((long)value * percentage + 99) / 100);
 		}
 	}
 
@@ -1001,10 +1003,30 @@ namespace OpenRA.Mods.HV.Traits
 			ActiveWars = self.World.WorldActor.TraitOrDefault<DiplomacyManager>()?.Relations.Count(relation =>
 				relation.State == DiplomaticRelationState.War &&
 				(relation.PlayerA == self.Owner || relation.PlayerB == self.Owner)) ?? 0;
-			var armyValue = statistics?.ArmyValue ?? 0;
+			var civilianValue = self.World.Actors
+				.Where(actor =>
+					!actor.IsDead &&
+					actor.Owner == self.Owner &&
+					IsCivilianMobilizationActor(actor.Info.Name))
+				.Sum(actor => actor.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 0);
+			var armyValue = Math.Max(0, (statistics?.ArmyValue ?? 0) - civilianValue);
 			var mobilizationDivisor = ActiveWars > 0 ? 80 : 250;
 			Mobilized = Math.Min(Adults / 3, armyValue / mobilizationDivisor);
 			AvailableWorkforce = Math.Max(0, Adults - Mobilized);
+		}
+
+		static bool IsCivilianMobilizationActor(string actorType)
+		{
+			return actorType is
+				"miner" or
+				"miner2" or
+				"builder" or
+				"builder2" or
+				"technician" or
+				"observer" or
+				"broker" or
+				"tanker1" or
+				"tanker2";
 		}
 
 		void RunDemographicPulse()

@@ -82,13 +82,12 @@ namespace OpenRA.Mods.HV.Traits
 				world.WorldTick);
 		}
 
-		string ExecuteOpening(
+		static string ExecuteOpening(
 			IBot bot,
 			IBotRequestUnitProduction requester,
 			CivilizationState civilization)
 		{
-			var requestBudget = self.Owner.BotType == "economist" ? 2 : 1;
-			return RequestWithinBudget(bot, requester, civilization, "miner", requestBudget);
+			return RequestWithinBudget(bot, requester, civilization, "miner", 1);
 		}
 
 		string ExecuteEconomy(
@@ -98,9 +97,8 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			var requestBudget = self.Owner.BotType switch
 			{
-				"economist" => 4,
-				"fortress" => 2,
-				_ => 2
+				"economist" => 2,
+				_ => 1
 			};
 			return RequestWithinBudget(bot, requester, civilization, "miner", requestBudget);
 		}
@@ -110,9 +108,9 @@ namespace OpenRA.Mods.HV.Traits
 			IBotRequestUnitProduction requester,
 			CivilizationState civilization)
 		{
-			return RequestWithinBudget(bot, requester, civilization, "technician", 2) ??
-				RequestWithinBudget(bot, requester, civilization, "observer", 2) ??
-				RequestWithinBudget(bot, requester, civilization, "radartank", 2);
+			return RequestWithinBudget(bot, requester, civilization, "technician", 1) ??
+				RequestWithinBudget(bot, requester, civilization, "observer", 1) ??
+				RequestWithinBudget(bot, requester, civilization, "radartank", 1);
 		}
 
 		static string ExecuteRecovery(
@@ -120,8 +118,8 @@ namespace OpenRA.Mods.HV.Traits
 			IBotRequestUnitProduction requester,
 			CivilizationState civilization)
 		{
-			return RequestWithinBudget(bot, requester, civilization, "repairtank", 2) ??
-				RequestWithinBudget(bot, requester, civilization, "miner", 4);
+			return RequestWithinBudget(bot, requester, civilization, "repairtank", 1) ??
+				RequestWithinBudget(bot, requester, civilization, "miner", 2);
 		}
 
 		static string RequestWithinBudget(

@@ -209,6 +209,12 @@ paid significantly higher casualty/war costs without advancing beyond its
 baseline one technology. AI-003 therefore remains active for a narrower v2
 correction.
 
+The v2 mechanics are implemented: positive round-up preserves ordinary
+research, Technologist receives a direct 3× knowledge path, explicit
+civilian/support actors no longer consume military mobilization, and native
+request budgets are smaller. Two corrected repeats matched `9419B52D`; the
+clean 112-match v2 report is the remaining AI-003 gate.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,
