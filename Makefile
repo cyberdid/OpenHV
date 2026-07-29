@@ -21,7 +21,7 @@
 # to check the mod yaml for errors, run:
 #   make test
 
-.PHONY: engine all clean version check-scripts check test install
+.PHONY: engine all clean version check-scripts check test test-simulation install
 .DEFAULT_GOAL := all
 
 VERSION = $(shell git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null || echo git-`git rev-parse --short HEAD`)
@@ -40,7 +40,7 @@ OGG_FILES := $(shell find mods/hv/bits/audio/* -maxdepth 2 -iname '*.ogg' 2> /de
 
 DOTNET = dotnet
 RUNTIME ?= net6
-DOTNET_RID = $(shell ${DOTNET} --info | grep RID: | cut -w -f3)
+DOTNET_RID = $(shell ${DOTNET} --info 2>/dev/null | grep RID: | cut -w -f3)
 
 ifndef TARGETPLATFORM
 UNAME_S := $(shell uname -s)
@@ -146,6 +146,14 @@ test: all
 	@echo
 	@echo "Checking $(MOD_ID) sprite sequences..."
 	@./utility.sh --check-missing-sprites
+
+test-simulation:
+	@python3 -m py_compile run-batch.py tests/fake-simulation.py \
+		tests/test_batch_runner.py
+	@python3 -m unittest -v tests.test_batch_runner
+	@sh -n apply-engine-patches.sh check-headless-equivalence.sh \
+		check-simulation-determinism.sh fetch-engine.sh launch-game.sh \
+		run-simulation.sh run-tournament.sh
 
 docs: engine
 	@echo

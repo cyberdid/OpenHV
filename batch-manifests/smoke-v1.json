@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "runId": "smoke-v1",
+  "description": "Short deterministic mixed-map smoke batch.",
+  "defaults": {
+    "bots": ["aggressor", "economist", "technologist", "fortress"],
+    "headless": true,
+    "gameSpeed": "fastest",
+    "maxWorldTicks": 500,
+    "watchdogSeconds": 60,
+    "telemetryIntervalTicks": 0
+  },
+  "runner": {
+    "workers": 1,
+    "maxInfrastructureRetries": 1,
+    "processTimeoutGraceSeconds": 30
+  },
+  "matches": [
+    { "id": "coldrage-424242", "map": "coldrage", "seed": 424242 },
+    { "id": "doubles-424243", "map": "doubles", "seed": 424243 },
+    {
+      "id": "tournament-island-424244",
+      "map": "tournament-island",
+      "seed": 424244
+    },
+    { "id": "abwinter-424245", "map": "abwinter", "seed": 424245 }
+  ]
+}

@@ -10,6 +10,7 @@ sprites.md
 StyleCopViolations.xml
 .DS_Store
 .directory
+__pycache__/
 /.vscode/settings.json
 /.vs
 launchSettings.json
