@@ -571,9 +571,35 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			var own = player.PlayerActor.TraitOrDefault<PlayerStatistics>();
 			var rival = other.PlayerActor.TraitOrDefault<PlayerStatistics>();
-			var ownPower = (own?.ArmyValue ?? 0) + (own?.AssetsValue ?? 0) / 2;
-			var rivalPower = (rival?.ArmyValue ?? 0) + (rival?.AssetsValue ?? 0) / 2;
+			var ownPower = MilitaryArmyValue(player.World, player) + (own?.AssetsValue ?? 0) / 2;
+			var rivalPower = MilitaryArmyValue(other.World, other) + (rival?.AssetsValue ?? 0) / 2;
 			return Ratio(ownPower, ownPower + rivalPower);
+		}
+
+		public static int MilitaryArmyValue(World world, Player player)
+		{
+			var statistics = player.PlayerActor.TraitOrDefault<PlayerStatistics>();
+			var civilianValue = world.Actors
+				.Where(actor =>
+					!actor.IsDead &&
+					actor.Owner == player &&
+					IsCivilianMobilizationActor(actor.Info.Name))
+				.Sum(actor => actor.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 0);
+			return Math.Max(0, (statistics?.ArmyValue ?? 0) - civilianValue);
+		}
+
+		static bool IsCivilianMobilizationActor(string actorType)
+		{
+			return actorType is
+				"miner" or
+				"miner2" or
+				"builder" or
+				"builder2" or
+				"technician" or
+				"observer" or
+				"broker" or
+				"tanker1" or
+				"tanker2";
 		}
 
 		static bool Matches(DiplomaticRelation relation, Player player, Player other)
@@ -1003,30 +1029,10 @@ namespace OpenRA.Mods.HV.Traits
 			ActiveWars = self.World.WorldActor.TraitOrDefault<DiplomacyManager>()?.Relations.Count(relation =>
 				relation.State == DiplomaticRelationState.War &&
 				(relation.PlayerA == self.Owner || relation.PlayerB == self.Owner)) ?? 0;
-			var civilianValue = self.World.Actors
-				.Where(actor =>
-					!actor.IsDead &&
-					actor.Owner == self.Owner &&
-					IsCivilianMobilizationActor(actor.Info.Name))
-				.Sum(actor => actor.Info.TraitInfoOrDefault<ValuedInfo>()?.Cost ?? 0);
-			var armyValue = Math.Max(0, (statistics?.ArmyValue ?? 0) - civilianValue);
+			var armyValue = CivilizationState.MilitaryArmyValue(self.World, self.Owner);
 			var mobilizationDivisor = ActiveWars > 0 ? 80 : 250;
 			Mobilized = Math.Min(Adults / 3, armyValue / mobilizationDivisor);
 			AvailableWorkforce = Math.Max(0, Adults - Mobilized);
-		}
-
-		static bool IsCivilianMobilizationActor(string actorType)
-		{
-			return actorType is
-				"miner" or
-				"miner2" or
-				"builder" or
-				"builder2" or
-				"technician" or
-				"observer" or
-				"broker" or
-				"tanker1" or
-				"tanker2";
 		}
 
 		void RunDemographicPulse()

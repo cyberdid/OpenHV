@@ -221,6 +221,9 @@ inconsistent military-power definition drove significant Technologist and
 Fortress war/casualty regressions. v3 is limited to sharing the civilian-aware
 army calculation between mobilization and diplomacy.
 
+The v3 shared calculation is implemented and deterministic at `9419D0D9`;
+its exact 112-match matrix is the final AI-003 promotion test.
+
 ## P2 — Strong societal and faction identity
 
 Progress from four parameter profiles to factions with distinct build orders,

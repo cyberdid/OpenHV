@@ -402,3 +402,11 @@ improved significantly, correcting v1. Promotion still failed: diplomacy
 continued treating civilian/support value as army after mobilization stopped
 doing so, and Technologist/Fortress wars, casualties, and retained army
 regressed significantly. v3 will centralize that power calculation.
+
+## [2026-07-29] change | Unify civil and diplomatic military value
+
+Candidate v3 uses one civilian-aware military-value calculation for both
+workforce mobilization and diplomatic relative power. Plan bonuses, research
+order, request budgets, and tactical weights are unchanged. Two 12,000-tick
+repeats matched `9419D0D9`; the generated exact-schedule v3 matrix is the final
+AI-003 gate.

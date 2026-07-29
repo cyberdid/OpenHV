@@ -12,6 +12,7 @@ sources:
   - ../../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
   - ../../../batch-manifests/ai003-candidate-112-v1.json
   - ../../../batch-manifests/ai003-candidate-112-v2.json
+  - ../../../batch-manifests/ai003-candidate-112-v3.json
   - ../../../compare-candidate.py
   - 2026-07-29-baseline-112-v1.md
 tags:
@@ -184,3 +185,15 @@ support investment is therefore “civilian” to production but “military” 
 war pressure. Candidate v2 is retained but not promoted. v3 will centralize
 military army value and use it consistently in both systems without changing
 plan bonuses or request budgets.
+
+## Candidate v3 consistency correction
+
+v3 introduces one shared `MilitaryArmyValue` calculation. It subtracts the
+same explicit civilian/support actors from raw army value before both
+workforce mobilization and diplomatic relative-power scoring. Plan output,
+technology order, request budgets, and tactical profile weights are unchanged.
+
+Two 12,000-tick smoke runs matched synchronized hash `9419D0D9` and preserved
+the corrected v2 research and civil outputs. The exact 112-match v3 matrix is
+the final AI-003 promotion gate; any remaining combat target/retreat problem
+will be handed to AI-004 only if the power-definition mismatch is removed.

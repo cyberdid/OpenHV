@@ -39,6 +39,9 @@ class BaselineSuiteTests(unittest.TestCase):
         candidate_v2 = generator.build_manifest("ai003-candidate-v2")
         self.assertEqual(candidate_v2["matches"], matches)
         self.assertEqual(candidate_v2["defaults"], manifest["defaults"])
+        candidate_v3 = generator.build_manifest("ai003-candidate-v3")
+        self.assertEqual(candidate_v3["matches"], matches)
+        self.assertEqual(candidate_v3["defaults"], manifest["defaults"])
 
         map_counts = Counter(match["map"] for match in matches)
         self.assertEqual(set(map_counts.values()), {28})

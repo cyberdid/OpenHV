@@ -956,6 +956,10 @@ active-war, and Fortress-stability regressions. v3 will share one
 military-value definition between mobilization and diplomacy before the final
 AI-003 gate.
 
+The shared v3 military-value calculation is implemented and produced two
+12,000-tick repeats at hash `9419D0D9`. No plan or tactical weights changed;
+the exact v3 matrix is the remaining gate.
+
 ### Following 4 to 8 weeks
 
 - Civilization AI v2 in small, separately measured increments.

@@ -116,6 +116,11 @@ tags:
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
 | `check-headless-equivalence.sh` | Compares graphical/headless artifacts and proves that device backends were bypassed |
 
+`CivilizationState.MilitaryArmyValue` is the canonical civil/strategic measure
+of armed power. It excludes explicit worker and support actor value and is used
+by both workforce mobilization and diplomatic relative-power scoring; raw
+`PlayerStatistics.ArmyValue` remains the RTS result statistic.
+
 ## Result contract v1
 
 Every result records:
