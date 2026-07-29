@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "runId": "interruption-v1",
+  "description": "Four-match fixture for signal interruption and resume.",
+  "defaults": {
+    "bots": ["aggressor", "economist"],
+    "headless": true,
+    "gameSpeed": "fastest",
+    "maxWorldTicks": 500,
+    "watchdogSeconds": 30,
+    "telemetryIntervalTicks": 0
+  },
+  "runner": {
+    "workers": 2,
+    "maxInfrastructureRetries": 0,
+    "processTimeoutGraceSeconds": 10,
+    "successfulReplaySampleEvery": 0
+  },
+  "matches": [
+    {"id": "interrupt-a", "map": "coldrage", "seed": 5001},
+    {"id": "interrupt-b", "map": "doubles", "seed": 5002},
+    {"id": "interrupt-c", "map": "tournament-island", "seed": 5003},
+    {"id": "interrupt-d", "map": "abwinter", "seed": 5004}
+  ]
+}

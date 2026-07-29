@@ -56,14 +56,48 @@ with:
 ./check-headless-equivalence.sh coldrage
 ```
 
+For unattended experiments, install the batch runner dependency and launch a
+tracked declarative manifest:
+
+```sh
+python3 -m pip install -r requirements-simulation.txt
+./run-batch.py batch-manifests/smoke-v1.json
+```
+
+Batch runs default to `../simulation-runs/<run-id>`. Each match attempt runs in
+an isolated OS process and OpenRA support directory. The run records the
+original and resolved manifests, runtime/Git provenance, session history,
+aggregate summary, per-match config/status/result, attempt logs, failure
+support files, and configured replay samples. Resume a run without repeating
+validated completed matches:
+
+```sh
+./run-batch.py batch-manifests/smoke-v1.json --resume
+```
+
+`--workers`, `--max-infrastructure-retries`, and `--retry-failures` control
+execution without changing synchronized match inputs. Exit code `0` means all
+matches completed, `2` means one or more matches reached a diagnosable
+non-completed state, and `130` means the runner handled an external
+interruption. Manifests follow
+[`simulation-batch-manifest-v1.schema.json`](schemas/simulation-batch-manifest-v1.schema.json).
+
+The checked-in 100-match infrastructure schedule can run sequentially or with
+controlled concurrency:
+
+```sh
+./run-batch.py batch-manifests/soak-100-v1.json --workers 1
+./run-batch.py batch-manifests/soak-100-v1.json --workers 4
+```
+
 Run a ten-match tournament across several maps with:
 
 ```sh
 ./run-tournament.sh
 ```
 
-The tournament writes each match and an aggregate `tournament.json` under
-`../tournament-results`. `MATCH_COUNT`, `MATCH_MAX_TICKS`,
+The simpler legacy tournament wrapper writes each match and an aggregate
+`tournament.json` under `../tournament-results`. `MATCH_COUNT`, `MATCH_MAX_TICKS`,
 `MATCH_WATCHDOG_SECONDS`, `TOURNAMENT_HEADLESS`, `TOURNAMENT_SEED`,
 `TOURNAMENT_BOTS`, `TOURNAMENT_MAPS`, and `TOURNAMENT_RESULTS_DIR` can be
 overridden through the environment.

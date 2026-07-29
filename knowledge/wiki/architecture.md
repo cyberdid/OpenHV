@@ -13,9 +13,13 @@ sources:
   - ../../engine-patches/openra-headless.patch
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
   - ../../check-headless-equivalence.sh
+  - ../../run-batch.py
   - ../../run-simulation.sh
   - ../../run-tournament.sh
+  - ../../schemas/simulation-batch-manifest-v1.schema.json
+  - experiments/2026-07-29-batch-runner-v1.md
   - experiments/2026-07-29-headless-performance-fix.md
+  - decisions/0005-process-isolated-resumable-batches.md
 tags:
   - architecture
   - runtime
@@ -25,29 +29,35 @@ tags:
 
 ## Runtime flow
 
-1. `run-tournament.sh` selects a map and deterministic seed for each match.
-2. `run-simulation.sh` translates environment variables into OpenRA launch
+1. `run-batch.py` validates a declarative manifest, resolves defaults and
+   overrides, derives stable match IDs/fingerprints, and freezes a schedule
+   hash.
+2. The batch runner creates one OS process group and one OpenRA support
+   directory for each match attempt, with bounded worker concurrency.
+3. `run-simulation.sh` translates the resolved match config into OpenRA launch
    arguments and records Git commit/dirty metadata.
-3. `SimulationConfig.Parse` resolves the map and rejects unknown bots, game
+4. `SimulationConfig.Parse` resolves the map and rejects unknown bots, game
    speeds, malformed seeds, negative limits, and unavailable maps.
-4. `PanelLoadScreen` starts a local server whose lobby RNG is seeded from the
+5. `PanelLoadScreen` starts a local server whose lobby RNG is seeded from the
    requested simulation seed, then joins the local client as a spectator.
-5. Empty combat slots are populated by cycling through the requested bot
+6. Empty combat slots are populated by cycling through the requested bot
    types. OpenRA's normal color, faction, and spawn selection is deterministic
    because both lobby and player RNG streams are seed-derived.
-6. In graphical mode OpenRA executes the normal client loop. In headless mode
+7. In graphical mode OpenRA executes the normal client loop. In headless mode
    a no-op platform satisfies world/renderer contracts while the loop skips
    UI, input, audio devices, frame presentation, and real-time pacing.
-7. Bot modules use the seed-derived `World.BotRandom`; render/audio cosmetics
+8. Bot modules use the seed-derived `World.BotRandom`; render/audio cosmetics
    continue to use `World.LocalRandom`, so execution mode cannot change later
    strategic choices.
-8. A mod-owned callback checks `WorldTick` before each following logic tick.
-9. Natural game-over, the synchronized tick limit, or the deadlock watchdog
-   calls
-   `SimulationResultWriter`.
-10. Each match is atomically renamed into place; the tournament runner
-   aggregates end reasons, natural wins, score leads, and per-profile averages
-   with `jq`.
+9. A mod-owned callback checks `WorldTick` before each following logic tick.
+10. Natural game-over, the synchronized tick limit, or the deadlock watchdog
+    calls `SimulationResultWriter`.
+11. Artificial terminal conditions finalize the `World` after result capture
+    so replay metadata records the terminal tick without changing the captured
+    synchronized state.
+12. The batch runner validates Result Schema v1 plus config correspondence,
+    classifies the attempt, harvests replay/support diagnostics, atomically
+    writes status, and aggregates only valid completed results.
 
 ## Components
 
@@ -64,6 +74,10 @@ tags:
 | `engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs` | Supplies no-op window, graphics, font, cursor, and sound contracts |
 | `apply-engine-patches.sh` / `.ps1` | Idempotently patches a version-pinned downloaded SDK and routes stock bot modules to `BotRandom` |
 | `run-simulation.sh` | Launches one reproducible simulation |
+| `run-batch.py` | Resolves manifests and runs isolated, resumable, validated attempts |
+| `schemas/simulation-batch-manifest-v1.schema.json` | Validates schedule and execution controls |
+| `batch-manifests/*.json` | Stores reproducible smoke, soak, interruption, and isolation schedules |
+| `tests/test_batch_runner.py` | Exercises retry, timeout, signals, resume, drift, and partial artifacts |
 | `run-tournament.sh` | Runs a map/seed series and creates standings |
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
 | `check-headless-equivalence.sh` | Compares graphical/headless artifacts and proves that device backends were bypassed |
@@ -138,6 +152,31 @@ Because the SDK `engine/` tree is downloaded and ignored, engine changes live
 in the tracked patch/overlay and are automatically re-applied by Unix and
 Windows build scripts. Patch compatibility is a required engine-upgrade gate.
 
+## Batch orchestration boundary
+
+Every attempt runs in a fresh process group and receives a unique
+`OPENHV_SUPPORT_DIR`. This isolates OpenRA settings, logs, caches, replays,
+native state, and connection lifecycle. A signal or hard watchdog terminates
+the process group rather than only its shell parent.
+
+The requested manifest, resolved manifest, and synchronized match configs are
+immutable. Config fingerprints detect per-match drift; the schedule hash
+detects any synchronized schedule change. Worker count, infrastructure retry
+budget, timeout grace, and replay-sampling interval are execution controls and
+may change between resume sessions.
+
+Completed status is trusted only when the stored `result.json` still passes
+Schema v1 and matches the resolved config. Infrastructure failures may retry
+within a bounded budget; invalid configuration and external cancellation do
+not. Any partial `attempt-N` file or directory reserves that attempt number,
+preventing hard-crash recovery from overwriting evidence.
+
+Successful support directories are removed after optional replay sampling.
+Failed/interrupted attempts retain their support logs and any replay that
+OpenRA managed to create. Each session records its exit code and active wall
+time; the run summary reports cumulative active runner time across resumes.
+See [Decision 0005](decisions/0005-process-isolated-resumable-batches.md).
+
 ## Current performance boundary
 
 Correctness and device isolation are verified at 1,500 ticks. After profiling
@@ -145,8 +184,15 @@ and bypassing dummy-engine media decoding, repeated runs simulated 30 seconds
 in 4.73 and 4.86 wall seconds (6.342× and 6.173× real time). This passes the 5×
 Sprint 2 minimum; the aspirational 20× target remains open.
 
-Batch performance must still be measured across maps, later-game unit counts,
-and controlled worker concurrency. Synchronized logic, bot computation,
-allocations/GC, pathfinding, and local order transport remain likely scaling
-surfaces rather than blockers established by the current evidence. See the
+A 100-match four-map, 100-tick sequential soak completed in 364.466 seconds.
+The same explicit schedule completed with four workers in 98.061 seconds:
+3.717× speedup and 92.9% parallel efficiency. Both runs completed 100/100 with
+no retry or infrastructure failure, and resume skipped all 100 without
+creating attempts.
+
+This is an infrastructure/startup benchmark, not a late-game performance
+claim. Batch performance must still be measured at later-game unit counts and
+with telemetry enabled. Synchronized logic, bot computation, allocations/GC,
+pathfinding, and local order transport remain likely scaling surfaces. See the
+[batch experiment](experiments/2026-07-29-batch-runner-v1.md) and
 [performance fix experiment](experiments/2026-07-29-headless-performance-fix.md).

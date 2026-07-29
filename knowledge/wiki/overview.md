@@ -9,6 +9,7 @@ sources:
   - experiments/2026-07-29-simulation-contract-v1.md
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
+  - experiments/2026-07-29-batch-runner-v1.md
 tags:
   - vision
   - status
@@ -50,15 +51,22 @@ rather than a conventional player-controlled game.
   same normalized result and synchronized hash.
 - Profiling removed repeated dummy-audio decoding; repeated 1,500-tick runs
   reached 6.173×–6.342× real time and passed the 5× engineering gate.
+- A Schema v1 manifest runner provides process/support isolation, stable
+  resolved schedules, bounded concurrency, hard watchdogs, failure-only
+  retries, signal-safe resume, cumulative sessions, validated aggregation, and
+  replay/failure diagnostics.
+- Exact-commit 100-match soaks completed 100/100 sequentially and with four
+  workers. Resume skipped all completed matches without adding attempts.
 - The full OpenHV validation suite passes.
 
 ## Current limitation
 
-The one-match runtime is fast enough for the first batch implementation, but
-manifest/resume/failure isolation, controlled concurrency, and the 100-match
-soak are not implemented yet. The initial 30-second tournament used the
-deprecated wall-clock cutoff and remains only a startup/scoring test. Civil
-systems and strategic telemetry are also not implemented yet.
+Batch infrastructure is proven only on short 100-tick matches; late-game
+memory/performance, natural outcomes, and telemetry overhead still need
+measurement. The initial 30-second tournament used the deprecated wall-clock
+cutoff and remains only a startup/scoring test. Time-series telemetry,
+population, settlements, civil resources, research, trade, migration, and
+dynamic diplomacy are not implemented yet.
 
 ## Success criteria
 
@@ -85,3 +93,4 @@ The simulation becomes useful when it can:
 - [Simulation contract v1 validation](experiments/2026-07-29-simulation-contract-v1.md)
 - [Deterministic headless runtime validation](experiments/2026-07-29-headless-runtime.md)
 - [Headless dummy-audio performance fix](experiments/2026-07-29-headless-performance-fix.md)
+- [Resumable batch runner v1 validation](experiments/2026-07-29-batch-runner-v1.md)

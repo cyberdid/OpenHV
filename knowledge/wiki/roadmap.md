@@ -8,6 +8,7 @@ sources:
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
+  - experiments/2026-07-29-batch-runner-v1.md
 tags:
   - roadmap
   - planning
@@ -46,6 +47,19 @@ See
 The performance follow-up is
 [Headless Dummy-Audio Performance Fix](experiments/2026-07-29-headless-performance-fix.md).
 
+Reliable batch orchestration is complete:
+
+- strict declarative manifest and immutable resolved schedule;
+- one process/support directory per attempt;
+- schema-validated aggregation, bounded retry, watchdog, signal cancellation,
+  and conservative resume;
+- retained failure diagnostics and configurable successful replay samples;
+- 100/100 sequential and 100/100 four-worker exact-commit soaks;
+- 3.717× four-worker speedup with no retry or infrastructure failure.
+
+See
+[Resumable Batch Runner v1 Validation](experiments/2026-07-29-batch-runner-v1.md).
+
 ## P0 — Headless simulation loop
 
 Move autonomous match orchestration and result capture away from the rendered
@@ -58,9 +72,9 @@ Acceptance:
 - deterministic reruns with the same map, composition, seed, and commit;
 - failed matches are isolated and reported without losing completed results.
 
-Status: one-match no-device execution, deterministic cross-mode parity, and
-the 5× throughput gate are complete. The manifest/resume/failure-isolation
-runner plus 100-match soak remain open.
+Status: complete. One-match no-device execution, deterministic cross-mode
+parity, the 5× throughput gate, process/failure isolation, replay diagnostics,
+resume, sequential soak, and controlled-concurrency soak all passed.
 
 ## P0 — Deterministic scenario lifecycle
 
@@ -74,10 +88,11 @@ Acceptance:
 - final world tick and the scenario-specific outcome are recorded;
 - timed leaders are never labeled as natural winners.
 
-Status: the v1 identifiers, natural victory, tick limit, watchdog, and invalid
-configuration paths exist. Faction-collapse, observation-horizon, stalemate,
-desync, crash artifact, and external-cancel detectors remain part of the
-headless/scenario lifecycle work.
+Status: the v1 identifiers, natural victory, tick limit, watchdog, invalid
+configuration, process crash/desync classifications, retained failure
+artifacts, and external-cancel/resume path exist. Faction-collapse,
+observation-horizon, and reviewed stalemate detectors remain part of the
+scenario lifecycle work.
 
 ## P0.5 — Living Factions vertical slice
 

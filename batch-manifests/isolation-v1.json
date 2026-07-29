@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "runId": "isolation-v1",
+  "description": "Valid/invalid pair for terminal failure isolation.",
+  "defaults": {
+    "bots": ["aggressor", "economist"],
+    "headless": true,
+    "gameSpeed": "fastest",
+    "maxWorldTicks": 250,
+    "watchdogSeconds": 30,
+    "telemetryIntervalTicks": 0
+  },
+  "runner": {
+    "workers": 2,
+    "maxInfrastructureRetries": 2,
+    "processTimeoutGraceSeconds": 10,
+    "successfulReplaySampleEvery": 0
+  },
+  "matches": [
+    {"id": "valid-neighbor", "map": "coldrage", "seed": 5101},
+    {
+      "id": "invalid-bot",
+      "map": "doubles",
+      "seed": 5102,
+      "bots": ["bot-that-does-not-exist", "economist"]
+    }
+  ]
+}

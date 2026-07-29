@@ -6,6 +6,7 @@ sources:
   - ../architecture.md
   - ../experiments/2026-07-29-headless-runtime.md
   - ../experiments/2026-07-29-headless-performance-fix.md
+  - ../experiments/2026-07-29-batch-runner-v1.md
   - ../../../engine-patches/openra-headless.patch
 tags:
   - decision
@@ -58,8 +59,8 @@ simulates gameplay.
 - The initial 0.738× result was dominated by repeated dummy-audio OGG decoding.
   A narrow capability guard produced repeated 6.173×+ runs and closed the 5×
   gate without changing synchronized results.
-- A 100-match soak is now gated by reliable batch orchestration rather than the
-  one-match runtime.
+- Reliable process-isolated orchestration subsequently completed 100-match
+  sequential and controlled-concurrency soaks; see Decision 0005.
 
 ## Revisit conditions
 

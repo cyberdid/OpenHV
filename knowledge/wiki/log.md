@@ -131,3 +131,55 @@ Repeated 1,500-tick runs fell from 40.66 seconds to 4.73 and 4.86 seconds
 (6.342× and 6.173× real time) while preserving hash `0AC799D4`, graphical
 parity, Schema v1 validity, and the full test suite. Sprint 2 is complete; the
 next active work is the isolated manifest batch runner.
+
+## [2026-07-29] change | Process-isolated resumable batch runner
+
+Completed the core of SIM-006–007 at commit
+`06ac1a31f8cedbb9cdc337d36d9935c80a517a5f`. Added strict Manifest Schema v1,
+stable resolved schedules and config fingerprints, one process group per
+match, worker limits, hard watchdogs, infrastructure-only retry, atomic
+status/session/summary artifacts, validated aggregation, exit codes, signal
+handling, cumulative resume, and synthetic failure-path integration tests.
+
+## [2026-07-29] correction | Close cancellation and replay artifact gaps
+
+An immediate-signal regression test exposed a race between logging a match
+start and registering its child process; a post-registration cancellation
+check now prevents escaped children. Artifact review then showed that shared
+OpenRA support state mixed logs/replays and that artificial cutoffs produced
+readable replays with `FinalGameTick=0`. Commit
+`5f1162f1c767e79148ef775279b5e87a4b83dc9f` added per-attempt support
+isolation, failure diagnostics, configurable replay samples, partial-attempt
+number preservation, and terminal world finalization. Four replay smoke
+artifacts now report tick 500 while normalized simulation results remain
+identical.
+
+## [2026-07-29] experiment | Close the Sprint 3 batch gate
+
+On clean commit `5f1162f1`, the tracked four-map schedule completed 100/100
+sequential matches in 364.466 seconds and 100/100 four-worker matches in
+98.061 seconds, with no retries or infrastructure failures. Four workers
+delivered 3.717× speedup and 92.9% efficiency. Resume skipped all 100 without
+new attempts. A signal run preserved two completions, interrupted two active
+process groups, left no child, and resumed only the unfinished matches. A
+terminal invalid bot remained at attempt 1 while its valid neighbor completed.
+See the
+[batch experiment](experiments/2026-07-29-batch-runner-v1.md) and
+[Decision 0005](decisions/0005-process-isolated-resumable-batches.md).
+
+## [2026-07-29] change | Complete SIM-006–007
+
+Sprint 3 is complete. The project now has a repeatable unattended experiment
+boundary with exact manifests, code/engine provenance, isolated attempts,
+validated results, retained failure evidence, replay sampling, conservative
+resume, and checked-in smoke/soak/failure fixtures. The next active work is
+Telemetry Schema v1 together with the first observable Living Factions civil
+state.
+
+## [2026-07-29] lint | Batch-stage wiki consistency
+
+Validated all batch manifests against Schema v1, confirmed the checked-in soak
+schedule hash matches the executed schedule, parsed the raw experiment CSV
+with a uniform 21-column shape, and checked all wiki frontmatter and relative
+Markdown links. Removed stale “batch remains open” claims from compiled pages;
+historical append-only log statements remain unchanged.

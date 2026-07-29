@@ -39,6 +39,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Headless dummy-audio performance fix, 2026-07-29](experiments/2026-07-29-headless-performance-fix.md)
   — managed profile, 88% wall-time reduction, repeated 6.17×+ throughput, and
   the closed Sprint 2 gate.
+- [Resumable batch runner v1 validation, 2026-07-29](experiments/2026-07-29-batch-runner-v1.md)
+  — process/support isolation, 100-match sequential and parallel soaks,
+  failure taxonomy, interruption/resume, and verified replay artifacts.
 
 ## Decisions
 
@@ -46,6 +49,7 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [0002: Maintain persistent project memory](decisions/0002-persistent-project-wiki.md)
 - [0003: Model living factions, not only war](decisions/0003-living-factions-before-war.md)
 - [0004: Accept the logic-only headless client runtime](decisions/0004-logic-only-headless-runtime.md)
+- [0005: Use process-isolated resumable batches](decisions/0005-process-isolated-resumable-batches.md)
 
 ## Operations
 

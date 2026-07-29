@@ -10,6 +10,8 @@ sources:
   - experiments/2026-07-29-simulation-contract-v1.md
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
+  - experiments/2026-07-29-batch-runner-v1.md
+  - decisions/0005-process-isolated-resumable-batches.md
   - ../../engine/OpenRA.Game/Game.cs
   - ../../engine/OpenRA.Server/Program.cs
 tags:
@@ -73,6 +75,12 @@ because the civil model also needs fast, reproducible experiments.
   bot RNG stream.
 - After the dummy-audio profile/fix, repeated headless throughput is
   6.173×–6.342× real time; the 5× minimum is complete.
+- Manifest Schema v1, immutable resolved schedules, per-attempt
+  process/support isolation, bounded retries, watchdogs, signal cancellation,
+  replay diagnostics, and conservative resume are complete.
+- Exact-commit 100-match soaks completed 100/100 sequentially in 364.466
+  seconds and 100/100 with four workers in 98.061 seconds. Resume added no
+  attempts.
 
 ## North-star qualities
 
@@ -262,27 +270,40 @@ The architecture decision selected:
 
 Goal: turn one headless match into a resumable experiment runner.
 
+Status: complete on 2026-07-29. Evidence:
+[Resumable Batch Runner v1 Validation](experiments/2026-07-29-batch-runner-v1.md)
+and [Decision 0005](decisions/0005-process-isolated-resumable-batches.md).
+
 ### Process model
 
-Start with one OS process per match. OpenRA uses substantial global/static
-runtime state; process isolation reduces contamination, memory-leak, and cleanup
-risk. Add controlled parallelism only after the sequential soak test passes.
+One OS process group and one OpenRA support directory are used per attempt.
+OpenRA uses substantial global/static runtime state; process isolation reduces
+contamination, memory-leak, file collision, and cleanup risk. The sequential
+soak passed before controlled four-worker scaling was accepted.
 
 ### Artifact layout
 
 ```text
 runs/<run-id>/
   manifest.json
+  resolved-manifest.json
+  runtime.json
   summary.json
   runner.log
+  sessions/<session-id>.json
   matches/<match-id>/
     config.json
+    status.json
     result.json
-    telemetry.jsonl
-    events.jsonl
-    stderr.log
-    replay.orarep
+    attempt-N.json
+    attempt-N.stdout.log
+    attempt-N.stderr.log
+    attempt-N.orarep
+    attempt-N-support/
 ```
+
+`telemetry.jsonl` and `events.jsonl` join this boundary in Phase 3; they are not
+claimed as current Batch v1 artifacts.
 
 ### Work
 
@@ -301,6 +322,18 @@ runs/<run-id>/
 7. Preserve a replay for failures and a configurable sample of successful
    matches.
 
+Implementation result:
+
+- Manifest Schema v1 plus canonical resolved schedule/config fingerprints;
+- atomic status/session/summary files and cumulative active runner time;
+- strict Result Schema/config validation before completion or aggregation;
+- infrastructure-only retry taxonomy and exit codes 0/2/130;
+- `SIGINT`/`SIGTERM` process-group cleanup with a tested registration-race
+  guard;
+- append-only attempt numbering even after partial hard-crash artifacts;
+- failure support logs and `successfulReplaySampleEvery`;
+- terminal world finalization that records the correct replay final tick.
+
 ### Acceptance gate
 
 - A 100-match sequential soak completes without user intervention.
@@ -308,6 +341,18 @@ runs/<run-id>/
 - A deliberately invalid match is isolated and reported while the batch
   continues.
 - Every result can be traced to one exact manifest entry.
+
+Gate result:
+
+- sequential soak: passed 100/100 in 364.466 seconds;
+- interruption/resume: passed with two preserved attempt-1 completions and
+  only two attempt-2 reruns;
+- invalid isolation: passed; invalid configuration used no retry while its
+  valid neighbor completed;
+- traceability: passed through original/resolved manifests, schedule hash,
+  config fingerprint, runtime Git/engine metadata, session, and attempt files;
+- controlled scaling follow-up: passed 100/100 with four workers in 98.061
+  seconds (3.717× speedup).
 
 ## Phase 3 — Telemetry schema v1
 
@@ -709,8 +754,8 @@ Status marker: ✅ means implemented and validated on the feature branch.
 | SIM-003 ✅ | Logic-only engine spike | SIM-002 | no-window 1,500-tick match |
 | SIM-004 ✅ | Disable renderer/audio initialization | SIM-003 | backend-negative log check |
 | SIM-005 ✅ | Headless/reference equivalence | SIM-003 | hash `0AC799D4` and identical normalized results |
-| SIM-006 | Isolated CLI process and exit codes | SIM-003 | failure-path integration tests |
-| SIM-007 | Manifest-driven batch runner | SIM-006 | resumable 100-match soak |
+| SIM-006 ✅ | Isolated CLI process and exit codes | SIM-003 | 7 failure/signal/resume integration tests |
+| SIM-007 ✅ | Manifest-driven batch runner | SIM-006 | sequential and four-worker resumable 100-match soaks |
 | SIM-008 | Telemetry schema v1 | SIM-001 | validated JSON/JSONL artifacts |
 | SIM-009 | Scenario lifecycle and long-horizon model | SIM-002, SIM-008 | reviewed conflict and living-world runs |
 | SIM-010 | Baseline benchmark suite | SIM-007–009 | reproducible report |
@@ -757,7 +802,6 @@ Exit: one verified no-window match, minimum 5× real-time.
 
 Status: complete on 2026-07-29. Profiling reduced the 1,500-tick benchmark from
 40.66 to 4.73–4.86 seconds, preserved hash `0AC799D4`, and passed the 5× exit.
-The next active gate is Sprint 3 / SIM-006–007.
 
 ### Sprint 3 — 5 to 8 focused days
 
@@ -767,6 +811,12 @@ The next active gate is Sprint 3 / SIM-006–007.
 - 100-match soak.
 
 Exit: repeatable unattended batch with complete artifacts.
+
+Status: complete on 2026-07-29. SIM-006–007, isolated support/replay artifacts,
+seven integration tests, sequential 100-match soak, four-worker soak, signal
+resume, and invalid-match isolation passed. The next active work is SIM-008
+plus the LIFE-001–003 civil vertical slice; telemetry and civil state should be
+designed together so the first Living Factions behavior is observable.
 
 ### Sprint 4 — 8 to 12 focused days
 

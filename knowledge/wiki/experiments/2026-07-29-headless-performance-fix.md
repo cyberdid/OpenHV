@@ -83,13 +83,17 @@ logic-only client did not require a standalone simulator; profiling found a
 backend lifecycle defect at the boundary between the normal audio manager and
 the dummy device.
 
-The aspirational 20× target is not claimed. Batch orchestration should now
-measure end-to-end throughput across more maps and later-game horizons, where
-unit count, bot work, and pathfinding can become more expensive.
+The aspirational 20× target is not claimed. The batch follow-up measures
+end-to-end startup/short-horizon throughput across four maps; later-game
+horizons, where unit count, bot work, and pathfinding can become more
+expensive, remain open.
 
-## Next experiment
+## Follow-up
 
-Build the manifest-driven isolated batch runner, run a resumable mixed-map
-soak, and report per-match wall time, failure class, peak memory, and effective
-parallel throughput. Any additional engine optimization must continue to pass
-the long graphical/headless equivalence harness.
+The manifest-driven isolated runner and mixed-map soak are complete; see
+[Resumable Batch Runner v1 Validation](2026-07-29-batch-runner-v1.md).
+Sequential and four-worker throughput, failure classes, resume, and replay
+artifacts are now measured. Peak memory and later-game scaling remain open and
+must be measured alongside Telemetry Schema v1. Any additional engine
+optimization must continue to pass the long graphical/headless equivalence
+harness.
