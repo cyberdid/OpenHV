@@ -189,7 +189,6 @@ Player:
 		RushInterval: 250
 		MinimumAttackForceDelay: 100
 		AttackForceInterval: 25
-		DangerScanRadius: 12
 		UseStrategicTargetScoring: true
 		TargetDamageWeight: 24
 		TargetBuildingBonus: 1800
@@ -212,7 +211,6 @@ Player:
 		RushInterval: 900
 		MinimumAttackForceDelay: 500
 		AttackForceInterval: 25
-		DangerScanRadius: 14
 		UseStrategicTargetScoring: true
 		TargetValueWeight: 2
 		TargetDamageWeight: 18
@@ -237,7 +235,6 @@ Player:
 		RushInterval: 600
 		MinimumAttackForceDelay: 300
 		AttackForceInterval: 25
-		DangerScanRadius: 14
 		UseStrategicTargetScoring: true
 		TargetValueWeight: 3
 		TargetDamageWeight: 28
@@ -262,7 +259,6 @@ Player:
 		RushInterval: 1200
 		MinimumAttackForceDelay: 800
 		AttackForceInterval: 25
-		DangerScanRadius: 14
 		ProtectUnitScanRadius: 25
 		ProtectionScanRadius: 14
 		UseStrategicTargetScoring: true

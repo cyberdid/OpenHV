@@ -298,10 +298,10 @@ index 4d90ce2..b4bdff1 100644
  
  		/// <summary>
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
-index 54bfebb..dc54178 100644
+index 54bfebb..7eaf7cc 100644
 --- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
-@@ -56,7 +56,12 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+@@ -56,7 +56,39 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  		protected virtual bool ShouldFlee(Squad owner)
  		{
@@ -312,10 +312,37 @@ index 54bfebb..dc54178 100644
 +					owner,
 +					enemies,
 +					!AttackOrFleeFuzzy.Default.CanAttack(owner.Units, enemies)));
++		}
++
++		/// <summary>
++		/// Threat-based retreat check for squads that fight inside their own base.
++		/// <see cref="StateBase.ShouldFlee"/> refuses to flee whenever an own building
++		/// stands within the danger radius, which is the normal condition for a
++		/// defending squad, so no threat could ever reach the retreat thresholds.
++		/// This path skips that veto and deliberately omits the stock fuzzy attack
++		/// decision, leaving only the explicit low-health-and-power thresholds.
++		/// </summary>
++		protected static bool ShouldRetreatUnderThreat(Squad owner)
++		{
++			if (!owner.IsValid)
++				return false;
++
++			var dangerRadius = owner.SquadManager.Info.DangerScanRadius;
++			var enemies = owner.World
++				.FindActorsInCircle(owner.CenterPosition(), WDist.FromCells(dangerRadius))
++				.Where(unit =>
++					owner.SquadManager.IsPreferredEnemyUnit(unit) &&
++					unit.Info.HasTraitInfo<AttackBaseInfo>())
++				.ToList();
++
++			if (enemies.Count == 0)
++				return false;
++
++			return owner.SquadManager.ShouldRetreat(owner, enemies, false);
  		}
  
  		protected (Actor Actor, WVec Offset) NewLeaderAndFindClosestEnemy(Squad owner)
-@@ -254,7 +259,14 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+@@ -254,7 +286,14 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  	sealed class GroundUnitsFleeState : GroundStateBase, IState
  	{
@@ -331,7 +358,7 @@ index 54bfebb..dc54178 100644
  
  		public void Tick(Squad owner)
  		{
-@@ -265,6 +277,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+@@ -265,6 +304,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsIdleState());
  		}
  
@@ -364,4 +391,60 @@ index 54bfebb..dc54178 100644
 +
 +		public void Deactivate(Squad owner) { }
  	}
+ }
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
+index d58d6f1..df740ba 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
+@@ -46,6 +46,18 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 
+ 			owner.Bot.QueueOrder(new Order("AttackMove", null, owner.Target, false, groupedActors: owner.Units.ToArray()));
+ 
++			// A losing defensive squad used to feed itself into the attacker until it
++			// died, because only the ground assault path evaluated retreat at all.
++			if (ShouldRetreatUnderThreat(owner))
++			{
++				owner.FuzzyStateMachine.ChangeState(
++					owner,
++					owner.SquadManager.Info.RegroupTicks > 0
++						? new UnitsForProtectionRegroupState()
++						: new UnitsForProtectionFleeState());
++				return;
++			}
++
+ 			if (!owner.IsTargetVisible)
+ 			{
+ 				if (Backoff < 0)
+@@ -81,4 +93,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
+ 
+ 		public void Deactivate(Squad owner) { owner.SquadManager.UnregisterSquad(owner); }
+ 	}
++
++	/// <summary>
++	/// Entered only after a threat-based retreat. Losing the target keeps using
++	/// <see cref="UnitsForProtectionFleeState"/> so an ordinary all-clear still
++	/// dissolves the squad and returns its units to the pool.
++	/// </summary>
++	sealed class UnitsForProtectionRegroupState : GroundStateBase, IState
++	{
++		int reengageTick;
++
++		public void Activate(Squad owner)
++		{
++			reengageTick = owner.World.WorldTick + owner.SquadManager.Info.RegroupTicks;
++			GoToRandomOwnBuilding(owner);
++			owner.SquadManager.RecordRegroup(owner);
++		}
++
++		public void Tick(Squad owner)
++		{
++			if (!owner.IsValid || owner.World.WorldTick < reengageTick)
++				return;
++
++			owner.SquadManager.RecordReengage(owner);
++			owner.FuzzyStateMachine.ChangeState(owner, new UnitsForProtectionIdleState());
++		}
++
++		public void Deactivate(Squad owner) { }
++	}
  }
