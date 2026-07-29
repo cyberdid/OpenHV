@@ -106,7 +106,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// PERF: Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			scanForIdleMinersTicks = world.LocalRandom.Next(0, Info.MinimumScanDelay);
+			scanForIdleMinersTicks = world.BotRandom.Next(0, Info.MinimumScanDelay);
 
 			resourceLayer = world.WorldActor.TraitOrDefault<IResourceLayer>();
 		}
@@ -150,7 +150,7 @@ namespace OpenRA.Mods.HV.Traits
 				return;
 
 			var miningTowers = AIUtils.CountActorByCommonName(towerBuildings);
-			var minerType = Info.DeployableActorTypes.Random(world.LocalRandom);
+			var minerType = Info.DeployableActorTypes.Random(world.BotRandom);
 			if (miningTowers < Info.MinimumDeployedActors && unitBuilder.RequestedProductionCount(bot, minerType) == 0)
 				unitBuilder.RequestUnitProduction(bot, minerType);
 		}

@@ -32,6 +32,7 @@ require_variables "MOD_ID" "ENGINE_VERSION" "ENGINE_DIRECTORY"
 CURRENT_ENGINE_VERSION=$(cat "${ENGINE_DIRECTORY}/VERSION" 2> /dev/null)
 
 if [ -f "${ENGINE_DIRECTORY}/VERSION" ] && [ "${CURRENT_ENGINE_VERSION}" = "${ENGINE_VERSION}" ]; then
+	"${TEMPLATE_ROOT}/apply-engine-patches.sh"
 	exit 0
 fi
 
@@ -70,10 +71,11 @@ if [ "${AUTOMATIC_ENGINE_MANAGEMENT}" = "True" ]; then
 
 	cd "${ENGINE_DIRECTORY}" || exit 1
 	make version VERSION="${ENGINE_VERSION}"
+	cd "${TEMPLATE_ROOT}" || exit 1
+	"${TEMPLATE_ROOT}/apply-engine-patches.sh"
 	exit 0
 fi
 
 echo "Automatic engine management is disabled."
 echo "Please manually update the engine to version ${ENGINE_VERSION}."
 exit 1
-

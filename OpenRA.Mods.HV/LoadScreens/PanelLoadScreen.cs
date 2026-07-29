@@ -14,7 +14,6 @@ using System.IO;
 using System.Linq;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.LoadScreens;
-using OpenRA.Mods.Common.Traits;
 using OpenRA.Network;
 using OpenRA.Primitives;
 using OpenRA.Widgets;
@@ -56,13 +55,18 @@ namespace OpenRA.Mods.HV.LoadScreens
 
 			OrderManager orderManager = null;
 			string[] simulationSlots = null;
-			Color[] deterministicColors = null;
 			var lobbyConfigurationIssued = false;
-			var colorConfigurationIssued = false;
+			var simulationStarted = false;
 			void StartSimulation()
 			{
-				if (orderManager?.LocalClient == null || !orderManager.LocalClient.IsAdmin)
+				if (simulationStarted)
 					return;
+
+				if (orderManager?.LocalClient == null || !orderManager.LocalClient.IsAdmin)
+				{
+					Game.RunAfterTick(StartSimulation);
+					return;
+				}
 
 				var localClientIndex = orderManager.LocalClient.Index;
 				if (!lobbyConfigurationIssued)
@@ -91,6 +95,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 					}
 
 					orderManager.IssueOrder(Order.Command($"option gamespeed {config.GameSpeed}"));
+					Game.RunAfterTick(StartSimulation);
 					return;
 				}
 
@@ -98,48 +103,22 @@ namespace OpenRA.Mods.HV.LoadScreens
 					.Select(orderManager.LobbyInfo.ClientInSlot)
 					.ToArray();
 				if (simulationClients.Any(client => client == null))
+				{
+					Game.RunAfterTick(StartSimulation);
 					return;
+				}
 
 				for (var i = 0; i < simulationClients.Length; i++)
 				{
 					var expectedBotType = config.BotTypes[i % config.BotTypes.Length];
 					if (simulationClients[i].Bot != expectedBotType)
+					{
+						Game.RunAfterTick(StartSimulation);
 						return;
+					}
 				}
 
-				if (!colorConfigurationIssued)
-				{
-					colorConfigurationIssued = true;
-					var colorManager = map.WorldActorInfo.TraitInfo<ColorPickerManagerInfo>();
-					var blockedColors = Game.ModData.DefaultTerrainInfo[map.TileSet].RestrictedPlayerColors
-						.Concat(map.Players.Players.Values.Select(player => player.Color))
-						.ToList();
-					deterministicColors = colorManager.PresetColors
-						.Where(color =>
-						{
-							if (colorManager.IsInvalidColor(color, blockedColors))
-								return false;
-
-							blockedColors.Add(color);
-							return true;
-						})
-						.Take(simulationClients.Length)
-						.ToArray();
-					if (deterministicColors.Length != simulationClients.Length)
-						throw new InvalidOperationException(
-							$"Map '{map.Title}' does not provide enough valid preset colors for " +
-							$"{simulationClients.Length} simulation players.");
-
-					for (var i = 0; i < simulationClients.Length; i++)
-						orderManager.IssueOrder(
-							Order.Command($"color {simulationClients[i].Index} {deterministicColors[i]}"));
-
-					return;
-				}
-
-				if (simulationClients.Where((client, i) => client.Color != deterministicColors[i]).Any())
-					return;
-
+				simulationStarted = true;
 				Game.LobbyInfoChanged -= StartSimulation;
 				config.EffectiveRandomSeed = orderManager.LobbyInfo.GlobalSettings.RandomSeed;
 				Console.WriteLine(
@@ -201,7 +180,10 @@ namespace OpenRA.Mods.HV.LoadScreens
 			}
 
 			Game.LobbyInfoChanged += StartSimulation;
-			orderManager = Game.JoinServer(Game.CreateLocalServer(map.Uid), "");
+			orderManager = Game.JoinServer(
+				Game.CreateLocalServer(map.Uid, randomSeed: config.RequestedRandomSeed),
+				"");
+			Game.RunAfterTick(StartSimulation);
 		}
 
 		public override void DisplayInner(Renderer r, Sheet s, int density)

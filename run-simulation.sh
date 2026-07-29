@@ -8,6 +8,7 @@ SUPPORT_DIR="${OPENHV_SUPPORT_DIR:-${PROJECT_DIR}/../.openhv-support}"
 SIMULATION_MAP="${1:-coldrage}"
 SIMULATION_BOT="${SIMULATION_BOT:-rogue}"
 SIMULATION_BOTS="${SIMULATION_BOTS:-${SIMULATION_BOT}}"
+SIMULATION_HEADLESS="${SIMULATION_HEADLESS:-false}"
 SIMULATION_SPEED="${SIMULATION_SPEED:-fastest}"
 SIMULATION_SEED="${SIMULATION_SEED:-}"
 SIMULATION_MAX_TICKS="${SIMULATION_MAX_TICKS:-}"
@@ -38,6 +39,8 @@ DOTNET_ROOT="${DOTNET_DIR}" \
 DOTNET_CLI_TELEMETRY_OPTOUT=1 \
 exec "${PROJECT_DIR}/launch-game.sh" \
 	"Engine.SupportDir=${SUPPORT_DIR}" \
+	"Engine.Headless=${SIMULATION_HEADLESS}" \
+	"Engine.DeterministicSimulation=true" \
 	"Launch.Simulation=true" \
 	"Launch.Map=${SIMULATION_MAP}" \
 	"Launch.SimulationBot=${SIMULATION_BOT}" \

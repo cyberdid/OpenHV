@@ -77,7 +77,8 @@
         "modId": { "type": "string", "minLength": 1 },
         "modVersion": { "type": "string", "minLength": 1 },
         "gitCommit": { "type": "string", "minLength": 1 },
-        "gitDirty": { "type": "boolean" }
+        "gitDirty": { "type": "boolean" },
+        "executionMode": { "enum": ["graphical", "headless"] }
       }
     },
     "config": {
@@ -115,6 +116,8 @@
           "minItems": 1,
           "items": { "type": "string", "minLength": 1 }
         },
+        "headless": { "type": "boolean" },
+        "deterministicSimulation": { "type": "boolean" },
         "gameSpeed": { "type": "string", "minLength": 1 },
         "gameTimestepMilliseconds": { "type": "integer", "minimum": 1 },
         "requestedRandomSeed": {

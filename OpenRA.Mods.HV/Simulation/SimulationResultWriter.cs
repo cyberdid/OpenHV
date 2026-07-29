@@ -113,7 +113,8 @@ namespace OpenRA.Mods.HV
 					ModId = Game.ModData.Manifest.Id,
 					ModVersion = Game.ModData.Manifest.Metadata.Version,
 					GitCommit = config.GitCommit,
-					GitDirty = config.GitDirty
+					GitDirty = config.GitDirty,
+					ExecutionMode = Game.IsHeadless ? "headless" : "graphical"
 				},
 				Config = config,
 				EndReason = endReason.ToIdentifier(),

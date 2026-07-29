@@ -7,6 +7,7 @@ CHECK_MAP="${1:-coldrage}"
 CHECK_SEED="${CHECK_SEED:-424242}"
 CHECK_MAX_TICKS="${CHECK_MAX_TICKS:-200}"
 CHECK_BOTS="${CHECK_BOTS:-aggressor,economist}"
+CHECK_HEADLESS="${CHECK_HEADLESS:-true}"
 CHECK_WATCHDOG_SECONDS="${CHECK_WATCHDOG_SECONDS:-60}"
 CHECK_RESULTS_DIR="${CHECK_RESULTS_DIR:-$(mktemp -d /tmp/universe-determinism.XXXXXX)}"
 SCHEMA_PATH="${PROJECT_DIR}/schemas/simulation-result-v1.schema.json"
@@ -21,6 +22,7 @@ mkdir -p "${CHECK_RESULTS_DIR}"
 run_match()
 {
 	run_id="$1"
+	SIMULATION_HEADLESS="${CHECK_HEADLESS}" \
 	SIMULATION_BOTS="${CHECK_BOTS}" \
 	SIMULATION_MAX_TICKS="${CHECK_MAX_TICKS}" \
 	SIMULATION_WATCHDOG_SECONDS="${CHECK_WATCHDOG_SECONDS}" \
@@ -65,7 +67,8 @@ for result_path in result_paths:
         validator.validate(json.load(result_file))
 PY
 
-if SIMULATION_BOTS=does-not-exist \
+if SIMULATION_HEADLESS="${CHECK_HEADLESS}" \
+	SIMULATION_BOTS=does-not-exist \
 	SIMULATION_MAX_TICKS=1 \
 	SIMULATION_WATCHDOG_SECONDS=10 \
 	"${PROJECT_DIR}/run-simulation.sh" "${CHECK_MAP}" >/dev/null 2>&1; then

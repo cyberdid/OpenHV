@@ -37,6 +37,7 @@ namespace OpenRA.Mods.HV
 		public string ModVersion { get; init; }
 		public string GitCommit { get; init; }
 		public bool GitDirty { get; init; }
+		public string ExecutionMode { get; init; }
 	}
 
 	public sealed class SimulationLeader

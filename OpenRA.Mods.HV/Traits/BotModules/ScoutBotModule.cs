@@ -59,7 +59,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// PERF: Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			scanForIdleScoutsTicks = world.LocalRandom.Next(0, Info.MinimumScanDelay);
+			scanForIdleScoutsTicks = world.BotRandom.Next(0, Info.MinimumScanDelay);
 		}
 
 		void IBotTick.BotTick(IBot bot)
@@ -89,7 +89,7 @@ namespace OpenRA.Mods.HV.Traits
 
 		Target PickTargetLocation(Actor scout)
 		{
-			var targetPosition = scout.CenterPosition + new WVec(0, -1024 * info.MoveRadius, 0).Rotate(WRot.FromFacing(world.LocalRandom.Next(255)));
+			var targetPosition = scout.CenterPosition + new WVec(0, -1024 * info.MoveRadius, 0).Rotate(WRot.FromFacing(world.BotRandom.Next(255)));
 			var targetCell = world.Map.CellContaining(targetPosition);
 
 			if (!world.Map.Contains(targetCell))

@@ -1,0 +1,248 @@
+diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
+--- a/OpenRA.Game/Game.cs
++++ b/OpenRA.Game/Game.cs
+@@ -54,6 +54,8 @@ namespace OpenRA
+ 
+ 		public static Renderer Renderer;
+ 		public static Sound Sound;
++		public static bool IsHeadless { get; private set; }
++		public static bool IsDeterministicSimulation { get; private set; }
+ 
+ 		public static string EngineVersion { get; private set; }
+ 		public static LocalPlayerProfile LocalPlayerProfile;
+@@ -377,6 +379,15 @@ namespace OpenRA
+ 			}
+ 
+ 			InitializeSettings(args);
++			var headlessText = args.GetValue("Engine.Headless", "false");
++			if (!bool.TryParse(headlessText, out var headless))
++				throw new ArgumentException($"Engine.Headless must be 'true' or 'false', but was '{headlessText}'.");
++			IsHeadless = headless;
++			var deterministicSimulationText = args.GetValue("Engine.DeterministicSimulation", "false");
++			if (!bool.TryParse(deterministicSimulationText, out var deterministicSimulation))
++				throw new ArgumentException(
++					$"Engine.DeterministicSimulation must be 'true' or 'false', but was '{deterministicSimulationText}'.");
++			IsDeterministicSimulation = deterministicSimulation;
+ 
+ 			Log.AddChannel("perf", "perf.log");
+ 			Log.AddChannel("debug", "debug.log");
+@@ -429,29 +440,40 @@ namespace OpenRA
+ 			foreach (var mod in ExternalMods)
+ 				Console.WriteLine($"\t{mod.Key} ({mod.Value.Version})");
+ 
+-			var platforms = new[] { Settings.Game.Platform, "Default", null };
+-			foreach (var p in platforms)
++			if (IsHeadless)
+ 			{
+-				if (p == null)
+-					throw new InvalidOperationException("Failed to initialize platform-integration library. Check graphics.log for details.");
+-
+-				Settings.Game.Platform = p;
+-				try
++				Console.WriteLine("Using headless graphics and sound platform.");
++				var platform = new HeadlessPlatform();
++				Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
++				Sound = new Sound(platform, Settings.Sound);
++			}
++			else
++			{
++				var platforms = new[] { Settings.Game.Platform, "Default", null };
++				foreach (var p in platforms)
+ 				{
+-					var platform = CreatePlatform(p);
+-					Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
+-					Sound = new Sound(platform, Settings.Sound);
++					if (p == null)
++						throw new InvalidOperationException(
++							"Failed to initialize platform-integration library. Check graphics.log for details.");
+ 
+-					break;
+-				}
+-				catch (Exception e)
+-				{
+-					Log.Write("graphics", $"{e}");
+-					Console.WriteLine("Renderer initialization failed. Check graphics.log for details.");
++					Settings.Game.Platform = p;
++					try
++					{
++						var platform = CreatePlatform(p);
++						Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
++						Sound = new Sound(platform, Settings.Sound);
+ 
+-					Renderer?.Dispose();
++						break;
++					}
++					catch (Exception e)
++					{
++						Log.Write("graphics", $"{e}");
++						Console.WriteLine("Renderer initialization failed. Check graphics.log for details.");
+ 
+-					Sound?.Dispose();
++						Renderer?.Dispose();
++
++						Sound?.Dispose();
++					}
+ 				}
+ 			}
+ 
+@@ -628,13 +650,16 @@ namespace OpenRA
+ 
+ 			var world = orderManager.World;
+ 
+-			if (Ui.LastTickTime.ShouldAdvance(tick))
++			if (!IsHeadless && Ui.LastTickTime.ShouldAdvance(tick))
+ 			{
+ 				Ui.LastTickTime.AdvanceTickTime(tick);
+ 				Sync.RunUnsynced(world, Ui.Tick);
+ 				Cursor.Tick();
+ 			}
+ 
++			if (IsHeadless)
++				orderManager.LastTickTime.Value = tick - Math.Max(1, orderManager.SuggestedTimestep);
++
+ 			if (orderManager.LastTickTime.ShouldAdvance(tick))
+ 			{
+ 				if (orderManager.GameStarted && orderManager.LocalFrameNumber == 0)
+@@ -655,7 +680,8 @@ namespace OpenRA
+ 						return;
+ 					}
+ 
+-					if (orderManager.TryTick())
++					var advancedWorld = orderManager.TryTick();
++					if (advancedWorld)
+ 					{
+ 						Sync.RunUnsynced(world, () => world.OrderGenerator.Tick(world));
+ 
+@@ -665,7 +691,7 @@ namespace OpenRA
+ 					}
+ 
+ 					// Wait until we have done our first world Tick before TickRendering
+-					if (orderManager.LocalFrameNumber > 0)
++					if (orderManager.LocalFrameNumber > 0 && (!IsDeterministicSimulation || advancedWorld))
+ 						Sync.RunUnsynced(world, () => world.TickRender(worldRenderer));
+ 				}
+ 
+@@ -896,6 +922,27 @@ namespace OpenRA
+ 				}
+ 				else
+ 					Thread.Sleep((int)(nextUpdate - now));
++			}
++		}
++
++		static void HeadlessLoop()
++		{
++			var idleLoops = 0;
++			while (state == RunStatus.Running)
++			{
++				var previousFrame = OrderManager?.LocalFrameNumber ?? -1;
++				LogicTick();
++				if (OrderManager?.LocalFrameNumber == previousFrame)
++				{
++					Thread.Sleep(1);
++					idleLoops++;
++					if (idleLoops % 5000 == 0)
++						Console.WriteLine(
++							$"Headless loop waiting: connection={lastConnectionState}, " +
++							$"clients={OrderManager?.LobbyInfo.Clients.Count ?? 0}, world={OrderManager?.World != null}.");
++				}
++				else
++					idleLoops = 0;
+ 			}
+ 		}
+ 
+@@ -906,7 +953,10 @@ namespace OpenRA
+ 
+ 			try
+ 			{
+-				Loop();
++				if (IsHeadless)
++					HeadlessLoop();
++				else
++					Loop();
+ 			}
+ 			finally
+ 			{
+@@ -962,7 +1012,7 @@ namespace OpenRA
+ 			return server.GetEndpointForLocalConnection();
+ 		}
+ 
+-		public static ConnectionTarget CreateLocalServer(string map, bool isSkirmish = false)
++		public static ConnectionTarget CreateLocalServer(string map, bool isSkirmish = false, int? randomSeed = null)
+ 		{
+ 			var settings = new ServerSettings()
+ 			{
+@@ -979,7 +1029,12 @@ namespace OpenRA
+ 			{
+ 				new(IPAddress.Loopback, 0)
+ 			};
+-			server = new Server.Server(endpoints, settings, ModData, isSkirmish ? ServerType.Skirmish : ServerType.Local);
++			server = new Server.Server(
++				endpoints,
++				settings,
++				ModData,
++				isSkirmish ? ServerType.Skirmish : ServerType.Local,
++				randomSeed);
+ 
+ 			return server.GetEndpointForLocalConnection();
+ 		}
+diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
+--- a/OpenRA.Game/World.cs
++++ b/OpenRA.Game/World.cs
+@@ -50,6 +50,7 @@ namespace OpenRA
+ 
+ 		public readonly MersenneTwister SharedRandom;
+ 		public readonly MersenneTwister LocalRandom;
++		public readonly MersenneTwister BotRandom;
+ 		public LongBitSet<PlayerBitMask> AllPlayersMask = default;
+ 		public readonly LongBitSet<PlayerBitMask> NoPlayersMask = default;
+ 
+@@ -197,7 +198,12 @@ namespace OpenRA
+ 			Timestep = ReplayTimestep = GameSpeed.Timestep;
+ 
+ 			SharedRandom = new MersenneTwister(orderManager.LobbyInfo.GlobalSettings.RandomSeed);
+-			LocalRandom = new MersenneTwister();
++			LocalRandom = Game.IsDeterministicSimulation
++				? new MersenneTwister(unchecked(orderManager.LobbyInfo.GlobalSettings.RandomSeed ^ (int)0x6A09E667u))
++				: new MersenneTwister();
++			BotRandom = Game.IsDeterministicSimulation
++				? new MersenneTwister(unchecked(orderManager.LobbyInfo.GlobalSettings.RandomSeed ^ (int)0xBB67AE85u))
++				: LocalRandom;
+ 
+ 			var worldActorType = type == WorldType.Editor ? SystemActors.EditorWorld : SystemActors.World;
+ 			WorldActor = CreateActor(worldActorType.ToString(), []);
+diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
+--- a/OpenRA.Game/Server/Server.cs
++++ b/OpenRA.Game/Server/Server.cs
+@@ -114,7 +114,7 @@ namespace OpenRA.Server
+ 		[FluentReference]
+ 		const string GameStarted = "notification-game-started";
+ 
+-		public readonly MersenneTwister Random = new();
++		public readonly MersenneTwister Random;
+ 		public readonly ServerType Type;
+ 		public bool IsMultiplayer => Type == ServerType.Dedicated || Type == ServerType.Multiplayer;
+ 
+@@ -235,7 +235,12 @@ namespace OpenRA.Server
+ 			}
+ 		}
+ 
+-		public Server(List<IPEndPoint> endpoints, ServerSettings settings, ModData modData, ServerType type)
++		public Server(
++			List<IPEndPoint> endpoints,
++			ServerSettings settings,
++			ModData modData,
++			ServerType type,
++			int? deterministicSeed = null)
+ 		{
+ 			Log.AddChannel("server", "server.log", true);
+ 
+@@ -303,7 +308,8 @@ namespace OpenRA.Server
+ 
+ 			playerDatabase = modData.GetOrCreate<PlayerDatabase>();
+ 
+-			randomSeed = (int)DateTime.Now.ToBinary();
++			randomSeed = deterministicSeed ?? (int)DateTime.Now.ToBinary();
++			Random = new MersenneTwister(randomSeed);
+ 
+ 			if (IsMultiplayer && settings.EnableGeoIP)
+ 				GeoIP.Initialize();

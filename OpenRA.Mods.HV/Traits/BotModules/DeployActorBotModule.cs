@@ -67,7 +67,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// PERF: Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			scanForIdleDetectorsTicks = world.LocalRandom.Next(0, Info.MinimumScanDelay);
+			scanForIdleDetectorsTicks = world.BotRandom.Next(0, Info.MinimumScanDelay);
 		}
 
 		void IBotTick.BotTick(IBot bot)

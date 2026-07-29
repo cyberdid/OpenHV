@@ -75,7 +75,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			minAssignRoleDelayTicks = world.LocalRandom.Next(0, Info.ScanTick);
+			minAssignRoleDelayTicks = world.BotRandom.Next(0, Info.ScanTick);
 		}
 
 		void IBotTick.BotTick(IBot bot)
@@ -94,7 +94,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (transporters.Length == 0)
 					return;
 
-				var transporter = transporters.Random(world.LocalRandom);
+				var transporter = transporters.Random(world.BotRandom);
 				var cargo = transporter.Trait;
 				var transport = transporter.Actor;
 				var spaceTaken = 0;

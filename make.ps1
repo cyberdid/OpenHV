@@ -316,6 +316,7 @@ if ($command -eq "all" -or $command -eq "clean" -or $command -eq "check")
 
 	if ($currentEngine -ne "" -and $currentEngine -eq $env:ENGINE_VERSION)
 	{
+		& "$templateDir/apply-engine-patches.ps1" -EnginePath $env:ENGINE_DIRECTORY
 		cd $env:ENGINE_DIRECTORY
 		Invoke-Expression ".\make.cmd $command"
 		Write-Host ""
@@ -375,6 +376,9 @@ if ($command -eq "all" -or $command -eq "clean" -or $command -eq "check")
 
 		cd $env:ENGINE_DIRECTORY
 		Invoke-Expression ".\make.cmd version $env:ENGINE_VERSION"
+		cd $templateDir
+		& "$templateDir/apply-engine-patches.ps1" -EnginePath $env:ENGINE_DIRECTORY
+		cd $env:ENGINE_DIRECTORY
 		Invoke-Expression ".\make.cmd $command"
 		Write-Host ""
 		cd $templateDir

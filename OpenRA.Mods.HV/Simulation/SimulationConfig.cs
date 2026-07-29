@@ -30,6 +30,8 @@ namespace OpenRA.Mods.HV
 		public string MapTitle { get; init; }
 		public string MapHash { get; init; }
 		public string[] BotTypes { get; init; }
+		public bool Headless { get; init; }
+		public bool DeterministicSimulation { get; init; }
 		public string GameSpeed { get; init; }
 		public int GameTimestepMilliseconds { get; init; }
 		public int? RequestedRandomSeed { get; init; }
@@ -92,6 +94,17 @@ namespace OpenRA.Mods.HV
 				throw new ArgumentException(
 					$"Launch.SimulationGitDirty must be 'true' or 'false', but was '{gitDirtyText}'.");
 
+			var headlessText = args.GetValue("Engine.Headless", "false");
+			if (!bool.TryParse(headlessText, out var headless))
+				throw new ArgumentException(
+					$"Engine.Headless must be 'true' or 'false', but was '{headlessText}'.");
+
+			var deterministicSimulationText = args.GetValue("Engine.DeterministicSimulation", "false");
+			if (!bool.TryParse(deterministicSimulationText, out var deterministicSimulation))
+				throw new ArgumentException(
+					"Engine.DeterministicSimulation must be 'true' or 'false', " +
+					$"but was '{deterministicSimulationText}'.");
+
 			var matchId = args.GetValue("Launch.SimulationMatchId", "simulation");
 			if (string.IsNullOrWhiteSpace(matchId))
 				throw new ArgumentException("Launch.SimulationMatchId must not be empty.");
@@ -108,6 +121,8 @@ namespace OpenRA.Mods.HV
 				MapTitle = map.Title,
 				MapHash = map.Uid,
 				BotTypes = botTypes,
+				Headless = headless,
+				DeterministicSimulation = deterministicSimulation,
 				GameSpeed = gameSpeed,
 				GameTimestepMilliseconds = speed.Timestep,
 				RequestedRandomSeed = randomSeed,

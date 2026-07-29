@@ -84,7 +84,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			minAssignRoleDelayTicks = world.LocalRandom.Next(0, Info.ScanTick);
+			minAssignRoleDelayTicks = world.BotRandom.Next(0, Info.ScanTick);
 		}
 
 		void IBotTick.BotTick(IBot bot)
@@ -118,7 +118,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (enemyPlayers.Count == 0)
 					return;
 
-				targetPlayer = enemyPlayers.Random(world.LocalRandom);
+				targetPlayer = enemyPlayers.Random(world.BotRandom);
 
 				var targets = world.Actors.Where(a =>
 				{
@@ -152,7 +152,7 @@ namespace OpenRA.Mods.HV.Traits
 						targets = targets.OrderByDescending(a => (a.CenterPosition - actors[0].CenterPosition).HorizontalLengthSquared);
 						break;
 					case AttackDistance.Random:
-						targets = targets.Shuffle(world.LocalRandom);
+						targets = targets.Shuffle(world.BotRandom);
 						break;
 				}
 

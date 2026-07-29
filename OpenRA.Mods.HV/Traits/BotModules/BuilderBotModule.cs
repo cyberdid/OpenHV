@@ -42,7 +42,7 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			var randomOutpost = world.Actors.Where(a => a.Owner == player &&
 				(a.TraitOrDefault<BaseProvider>() != null))
-				.RandomOrDefault(world.LocalRandom);
+				.RandomOrDefault(world.BotRandom);
 
 			return randomOutpost?.Location ?? initialBaseCenter;
 		}
@@ -64,7 +64,7 @@ namespace OpenRA.Mods.HV.Traits
 		protected override void TraitEnabled(Actor self)
 		{
 			// Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
-			scanInterval = world.LocalRandom.Next(Info.ScanForNewBuilderInterval, Info.ScanForNewBuilderInterval * 2);
+			scanInterval = world.BotRandom.Next(Info.ScanForNewBuilderInterval, Info.ScanForNewBuilderInterval * 2);
 		}
 
 		void IBotPositionsUpdated.UpdatedBaseCenter(CPos newLocation)
@@ -130,7 +130,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (center != target)
 					cells = cells.OrderBy(c => (c - target).LengthSquared);
 				else
-					cells = cells.Shuffle(world.LocalRandom);
+					cells = cells.Shuffle(world.BotRandom);
 
 				foreach (var cell in cells)
 					if (world.CanPlaceBuilding(cell + offset, actorInfo, bi, null))
