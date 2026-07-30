@@ -66,6 +66,11 @@ VARIANTS = {
         "ECON-002 reachable technology tree candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "dip001-candidate": (
+        "dip001-candidate-112-v1",
+        "DIP-001 strategic interval candidate on the exact baseline-112-v1 "
+        "map, slot, profile, and seed schedule.",
+    ),
 }
 
 
