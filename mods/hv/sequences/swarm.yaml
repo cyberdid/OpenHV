@@ -1831,3 +1831,41 @@ hive-bunker:
 		Tick: 60
 	icon:
 		Filename: hive-bunker.png
+
+hive-miner2:
+	idle:
+		Filename: hive-miner2.png
+	active:
+		Filename: hive-miner2.png
+	depleted:
+		Filename: hive-miner2.png
+	damaged-idle:
+		Filename: hive-miner2.png
+	damaged-active:
+		Filename: hive-miner2.png
+	damaged-depleted:
+		Filename: hive-miner2.png
+	silo:
+		Filename: blank.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	shadow-overlay:
+		Filename: blank.png
+	flame:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	flame2:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	icon:
+		Filename: hive-miner2.png

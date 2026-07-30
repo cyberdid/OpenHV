@@ -692,6 +692,9 @@ MODULE2:
 	-Encyclopedia:
 
 MINER2:
+	RenderSprites:
+		FactionImages:
+			sw: hive-miner2
 	Inherits: ^Building
 	Inherits@Shape: ^2x3Shape
 	Inherits@Flame: ^BuildingFlame2
