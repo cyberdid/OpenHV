@@ -2446,3 +2446,48 @@ hive-jet:
 	icon:
 		Filename: hive-jet.png
 		Length: 1
+
+hive-jet2:
+	idle:
+		Filename: hive-jet2.png
+		Facings: 8
+	icon:
+		Filename: hive-jet2.png
+		Length: 1
+
+hive-dropship:
+	idle:
+		Filename: hive-dropship.png
+		Facings: 8
+	fly:
+		Filename: hive-dropship.png
+		Facings: 8
+	shoot:
+		Filename: hive-dropship.png
+		Facings: 8
+	icon:
+		Filename: hive-dropship.png
+		Length: 1
+
+hive-battleship:
+	idle:
+		Filename: hive-battleship.png
+		Facings: 8
+	turret:
+		Filename: blank.png
+	shadow-overlay:
+		Filename: blank.png
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: hive-battleship.png
+		Length: 1
+
+hive-balloon:
+	idle:
+		Filename: hive-balloon.png
+	shadow-overlay:
+		Filename: blank.png
+	icon:
+		Filename: hive-balloon.png
+		Length: 1

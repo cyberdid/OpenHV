@@ -175,3 +175,21 @@ Actors:
 	Actor42: builder
 		Owner: Multi0
 		Location: 16,12
+	Actor43: gunship
+		Owner: Multi0
+		Location: 1,10
+	Actor44: jet
+		Owner: Multi0
+		Location: 6,11
+	Actor45: jet2
+		Owner: Multi0
+		Location: 8,21
+	Actor46: dropship
+		Owner: Multi0
+		Location: 10,9
+	Actor47: battleship
+		Owner: Multi0
+		Location: 12,2
+	Actor48: balloon
+		Owner: Multi0
+		Location: 14,15

@@ -257,6 +257,9 @@ JET:
 		ZOffset: -1000
 
 JET2:
+	RenderSprites:
+		FactionImages:
+			sw: hive-jet2
 	Inherits: ^Plane
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Inherits@Smoke: ^SmokeEmitter
@@ -710,6 +713,9 @@ CHOPPER.Husk:
 		Image: chopper
 
 BALLOON:
+	RenderSprites:
+		FactionImages:
+			sw: hive-balloon
 	Inherits: ^Helicopter
 	Valued:
 		Cost: 800
@@ -756,6 +762,9 @@ BALLOON:
 		Palette: shadow
 
 DROPSHIP:
+	RenderSprites:
+		FactionImages:
+			sw: hive-dropship
 	Inherits: ^Helicopter
 	Inherits@Smoke: ^SmokeEmitter
 	Valued:
@@ -1243,6 +1252,9 @@ MOTHERSHIP.Husk:
 		Image: mothership
 
 BATTLESHIP:
+	RenderSprites:
+		FactionImages:
+			sw: hive-battleship
 	Inherits: ^Helicopter
 	Inherits@Smoke: ^SmokeEmitter
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
