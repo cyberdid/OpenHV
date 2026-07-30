@@ -149,7 +149,7 @@ test: all
 
 test-simulation:
 	@python3 -m py_compile analyze-baseline.py compare-candidate.py \
-		generate-baseline-manifest.py import-sprite.py \
+		generate-baseline-manifest.py import-sprite.py generate-sprite.py \
 		run-batch.py tests/fake-simulation.py tests/test_baseline_analysis.py \
 		tests/test_batch_runner.py
 	@python3 generate-baseline-manifest.py --check

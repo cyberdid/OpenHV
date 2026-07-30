@@ -1,26 +1,5 @@
 # License: CC-BY-SA-4.0
-
 hive-base:
-	idle:
-		Filename: hive-base.png
-	production-inprogress:
-		Filename: hive-base.png
-		Length: 3
-		Reverses: true
-		Tick: 150
-	build:
-		Filename: hive-base.png
-		Start: 3
-		Length: 3
-		Tick: 50
-	damaged-idle:
-		Filename: hive-base.png
-		Start: 7
-		Length: 1
-	damaged-build:
-		Filename: hive-base.png
-		Start: 7
-		Length: 1
 	make:
 		Filename: build.png
 		Length: 39
@@ -173,7 +152,26 @@ hive-base:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
+	idle:
+		Filename: hive-base.png
+		Length: 11
+		Tick: 80
+	production-inprogress:
+		Filename: hive-base.png
+		Length: 11
+		Tick: 60
+	build:
+		Filename: hive-base.png
+		Length: 11
+		Tick: 50
+	damaged-idle:
+		Filename: hive-base.png
+		Start: 11
+		Length: 1
+	damaged-build:
+		Filename: hive-base.png
+		Start: 11
+		Length: 1
 hive-generator:
 	idle:
 		Filename: hive-generator.png
@@ -347,7 +345,6 @@ hive-generator:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 hive-storage:
 	idle:
 		Filename: hive-storage.png
@@ -521,7 +518,6 @@ hive-storage:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 hive-module:
 	idle:
 		Filename: hive-module.png
@@ -697,7 +693,6 @@ hive-module:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 hive-factory:
 	idle:
 		Filename: hive-factory.png
@@ -875,7 +870,6 @@ hive-factory:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 swarm-harvester-deep:
 	idle:
 		Filename: swarm-harvester-deep.png
@@ -1054,154 +1048,6 @@ swarm-harvester-deep:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
-swarm-warrior:
-	idle:
-		Filename: swarm-warrior.png
-		Facings: 8
-	animation:
-		Filename: swarm-warrior.png
-		Start: 8
-		Facings: 8
-		Tick: 30
-	shoot:
-		Filename: swarm-warrior.png
-		Start: 16
-		Facings: 8
-		Tick: 60
-	muzzle:
-		Filename: blank.png
-	die:
-		Filename: pod-death.png
-		Length: 7
-		Tick: 80
-		Offset: 0,-2
-	icon:
-		Filename: swarm-warrior.png
-		Length: 1
-	idle-platform1:
-		Filename: blank.png
-	idle-platform2:
-		Filename: blank.png
-	idle-platform3:
-		Filename: blank.png
-	idle-platform4:
-		Filename: blank.png
-	make-platform1:
-		Filename: blank.png
-	make-platform2:
-		Filename: blank.png
-	make-platform3:
-		Filename: blank.png
-	make-platform4:
-		Filename: blank.png
-	active-platform1:
-		Filename: blank.png
-	active-platform2:
-		Filename: blank.png
-	active-platform3:
-		Filename: blank.png
-	active-platform4:
-		Filename: blank.png
-	active:
-		Filename: blank.png
-	production:
-		Filename: blank.png
-	turret:
-		Filename: blank.png
-	garrisoned:
-		Filename: blank.png
-	damaged-idle-platform1:
-		Filename: blank.png
-	idle-online:
-		Filename: blank.png
-	idle-offline:
-		Filename: blank.png
-	damaged-idle-online:
-		Filename: blank.png
-	damaged-idle-offline:
-		Filename: blank.png
-	build-online:
-		Filename: blank.png
-	build-offline:
-		Filename: blank.png
-	damaged-build-online:
-		Filename: blank.png
-	damaged-build-offline:
-		Filename: blank.png
-	production-inprogress-online:
-		Filename: blank.png
-	production-inprogress-offline:
-		Filename: blank.png
-	active-online:
-		Filename: blank.png
-	active-offline:
-		Filename: blank.png
-	idle-platform1-online:
-		Filename: blank.png
-	idle-platform1-offline:
-		Filename: blank.png
-	idle-platform2-online:
-		Filename: blank.png
-	idle-platform2-offline:
-		Filename: blank.png
-	idle-platform3-online:
-		Filename: blank.png
-	idle-platform3-offline:
-		Filename: blank.png
-	idle-platform4-online:
-		Filename: blank.png
-	idle-platform4-offline:
-		Filename: blank.png
-	make-platform1-online:
-		Filename: blank.png
-	make-platform1-offline:
-		Filename: blank.png
-	make-platform2-online:
-		Filename: blank.png
-	make-platform2-offline:
-		Filename: blank.png
-	make-platform3-online:
-		Filename: blank.png
-	make-platform3-offline:
-		Filename: blank.png
-	make-platform4-online:
-		Filename: blank.png
-	make-platform4-offline:
-		Filename: blank.png
-	active-platform1-online:
-		Filename: blank.png
-	active-platform1-offline:
-		Filename: blank.png
-	active-platform2-online:
-		Filename: blank.png
-	active-platform2-offline:
-		Filename: blank.png
-	active-platform3-online:
-		Filename: blank.png
-	active-platform3-offline:
-		Filename: blank.png
-	active-platform4-online:
-		Filename: blank.png
-	active-platform4-offline:
-		Filename: blank.png
-	damaged-idle-platform1-online:
-		Filename: blank.png
-	damaged-idle-platform1-offline:
-		Filename: blank.png
-	damaged-idle-platform2-online:
-		Filename: blank.png
-	damaged-idle-platform2-offline:
-		Filename: blank.png
-	damaged-idle-platform3-online:
-		Filename: blank.png
-	damaged-idle-platform3-offline:
-		Filename: blank.png
-	damaged-idle-platform4-online:
-		Filename: blank.png
-	damaged-idle-platform4-offline:
-		Filename: blank.png
-
 swarm-spitter:
 	idle:
 		Filename: swarm-spitter.png
@@ -1348,7 +1194,6 @@ swarm-spitter:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 swarm-runner:
 	idle:
 		Filename: swarm-runner.png
@@ -1495,7 +1340,6 @@ swarm-runner:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 swarm-carrier:
 	idle:
 		Filename: swarm-carrier.png
@@ -1642,7 +1486,6 @@ swarm-carrier:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
-
 swarm-harvester:
 	idle:
 		Filename: swarm-harvester.png
@@ -1789,3 +1632,28 @@ swarm-harvester:
 		Filename: blank.png
 	damaged-idle-platform4-offline:
 		Filename: blank.png
+swarm-warrior:
+	idle:
+		Filename: swarm-warrior.png
+		Facings: 8
+	animation:
+		Filename: swarm-warrior.png
+		Start: 8
+		Facings: 8
+		Tick: 30
+	shoot:
+		Filename: swarm-warrior.png
+		Start: 16
+		Facings: 8
+		Length: 3
+		Tick: 60
+	muzzle:
+		Filename: blank.png
+	die:
+		Filename: pod-death.png
+		Length: 7
+		Tick: 80
+		Offset: 0,-2
+	icon:
+		Filename: swarm-warrior.png
+		Length: 1
