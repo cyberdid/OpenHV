@@ -1681,6 +1681,7 @@ swarm-warrior:
 		Length: 1
 
 hive-radar:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-radar.png
 	shadow-overlay:
@@ -1703,6 +1704,7 @@ hive-radar:
 		Filename: hive-radar.png
 
 hive-trader:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-trader.png
 	shadow-overlay:
@@ -1723,14 +1725,11 @@ hive-trader:
 		Length: 26
 		Tick: 30
 		ZOffset: 2048
-	flame:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
 	icon:
 		Filename: hive-trader.png
 
 hive-starport:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-starport.png
 	production-inprogress:
@@ -1753,14 +1752,11 @@ hive-starport:
 		Length: 26
 		Tick: 30
 		ZOffset: 2048
-	flame:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
 	icon:
 		Filename: hive-starport.png
 
 hive-techcenter:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-techcenter.png
 	shadow-overlay:
@@ -1781,14 +1777,11 @@ hive-techcenter:
 		Length: 26
 		Tick: 30
 		ZOffset: 2048
-	flame:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
 	icon:
 		Filename: hive-techcenter.png
 
 hive-orepurifier:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-orepurifier.png
 	active:
@@ -1809,6 +1802,7 @@ hive-orepurifier:
 		Filename: hive-orepurifier.png
 
 hive-bunker:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-bunker.png
 	shadow-overlay:
@@ -1825,14 +1819,11 @@ hive-bunker:
 		Length: 26
 		Tick: 30
 		ZOffset: 2048
-	flame:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
 	icon:
 		Filename: hive-bunker.png
 
 hive-miner2:
+	Inherits@Flame: ^BuildingFlame3
 	idle:
 		Filename: hive-miner2.png
 	active:
@@ -1859,13 +1850,5 @@ hive-miner2:
 		ZOffset: 2048
 	shadow-overlay:
 		Filename: blank.png
-	flame:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
-	flame2:
-		Filename: flame2.png
-		Length: *
-		Tick: 60
 	icon:
 		Filename: hive-miner2.png
