@@ -478,3 +478,19 @@ Aggressor absorbed the difference — 1.69 more wars, 2,559 more deaths, 11,913
 less score. No profile's score-lead rate moved. Both standing acceptance targets
 are still untouched: 112/112 at the tick ceiling, collapses 18 to 19. See
 [Levelling Trade ECON-001](experiments/2026-07-30-levelling-trade-econ001.md).
+
+## [2026-07-30] experiment | Accept ECON-002 reachable technology
+
+Two of five technologies had never been completed: `logistics` fifteen times in
+448 civilisations and `civil-engineering` not once. The cause was arithmetic —
+the tree costs 400 knowledge and every profile but the Technologist produces
+about 91 in a match, which buys the first node and nothing else. Costs halved.
+`civil-engineering` went 0 to 109, `logistics` 15 to 378, nobody now ends a
+match on one technology and 105 civilisations complete all five. All four
+profiles gained significantly and the Technologist gained most at +2.12 nodes
+and +3,485 score, so research finally differentiates the profiles. Wars fell
+slightly for the three non-research profiles. The Economist lost 3,434 score,
+which is what happens to a profile that banks materials when research starts
+spending them. Score-lead rates unchanged. The tick ceiling has now survived
+five candidates. See
+[Reachable Technology ECON-002](experiments/2026-07-30-reachable-technology-econ002.md).

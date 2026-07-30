@@ -63,6 +63,10 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Reachable Technology ECON-002, 2026-07-30](experiments/2026-07-30-reachable-technology-econ002.md)
+  — the two technologies nobody had ever completed, the arithmetic that
+  made them unreachable, and the halved costs that turned research into a
+  profile difference.
 - [Levelling Trade ECON-001, 2026-07-30](experiments/2026-07-30-levelling-trade-econ001.md)
   — the trade system that had moved zero goods in 672 routes, the reserve
   floor no settlement was ever below, and the accepted levelling rule that

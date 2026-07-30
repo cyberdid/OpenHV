@@ -1,0 +1,16 @@
+key,value
+runId,econ002-candidate-112-v1
+scheduleHash,eb2e212a79fd3856413c50a6f7782e60a52882334eaaa4fd74c4ce341637f189
+startedUtc,2026-07-30T18:03:38.031095Z
+candidateWallSeconds,521.288
+candidateCounts,"{""completed"": 112}"
+baselineRunId,econ001-candidate-112-v1
+baselineCommit,c4f00a43120ee58046201857d54acf4d326d9551
+candidateCommit,8358e953b93a868e651987ddf0e0b147a1f7819a
+baselineWallSeconds,516.821
+pairedObservations,448
+matchCount,112
+baselineCollapsedFactions,19
+candidateCollapsedFactions,21
+baselineEndReasons,"{""world-tick-limit"": 112}"
+candidateEndReasons,"{""world-tick-limit"": 112}"
