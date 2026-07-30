@@ -1,6 +1,9 @@
 # License: CC-BY-SA-4.0
 
 GUNSHIP:
+	RenderSprites:
+		FactionImages:
+			sw: hive-gunship
 	Inherits: ^Plane
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Inherits@MagazineCasing: ^DropShellCasing

@@ -2425,3 +2425,16 @@ hive-televator:
 		ZOffset: 2048
 	icon:
 		Filename: hive-televator.png
+
+hive-gunship:
+	idle:
+		Filename: hive-gunship.png
+		Facings: 8
+	muzzle:
+		Filename: muzzle2.png
+		Length: 3
+		Facings: 8
+		Tick: 50
+	icon:
+		Filename: hive-gunship.png
+		Length: 1
