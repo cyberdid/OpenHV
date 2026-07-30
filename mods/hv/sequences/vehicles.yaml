@@ -60,6 +60,9 @@ bike:
 	idle:
 		Filename: bike.png
 		Facings: 8
+	move:
+		Filename: bike.png
+		Facings: 8
 	shoot:
 		Filename: bike.png
 		Start: 8
@@ -71,6 +74,12 @@ bike:
 
 mbt:
 	idle:
+		Filename: mbt.png
+		Facings: 8
+	move:
+		Filename: mbt.png
+		Facings: 8
+	shoot:
 		Filename: mbt.png
 		Facings: 8
 	turret:
@@ -129,6 +138,9 @@ radartank:
 	idle:
 		Filename: radartank.png
 		Facings: 8
+	move:
+		Filename: radartank.png
+		Facings: 8
 	extend:
 		Filename: radartank.png
 		Start: 8
@@ -168,6 +180,9 @@ minelayer:
 	idle:
 		Filename: minelayer.png
 		Facings: 8
+	move:
+		Filename: minelayer.png
+		Facings: 8
 	deploy:
 		Filename: minelayer.png
 		Start: 8
@@ -179,6 +194,9 @@ minelayer:
 
 stealthtank:
 	idle:
+		Filename: stealthtank.png
+		Facings: 8
+	move:
 		Filename: stealthtank.png
 		Facings: 8
 	shoot:
@@ -193,6 +211,12 @@ ecmtank:
 	idle:
 		Filename: ecmtank.png
 		Facings: 8
+	move:
+		Filename: ecmtank.png
+		Facings: 8
+	shoot:
+		Filename: ecmtank.png
+		Facings: 8
 	icon:
 		Filename: ecmtank-icon.png
 
@@ -205,6 +229,9 @@ tank9:
 
 lightningtank:
 	idle:
+		Filename: lightningtank.png
+		Facings: 8
+	move:
 		Filename: lightningtank.png
 		Facings: 8
 	shoot:
@@ -343,6 +370,12 @@ repairtank:
 	idle:
 		Filename: repairtank.png
 		Facings: 8
+	move:
+		Filename: repairtank.png
+		Facings: 8
+	shoot:
+		Filename: repairtank.png
+		Facings: 8
 	icon:
 		Filename: repairtank-icon.png
 
@@ -350,11 +383,20 @@ apc:
 	idle:
 		Filename: apc.png
 		Facings: 8
+	move:
+		Filename: apc.png
+		Facings: 8
 	icon:
 		Filename: apc-icon.png
 
 artillery:
 	idle:
+		Filename: artillery.png
+		Facings: 8
+	move:
+		Filename: artillery.png
+		Facings: 8
+	shoot:
 		Filename: artillery.png
 		Facings: 8
 	muzzle:
@@ -424,6 +466,14 @@ dualartillery:
 
 mbt2:
 	idle:
+		Filename: mbt2.png
+		Start: 0
+		Facings: 8
+	move:
+		Filename: mbt2.png
+		Start: 0
+		Facings: 8
+	shoot:
 		Filename: mbt2.png
 		Start: 0
 		Facings: 8
@@ -582,6 +632,9 @@ aatank:
 
 aatank2:
 	idle:
+		Filename: aatank2.png
+		Facings: 8
+	move:
 		Filename: aatank2.png
 		Facings: 8
 	turret:

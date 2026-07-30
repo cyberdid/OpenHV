@@ -267,6 +267,63 @@ SPECIES = {
         flesh=(206, 158, 92),
         bone=(224, 208, 170),
     ),
+    # The heavy brood. A Tyranid army has no tanks in it; it has larger animals,
+    # so the vehicle roster is the same rig with the dials pushed further.
+    "bruiser": Species(          # MBT
+        girth=1.70, stretch=1.35, stance=1.30, shank=1.05, limb=1.55,
+        blade=1.55, thorns=1.45, tail=1.10, skull=1.25, ride=1.10,
+        chitin=(112, 96, 132),
+    ),
+    "spire": Species(            # anti-air
+        girth=1.15, stretch=0.95, stance=1.05, shank=0.95, limb=1.10,
+        blade=0.35, thorns=2.60, tail=0.70, skull=0.85, ride=1.20,
+        chitin=(126, 118, 158), bone=(236, 226, 200),
+    ),
+    "hauler": Species(           # transport
+        girth=1.85, stretch=1.20, stance=1.15, shank=0.80, limb=1.40,
+        blade=0.25, thorns=0.60, tail=0.45, skull=0.80, ride=0.95,
+        chitin=(138, 124, 150), flesh=(198, 140, 128),
+    ),
+    "lobber": Species(           # artillery
+        girth=1.55, stretch=1.10, stance=1.10, shank=0.85, limb=1.30,
+        blade=0.30, thorns=1.20, tail=1.65, skull=0.75, ride=1.00,
+        chitin=(134, 110, 140), flesh=(200, 150, 96),
+    ),
+    "watcher": Species(          # radar
+        girth=0.95, stretch=0.95, stance=1.10, shank=1.25, limb=0.85,
+        blade=0.40, thorns=2.10, tail=0.95, skull=1.45, ride=1.45,
+        chitin=(120, 130, 164),
+    ),
+    "mender": Species(           # repair
+        girth=1.25, stretch=0.85, stance=0.95, shank=0.75, limb=1.15,
+        blade=0.35, thorns=0.40, tail=0.60, skull=0.85, ride=0.85,
+        chitin=(140, 126, 140), flesh=(210, 146, 148),
+    ),
+    "seeder": Species(           # minelayer
+        girth=1.45, stretch=1.30, stance=1.25, shank=0.70, limb=1.20,
+        blade=0.20, thorns=0.55, tail=1.45, skull=0.70, ride=0.75,
+        chitin=(128, 118, 128), flesh=(196, 158, 110),
+    ),
+    "arcer": Species(            # lightning
+        girth=1.05, stretch=1.00, stance=1.15, shank=1.30, limb=0.90,
+        blade=0.60, thorns=2.30, tail=1.20, skull=0.90, ride=1.40,
+        chitin=(110, 118, 170),
+    ),
+    "lurker": Species(           # stealth
+        girth=1.15, stretch=1.50, stance=1.35, shank=0.65, limb=0.95,
+        blade=1.20, thorns=0.30, tail=1.60, skull=0.85, ride=0.62,
+        chitin=(104, 104, 122), bone=(200, 196, 178),
+    ),
+    "jammer": Species(           # ecm
+        girth=1.00, stretch=0.90, stance=1.05, shank=1.10, limb=0.90,
+        blade=0.30, thorns=1.90, tail=1.35, skull=1.10, ride=1.25,
+        chitin=(132, 122, 168), flesh=(188, 148, 168),
+    ),
+    "dart": Species(             # bike
+        girth=0.80, stretch=1.25, stance=1.30, shank=1.20, limb=0.75,
+        blade=1.00, thorns=0.70, tail=1.30, skull=0.80, ride=0.90,
+        chitin=(124, 116, 148),
+    ),
     # Shocker role. A swollen acid sac on short legs, blades all but gone.
     "spitter": Species(
         girth=1.30,

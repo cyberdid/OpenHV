@@ -1977,3 +1977,291 @@ swarm-bloat:
 		Filename: swarm-bloat.png
 		Start: 16
 		Length: 1
+
+swarm-bruiser:
+	turret:
+		Filename: blank.png
+	idle:
+		Filename: swarm-bruiser.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-bruiser.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-bruiser.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-bruiser.png
+		Start: 16
+		Length: 1
+
+swarm-spire:
+	turret:
+		Filename: blank.png
+	idle:
+		Filename: swarm-spire.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-spire.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-spire.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-spire.png
+		Start: 16
+		Length: 1
+
+swarm-hauler:
+	idle:
+		Filename: swarm-hauler.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-hauler.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-hauler.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-hauler.png
+		Start: 16
+		Length: 1
+
+swarm-lobber:
+	idle:
+		Filename: swarm-lobber.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-lobber.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-lobber.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-lobber.png
+		Start: 16
+		Length: 1
+
+swarm-watcher:
+	extend:
+		Filename: swarm-watcher.png
+		Facings: 8
+	extended:
+		Filename: swarm-watcher.png
+		Facings: 8
+	idle:
+		Filename: swarm-watcher.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-watcher.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-watcher.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-watcher.png
+		Start: 16
+		Length: 1
+
+swarm-mender:
+	idle:
+		Filename: swarm-mender.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-mender.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-mender.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-mender.png
+		Start: 16
+		Length: 1
+
+swarm-seeder:
+	deploy:
+		Filename: swarm-seeder.png
+		Facings: 8
+	idle:
+		Filename: swarm-seeder.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-seeder.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-seeder.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-seeder.png
+		Start: 16
+		Length: 1
+
+swarm-arcer:
+	idle:
+		Filename: swarm-arcer.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-arcer.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-arcer.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-arcer.png
+		Start: 16
+		Length: 1
+
+swarm-lurker:
+	idle:
+		Filename: swarm-lurker.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-lurker.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-lurker.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-lurker.png
+		Start: 16
+		Length: 1
+
+swarm-jammer:
+	idle:
+		Filename: swarm-jammer.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-jammer.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-jammer.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-jammer.png
+		Start: 16
+		Length: 1
+
+swarm-dart:
+	idle:
+		Filename: swarm-dart.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-dart.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-dart.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	icon:
+		Filename: swarm-dart.png
+		Start: 16
+		Length: 1

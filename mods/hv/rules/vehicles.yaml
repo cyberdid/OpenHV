@@ -1,6 +1,12 @@
 # License: CC-BY-SA-4.0
 
 MBT:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-bruiser
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Valued:
@@ -111,6 +117,12 @@ AATANK:
 	WithSpriteTurret:
 
 AATANK2:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-spire
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Inherits: AATANK
 	Buildable:
 		Prerequisites: ~factory.yi
@@ -131,6 +143,10 @@ AATANK2:
 		Offset: 0,0,150
 
 APC:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-hauler
+	WithMoveAnimation:
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Valued:
@@ -194,6 +210,12 @@ APC:
 		EmptyWeapon: UnitExplodeLarge
 
 ARTILLERY:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-lobber
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Valued:
@@ -245,6 +267,10 @@ ARTILLERY:
 		EmptyWeapon: UnitExplodeMedium
 
 RADARTANK:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-watcher
+	WithMoveAnimation:
 	Inherits: ^TrackedVehicle
 	Inherits@Selection: ^SelectableCombatUnit
 	-AppearsOnRadar:
@@ -319,6 +345,12 @@ RADARTANK:
 		VoiceSet: RadarTankVoice
 
 REPAIRTANK:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-mender
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Valued:
@@ -369,6 +401,10 @@ REPAIRTANK:
 		ValidTargets: DamagedVehicle
 
 MINELAYER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-seeder
+	WithMoveAnimation:
 	Inherits: ^TrackedVehicle
 	Inherits@Selection: ^SelectableSupportUnit
 	Buildable:
@@ -471,6 +507,10 @@ RAILGUNTANK:
 		Range: 4c0
 
 LIGHTNINGTANK:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-arcer
+	WithMoveAnimation:
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
@@ -516,6 +556,10 @@ LIGHTNINGTANK:
 		Sequence: shoot
 
 STEALTHTANK:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-lurker
+	WithMoveAnimation:
 	Inherits: ^TrackedVehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
@@ -643,6 +687,12 @@ DUALMERCTANK:
 		Speed: 80
 
 ECMTANK:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-jammer
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Inherits: ^TrackedVehicle
 	Valued:
 		Cost: 2000
@@ -1053,6 +1103,10 @@ BUGGY:
 		Range: 3c0
 
 BIKE:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-dart
+	WithMoveAnimation:
 	Inherits: ^Vehicle
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Valued:
