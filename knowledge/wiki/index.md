@@ -63,6 +63,10 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Levelling Trade ECON-001, 2026-07-30](experiments/2026-07-30-levelling-trade-econ001.md)
+  — the trade system that had moved zero goods in 672 routes, the reserve
+  floor no settlement was ever below, and the accepted levelling rule that
+  made war expensive for the one profile that will not trade.
 - [Regroup Locality AI-005, 2026-07-30](experiments/2026-07-30-regroup-locality-ai005.md)
   — nearest-building fallback for retreating squads, the schema break that
   had left the matrix unusable, and a null result explained by how rarely

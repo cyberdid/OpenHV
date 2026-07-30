@@ -463,3 +463,18 @@ result schema was a precondition: `config.factions` had been emitted since
 faction selection landed and was never declared, so every batch since would
 have scored 112/112 invalid-result. See
 [Regroup Locality AI-005](experiments/2026-07-30-regroup-locality-ai005.md).
+
+## [2026-07-30] experiment | Accept ECON-001 levelling trade
+
+Trade had moved nothing, ever: 672 routes across the 112-match baseline carried
+zero goods. Shipments were capped by how far a partner sat below an absolute
+reserve floor, and no settlement in 448 civilisations was ever below it — the
+poorest recorded holdings were 600 food against a floor of 200. Trade now moves
+half the gap between two holdings instead, and the same 672 routes carried
+161,936. Forty of eighty paired differences cleared 95%, all telling one story:
+Economist, Technologist and Fortress each gained army and stability while
+shedding four to eight thousand in deaths and up to 1.5 active wars, and
+Aggressor absorbed the difference — 1.69 more wars, 2,559 more deaths, 11,913
+less score. No profile's score-lead rate moved. Both standing acceptance targets
+are still untouched: 112/112 at the tick ceiling, collapses 18 to 19. See
+[Levelling Trade ECON-001](experiments/2026-07-30-levelling-trade-econ001.md).
