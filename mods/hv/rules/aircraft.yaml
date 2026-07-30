@@ -194,6 +194,9 @@ GUNSHIP3:
 		Count: 1
 
 JET:
+	RenderSprites:
+		FactionImages:
+			sw: hive-jet
 	Inherits: ^Plane
 	Inherits@AutoTarget: ^AutoTargetAirAssaultMove
 	Inherits@Smoke: ^SmokeEmitter

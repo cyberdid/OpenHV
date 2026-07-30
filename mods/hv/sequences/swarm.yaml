@@ -2438,3 +2438,11 @@ hive-gunship:
 	icon:
 		Filename: hive-gunship.png
 		Length: 1
+
+hive-jet:
+	idle:
+		Filename: hive-jet.png
+		Facings: 8
+	icon:
+		Filename: hive-jet.png
+		Length: 1
