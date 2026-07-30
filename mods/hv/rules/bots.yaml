@@ -60,17 +60,12 @@ Player:
 		WaterTerrainTypes: Littoral
 		ConstructionYardTypes: base, base2, swarmbase
 		PowerTypes: generator, swarmgen
-		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmbase, swarmpod, swarmforge
+		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmpod, swarmforge, swarmstarport, swarmharbor, swarmbase
 		NavalProductionTypes: harbor, harbor2
 		RefineryTypes: storage, swarmstore
 		DefenseTypes: turret, turret2, aaturret, aaturret2, bunker, bunker2
 		BuildingLimits:
 			base: 1
-			swarmbase: 1
-			swarmgen: 4
-			swarmstore: 3
-			swarmpod: 4
-			swarmforge: 4
 			storage: 3
 			module: 4
 			module2: 4
@@ -90,13 +85,19 @@ Player:
 			howitzer: 1
 			uplink: 1
 			silo: 1
-		BuildingFractions:
-			base: 1
 			swarmbase: 1
-			swarmgen: 4
 			swarmstore: 3
 			swarmpod: 4
 			swarmforge: 4
+			swarmradar: 1
+			swarmstarport: 4
+			swarmtrader: 1
+			swarmtech: 1
+			swarmharbor: 1
+			swarmfield: 1
+			swarmuplink: 1
+		BuildingFractions:
+			base: 1
 			storage: 1
 			module: 1
 			module2: 1
@@ -122,6 +123,20 @@ Player:
 			uplink: 1
 			field: 1
 			silo: 1
+			swarmbase: 1
+			swarmstore: 1
+			swarmpod: 1
+			swarmradar: 1
+			swarmforge: 1
+			swarmharbor: 1
+			swarmtrader: 1
+			swarmstarport: 1
+			swarmtech: 1
+			swarmbunker: 12
+			swarmturret: 12
+			swarmaaturret: 12
+			swarmuplink: 1
+			swarmfield: 1
 		BuildingDelays:
 			bunker: 150
 			bunker2: 150
@@ -148,16 +163,11 @@ Player:
 		WaterTerrainTypes: Littoral
 		ConstructionYardTypes: base, base2, swarmbase
 		PowerTypes: generator, swarmgen
-		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmbase, swarmpod, swarmforge
+		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmpod, swarmforge, swarmstarport, swarmharbor, swarmbase
 		NavalProductionTypes: harbor, harbor2
 		RefineryTypes: storage, swarmstore
 		BuildingLimits:
 			base: 1
-			swarmbase: 1
-			swarmgen: 4
-			swarmstore: 3
-			swarmpod: 4
-			swarmforge: 4
 			storage: 3
 			module: 4
 			module2: 4
@@ -173,13 +183,17 @@ Player:
 			techcenter: 1
 			harbor: 1
 			harbor2: 1
-		BuildingFractions:
-			base: 1
 			swarmbase: 1
-			swarmgen: 4
 			swarmstore: 3
 			swarmpod: 4
-			swarmforge: 4
+			swarmforge: 2
+			swarmradar: 1
+			swarmstarport: 1
+			swarmtrader: 1
+			swarmtech: 1
+			swarmharbor: 1
+		BuildingFractions:
+			base: 1
 			storage: 1
 			module: 1
 			module2: 1
@@ -195,6 +209,15 @@ Player:
 			techcenter: 1
 			oresmelt: 20
 			orepurifier: 20
+			swarmbase: 1
+			swarmstore: 1
+			swarmpod: 1
+			swarmradar: 1
+			swarmforge: 1
+			swarmharbor: 1
+			swarmtrader: 1
+			swarmstarport: 1
+			swarmtech: 1
 		BuildingDelays:
 			radar: 10000
 			radar2: 10000
@@ -219,7 +242,7 @@ Player:
 		RetreatHealthPercentage: 55
 		RetreatRelativeValuePercentage: 130
 		RegroupTicks: 150
-		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster, swarmharvester, swarmcarrier, swarmseeder, swarmtender, swarmbroker, swarmblaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
 		ConstructionYardTypes: base, base2, swarmbase
@@ -243,7 +266,7 @@ Player:
 		RetreatHealthPercentage: 70
 		RetreatRelativeValuePercentage: 150
 		RegroupTicks: 500
-		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster, swarmharvester, swarmcarrier, swarmseeder, swarmtender, swarmbroker, swarmblaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
 		ConstructionYardTypes: base, base2, swarmbase
@@ -267,7 +290,7 @@ Player:
 		RetreatHealthPercentage: 75
 		RetreatRelativeValuePercentage: 160
 		RegroupTicks: 600
-		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster, swarmharvester, swarmcarrier, swarmseeder, swarmtender, swarmbroker, swarmblaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
 		ConstructionYardTypes: base, base2, swarmbase
@@ -293,7 +316,7 @@ Player:
 		RetreatHealthPercentage: 65
 		RetreatRelativeValuePercentage: 140
 		RegroupTicks: 750
-		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster, swarmharvester, swarmcarrier, swarmseeder, swarmtender, swarmbroker, swarmblaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
 		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
 		ConstructionYardTypes: base, base2, swarmbase
@@ -354,15 +377,27 @@ Player:
 			mothership: 1
 			swarmharvester: 3
 			swarmcarrier: 1
-			swarmwarrior: 10
-			swarmspitter: 8
-			swarmrunner: 4
-			swarmbruiser: 8
-			swarmmortar: 3
-			swarmlance: 3
+			swarmeye: 1
+			swarmskitter: 12
+			swarmbruiser: 10
+			swarmshocktank: 2
+			swarmseeder: 1
 			swarmburrower: 3
-			swarmdrifter: 3
+			swarmlance: 3
+			swarmjammer: 1
+			swarmmender: 1
+			swarmporter: 1
+			swarmmortar: 2
+			swarmwarrior: 10
+			swarmflyer: 6
+			swarmrunner: 1
+			swarmspitter: 3
+			swarmtender: 2
+			swarmblaster: 1
 			swarminterceptor: 3
+			swarmdrifter: 3
+			swarmspore: 1
+			swarmleviathan: 1
 		UnitLimits:
 			miner: 2
 			builder: 1
@@ -423,17 +458,20 @@ Player:
 			carrier: 1
 			mineship: 1
 			mineship2: 1
-			swarmharvester: 3
-			swarmcarrier: 1
-			swarmwarrior: 10
-			swarmspitter: 8
-			swarmrunner: 4
-			swarmbruiser: 8
-			swarmmortar: 3
+			swarmharvester: 12
+			swarmcarrier: 4
+			swarmeye: 4
+			swarmskitter: 3
+			swarmbruiser: 4
 			swarmlance: 3
-			swarmburrower: 3
-			swarmdrifter: 3
-			swarminterceptor: 3
+			swarmmender: 4
+			swarmporter: 2
+			swarmmortar: 3
+			swarmwarrior: 3
+			swarmtender: 4
+			swarminterceptor: 2
+			swarmdrifter: 2
+			swarmspore: 2
 		UnitLimits:
 			miner: 4
 			builder: 2
@@ -487,17 +525,24 @@ Player:
 			carrier: 4
 			battleship: 4
 			mothership: 2
-			swarmharvester: 3
+			swarmharvester: 4
 			swarmcarrier: 1
-			swarmwarrior: 10
-			swarmspitter: 8
-			swarmrunner: 4
-			swarmbruiser: 8
-			swarmmortar: 3
-			swarmlance: 3
-			swarmburrower: 3
-			swarmdrifter: 3
-			swarminterceptor: 3
+			swarmeye: 4
+			swarmbruiser: 3
+			swarmshocktank: 12
+			swarmburrower: 8
+			swarmlance: 5
+			swarmjammer: 5
+			swarmmender: 3
+			swarmmortar: 8
+			swarmflyer: 4
+			swarmrunner: 3
+			swarmspitter: 5
+			swarmtender: 3
+			swarminterceptor: 8
+			swarmdrifter: 8
+			swarmspore: 2
+			swarmleviathan: 4
 		UnitLimits:
 			miner: 2
 			builder: 1
@@ -555,17 +600,22 @@ Player:
 			mineship: 4
 			mineship2: 4
 			battleship: 5
-			swarmharvester: 3
-			swarmcarrier: 1
-			swarmwarrior: 10
-			swarmspitter: 8
-			swarmrunner: 4
-			swarmbruiser: 8
-			swarmmortar: 3
-			swarmlance: 3
-			swarmburrower: 3
-			swarmdrifter: 3
+			swarmharvester: 5
+			swarmcarrier: 2
+			swarmeye: 3
+			swarmbruiser: 5
+			swarmshocktank: 4
+			swarmseeder: 6
+			swarmlance: 10
+			swarmmender: 8
+			swarmmortar: 12
+			swarmwarrior: 4
+			swarmrunner: 5
+			swarmtender: 3
 			swarminterceptor: 3
+			swarmdrifter: 3
+			swarmspore: 2
+			swarmleviathan: 5
 		UnitLimits:
 			miner: 3
 			swarmharvester: 3
@@ -600,7 +650,7 @@ Player:
 		RequiresCondition: enable-universe-ai
 		DeployableActorTypes: miner, swarmharvester
 		DeployableTerrainTypes: Ore
-		DeployedActorTypes: miner2, swarmharvester2
+		DeployedActorTypes: miner2, swarmminer2
 		VehiclesQueue: Utility
 	MinelayerBotModule:
 		RequiresCondition: enable-universe-ai
@@ -618,7 +668,7 @@ Player:
 		PassengerTypes: mortar, flamer, shocker, rifleman, rocketeer
 	DeployActorBotModule:
 		RequiresCondition: enable-universe-ai
-		DeployableActorTypes: radartank
+		DeployableActorTypes: radartank, swarmeye
 	PowerDownBotModule:
 		RequiresCondition: enable-universe-ai
 	ScoutBotModule:

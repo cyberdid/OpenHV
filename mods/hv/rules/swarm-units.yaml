@@ -1,273 +1,261 @@
 # License: CC-BY-SA-4.0
 
 SWARMWARRIOR:
-	Inherits: ^Pod
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: RIFLEMAN
+	RenderSprites:
+		Image: swarm-warrior
 	Buildable:
-		Queue: Pod
-		BuildPaletteOrder: 10
 		Prerequisites: ~swarmpod
-		Description: actor-swarmwarrior.description
-	Valued:
-		Cost: 200
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmwarrior.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 15000
-	HitShape:
-	Mobile:
-		Speed: 90
-	Armament@Primary:
-		Weapon: Flamethrower
-	AttackFrontal:
-		FacingTolerance: 0
 
 SWARMSPITTER:
-	Inherits: ^Pod
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: SHOCKER
+	RenderSprites:
+		Image: swarm-spitter
 	Buildable:
-		Queue: Pod
-		BuildPaletteOrder: 20
-		Prerequisites: ~swarmpod
-		Description: actor-swarmspitter.description
-	Valued:
-		Cost: 350
+		Prerequisites: ~module.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmspitter.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 12000
-	HitShape:
-	Mobile:
-		Speed: 75
-	Armament@Primary:
-		Weapon: PlasmaMachineGun
-	AttackFrontal:
-		FacingTolerance: 0
 
 SWARMRUNNER:
-	Inherits: ^Pod
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: SNIPER
+	RenderSprites:
+		Image: swarm-runner
 	Buildable:
-		Queue: Pod
-		BuildPaletteOrder: 30
-		Prerequisites: ~swarmpod
-		Description: actor-swarmrunner.description
-	Valued:
-		Cost: 150
+		Prerequisites: ~module.sw, swarmradar
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmrunner.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 9000
-	HitShape:
-	Mobile:
-		Speed: 140
-	Armament@Primary:
-		Weapon: LightMachineGun
-	AttackFrontal:
-		FacingTolerance: 0
-	RevealsShroud:
-		Range: 8c0
-		RevealGeneratedShroud: False
+
+SWARMTENDER:
+	Inherits: TECHNICIAN
+	RenderSprites:
+		Image: technician
+	Buildable:
+		Prerequisites: ~swarmpod
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmtender.name
+
+SWARMBROKER:
+	Inherits: BROKER
+	RenderSprites:
+		Image: broker
+	Buildable:
+		Prerequisites: swarmtrader
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmbroker.name
+
+SWARMFLYER:
+	Inherits: JETPACKER
+	RenderSprites:
+		Image: jetpacker
+	Buildable:
+		Prerequisites: ~swarmpod, swarmtech
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmflyer.name
+
+SWARMBLASTER:
+	Inherits: BLASTER
+	RenderSprites:
+		Image: blaster
+	Buildable:
+		Prerequisites: ~module.sw, swarmradar
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmblaster.name
 
 SWARMBRUISER:
-	Inherits: ^Vehicle
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: MBT
+	RenderSprites:
+		Image: mbt
 	Buildable:
-		Queue: Tank
-		BuildPaletteOrder: 10
-		Prerequisites: ~swarmforge
-		Description: actor-swarmbruiser.description
-	Valued:
-		Cost: 1200
+		Prerequisites: ~factory.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmbruiser.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 45000
-	HitShape:
-	Mobile:
-		Speed: 60
-	Armament@Primary:
-		Weapon: TankCannon
-	AttackFrontal:
-		FacingTolerance: 0
+
+SWARMSKITTER:
+	Inherits: BIKE
+	RenderSprites:
+		Image: bike
+	Buildable:
+		Prerequisites: swarmpod, ~factory.sw
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmskitter.name
+
+SWARMPORTER:
+	Inherits: APC
+	RenderSprites:
+		Image: apc
+	Buildable:
+		Prerequisites: swarmforge, swarmpod
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmporter.name
 
 SWARMMORTAR:
-	Inherits: ^Vehicle
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: ARTILLERY
+	RenderSprites:
+		Image: artillery
 	Buildable:
-		Queue: Tank
-		BuildPaletteOrder: 20
-		Prerequisites: ~swarmforge
-		Description: actor-swarmmortar.description
-	Valued:
-		Cost: 900
+		Prerequisites: swarmforge, swarmradar
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmmortar.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 18000
-	HitShape:
-	Mobile:
-		Speed: 50
-	Armament@Primary:
-		Weapon: MortarGun
-	AttackFrontal:
-		FacingTolerance: 0
 
 SWARMLANCE:
-	Inherits: ^Vehicle
-	Inherits@AutoTarget: ^AutoTargetAirAssaultMove
+	Inherits: AATANK2
+	RenderSprites:
+		Image: aatank2
 	Buildable:
-		Queue: Tank
-		BuildPaletteOrder: 30
-		Prerequisites: ~swarmforge
-		Description: actor-swarmlance.description
-	Valued:
-		Cost: 700
+		Prerequisites: ~factory.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmlance.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 20000
-	HitShape:
-	Mobile:
-		Speed: 70
-	Armament@Primary:
-		Weapon: AntiAirRocket
-	AttackFrontal:
-		FacingTolerance: 0
 
 SWARMBURROWER:
-	Inherits: ^Vehicle
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: STEALTHTANK
+	RenderSprites:
+		Image: stealthtank
 	Buildable:
-		Queue: Tank
-		BuildPaletteOrder: 40
-		Prerequisites: ~swarmforge
-		Description: actor-swarmburrower.description
-	Valued:
-		Cost: 800
+		Prerequisites: ~factory.sw, swarmtech
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmburrower.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 16000
-	HitShape:
-	Mobile:
-		Speed: 80
-	Armament@Primary:
-		Weapon: HeavyMachineGun
-	AttackFrontal:
-		FacingTolerance: 0
 
-SWARMHARVESTER:
-	Inherits: ^Vehicle
+SWARMSHOCKTANK:
+	Inherits: LIGHTNINGTANK
+	RenderSprites:
+		Image: lightningtank
 	Buildable:
-		Queue: Utility
-		BuildPaletteOrder: 10
-		Prerequisites: ~swarmstore
-		Description: actor-swarmharvester.description
-	Valued:
-		Cost: 1100
+		Prerequisites: ~factory.sw, swarmtech
+	-Encyclopedia:
 	Tooltip:
-		Name: actor-swarmharvester.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 15000
-	HitShape:
-	Mobile:
-		Speed: 60
-	GrantConditionOnTerrain:
-		Condition: deposits
-		TerrainTypes: Ore
-	Miner:
-		TerrainTypes: Ore
-		Colors:
-			iron: 878787
-			gold: F07000
-	Transforms:
-		PauseOnCondition: !deposits
-		IntoActor: swarmharvester2
-		Facing: 750
-		Offset: 0,-2
-	Selectable:
-		Class: swarmharvester
+		Name: actor-swarmshocktank.name
+
+SWARMJAMMER:
+	Inherits: ECMTANK
+	RenderSprites:
+		Image: ecmtank
+	Buildable:
+		Prerequisites: ~factory.sw, swarmradar, swarmtrader
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmjammer.name
+
+SWARMEYE:
+	Inherits: RADARTANK
+	RenderSprites:
+		Image: radartank
+	Buildable:
+		Prerequisites: swarmradar
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmeye.name
+
+SWARMMENDER:
+	Inherits: REPAIRTANK
+	RenderSprites:
+		Image: repairtank
+	Buildable:
+		Prerequisites: swarmtrader
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmmender.name
+
+SWARMSEEDER:
+	Inherits: MINELAYER
+	RenderSprites:
+		Image: minelayer
+	Buildable:
+		Prerequisites: swarmtrader
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmseeder.name
 
 SWARMCARRIER:
-	Inherits: ^Vehicle
+	Inherits: BUILDER
+	RenderSprites:
+		Image: swarm-carrier
 	Buildable:
-		Queue: Utility
-		BuildPaletteOrder: 20
-		Prerequisites: ~swarmbase
-		Description: actor-swarmcarrier.description
-	Valued:
-		Cost: 2500
+		Prerequisites: ~structures.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmcarrier.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 20000
-	HitShape:
-	Mobile:
-		Speed: 60
-	Transforms:
-		IntoActor: swarmbase
-		Offset: 0,1
-		Facing: 384
-	Selectable:
-		Class: swarmcarrier
+
+SWARMHARVESTER:
+	Inherits: MINER
+	RenderSprites:
+		Image: swarm-harvester
+	Buildable:
+		Prerequisites: swarmstore
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmharvester.name
+
+SWARMCVIT:
+	Inherits: CVIT
+	RenderSprites:
+		Image: cvit
+	Buildable:
+		Prerequisites: swarmstore
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmcvit.name
 
 SWARMDRIFTER:
-	Inherits: ^Helicopter
-	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
+	Inherits: GUNSHIP
+	RenderSprites:
+		Image: gunship
 	Buildable:
-		Queue: Aircraft
-		BuildPaletteOrder: 10
-		Prerequisites: ~swarmforge
-		Description: actor-swarmdrifter.description
-	Valued:
-		Cost: 1200
+		Prerequisites: ~starport.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarmdrifter.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 14000
-	HitShape:
-	Armament@Primary:
-		Weapon: Bomb
-	AttackAircraft:
 
 SWARMINTERCEPTOR:
-	Inherits: ^Helicopter
-	Inherits@AutoTarget: ^AutoTargetAirAssaultMove
+	Inherits: JET
+	RenderSprites:
+		Image: jet
 	Buildable:
-		Queue: Aircraft
-		BuildPaletteOrder: 20
-		Prerequisites: ~swarmforge
-		Description: actor-swarminterceptor.description
-	Valued:
-		Cost: 900
+		Prerequisites: swarmtech, ~starport.sw
+	-Encyclopedia:
 	Tooltip:
 		Name: actor-swarminterceptor.name
-	UpdatesPlayerStatistics:
-		AddToArmyValue: true
-	Health:
-		HP: 10000
-	HitShape:
-	Armament@Primary:
-		Weapon: AircraftChainGunAir
-	AttackAircraft:
+
+SWARMSPORE:
+	Inherits: BALLOON
+	RenderSprites:
+		Image: balloon
+	Buildable:
+		Prerequisites: ~starport.sw
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmspore.name
+
+SWARMFERRY:
+	Inherits: DROPSHIP
+	RenderSprites:
+		Image: dropship
+	Buildable:
+		Prerequisites: ~starport.sw
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmferry.name
+
+SWARMLEVIATHAN:
+	Inherits: BATTLESHIP
+	RenderSprites:
+		Image: battleship
+	Buildable:
+		Prerequisites: swarmradar, swarmtrader, swarmtech, ~starport.sw
+	-Encyclopedia:
+	Tooltip:
+		Name: actor-swarmleviathan.name
