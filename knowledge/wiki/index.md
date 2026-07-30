@@ -63,6 +63,10 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Regroup Locality AI-005, 2026-07-30](experiments/2026-07-30-regroup-locality-ai005.md)
+  — nearest-building fallback for retreating squads, the schema break that
+  had left the matrix unusable, and a null result explained by how rarely
+  squads regroup at all.
 - [Combat Planner AI-004, 2026-07-30](experiments/2026-07-30-combat-planner-ai004.md)
   — squad target scoring, force preservation, the defending-squad retreat path,
   and the rejected candidate whose preserved squads produced more wars.

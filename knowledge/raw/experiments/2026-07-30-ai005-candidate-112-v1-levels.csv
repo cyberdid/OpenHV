@@ -1,0 +1,9 @@
+run,profile,n,regroupsMean,reengagementsMean,retreatsMean,idleBaseUnitsMean,committedUnitsMean
+ai005-candidate-112-v1,aggressor,112,3.902,3.018,1.696,3.027,12.741
+ai005-candidate-112-v1,economist,112,0.598,0.42,0.33,5.634,28.036
+ai005-candidate-112-v1,fortress,112,0.188,0.08,0.116,10.241,25.768
+ai005-candidate-112-v1,technologist,112,1.973,1.062,1.92,2,10.804
+baseline-112-v2,aggressor,112,4.054,3.125,1.643,3.884,12.214
+baseline-112-v2,economist,112,0.536,0.402,0.259,6.83,27.098
+baseline-112-v2,fortress,112,0.188,0.089,0.143,8.946,29.027
+baseline-112-v2,technologist,112,1.795,1.116,1.759,2.205,11.125

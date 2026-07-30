@@ -1,0 +1,21 @@
+key,value
+runId,ai005-candidate-112-v1
+baselineStartedUtc,2026-07-30T12:55:08.737308Z
+scheduleHash,78e6626980bc50be666fad1f720c44a98e0a4b5fbaeee9866d3d32332849ef31
+startedUtc,2026-07-30T13:08:15.898151Z
+matchCount,112
+baselineRunId,baseline-112-v2
+baselineCommit,60c54a75c2793c3d52379c009aa6addc95406607
+candidateRunId,ai005-candidate-112-v1
+candidateCommit,8a058f787ff10dcd346891c02d2028f2d8fdceff
+pairedObservations,448
+matchCount,112
+baselineCollapsedFactions,18
+candidateCollapsedFactions,21
+baselineEndReasons,"{""world-tick-limit"": 112}"
+candidateEndReasons,"{""world-tick-limit"": 112}"
+candidateWallSeconds,524.626
+baselineWallSeconds,523.785
+candidateCounts,"{""completed"": 112}"
+baselineCounts,"{""completed"": 112}"
+baselineScheduleHash,863076f35f11a7919ad694e082cd95dcaaa021b7a6c1d6c1d42ea55119916dfc

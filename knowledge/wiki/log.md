@@ -445,3 +445,21 @@ more casualties, and both gained 0.7 active wars — the change reached the war
 decision instead of staying tactical. Recorded as a falsified hypothesis; v2
 must hold the war decision fixed while retreat changes. See
 [Combat Planner AI-004](experiments/2026-07-30-combat-planner-ai004.md).
+
+## [2026-07-30] experiment | Reject AI-005 regroup locality
+
+A graphical match showed one bot standing beside its base at twelve regroups
+against one each for the other two of its profile. AI-005 sent retreating
+ground and protection squads to the nearest own building instead of a random
+one, measured against a baseline re-run at the immediately preceding commit so
+the two differ by that change alone. Both runs completed 112/112 in about 524
+wall seconds. Three of eighty paired differences cleared 95%, all civil, which
+is what noise looks like at eighty comparisons; every combat metric straddles
+zero. The reason is frequency: Aggressor regroups 4.05 times per match,
+Fortress 0.19, so where the squad walks cannot matter. New idle and committed
+counters also rule out the competing explanation — the pool waiting at base
+never averages above nine while squads hold eleven to twenty-nine. Fixing the
+result schema was a precondition: `config.factions` had been emitted since
+faction selection landed and was never declared, so every batch since would
+have scored 112/112 invalid-result. See
+[Regroup Locality AI-005](experiments/2026-07-30-regroup-locality-ai005.md).
