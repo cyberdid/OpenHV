@@ -50,11 +50,19 @@ LIGHT = (-0.45, -0.35, 0.82)
 OUTLINE = (0, 0, 0)
 BACKDROP = (255, 0, 255)
 
-# Sampled from the reference art so the rig reads as the same creature.
-CHITIN = (143, 124, 165)
-CHITIN_DARK = (74, 52, 92)
-FLESH = (196, 122, 132)
-BONE = (226, 210, 182)
+# Taken from the mod palette rather than from the reference art, because the
+# quantiser matches to the nearest entry and the palette has no violet where the
+# art's violet sits: chitin asked for (107, 54, 84) and came back #616273, a
+# grey-blue, with the red-blue lift gone. These are exact palette entries, and
+# shading walks along the ramp they belong to instead of falling off it.
+#
+#   violet chitin  indices 112-126, #3B132C to #DEBFCD
+#   warm muscle    indices  20-27,  #6D3D2C to #E0B0A0
+#   pale bone      indices  26-31,  #D0A090 to #F0F0E0
+CHITIN = (164, 113, 139)     # 122
+CHITIN_DARK = (97, 45, 75)   # 116
+FLESH = (160, 112, 96)       # 23
+BONE = (240, 208, 192)       # 29
 
 
 def is_team(colour):
@@ -203,8 +211,8 @@ SPECIES = {
         tail=0.90,
         skull=0.88,
         ride=1.22,
-        chitin=(120, 132, 150),
-        bone=(232, 220, 198),
+        chitin=(150, 97, 124),
+        bone=(240, 224, 208),
     ),
     # Technician role. Small, unarmed-looking, carrying a fleshy graft sac.
     "tender": Species(
@@ -218,8 +226,8 @@ SPECIES = {
         tail=0.55,
         skull=0.80,
         ride=0.78,
-        chitin=(132, 120, 138),
-        flesh=(204, 138, 140),
+        chitin=(150, 97, 124),
+        flesh=(176, 128, 112),
     ),
     # Broker role. Tall and slender, ornamented rather than armed.
     "envoy": Species(
@@ -233,8 +241,8 @@ SPECIES = {
         tail=1.10,
         skull=0.75,
         ride=1.35,
-        chitin=(150, 128, 176),
-        bone=(238, 228, 206),
+        chitin=(164, 113, 139),
+        bone=(240, 224, 208),
     ),
     # Jetpacker role. Wide thoracic vanes, legs tucked, riding high.
     "flier": Species(
@@ -248,8 +256,8 @@ SPECIES = {
         tail=1.25,
         skull=0.85,
         ride=1.55,
-        chitin=(120, 126, 168),
-        flesh=(186, 134, 156),
+        chitin=(116, 62, 91),
+        flesh=(160, 112, 96),
     ),
     # Blaster role. A bloated sac that walks up to things and stops existing.
     "bloat": Species(
@@ -263,66 +271,66 @@ SPECIES = {
         tail=0.20,
         skull=0.70,
         ride=0.70,
-        chitin=(150, 122, 118),
-        flesh=(206, 158, 92),
-        bone=(224, 208, 170),
+        chitin=(136, 82, 111),
+        flesh=(176, 128, 112),
+        bone=(224, 192, 176),
     ),
     # The heavy brood. A Tyranid army has no tanks in it; it has larger animals,
     # so the vehicle roster is the same rig with the dials pushed further.
     "bruiser": Species(          # MBT
         girth=1.70, stretch=1.35, stance=1.30, shank=1.05, limb=1.55,
         blade=1.55, thorns=1.45, tail=1.10, skull=1.25, ride=1.10,
-        chitin=(112, 96, 132),
+        chitin=(107, 54, 84),
     ),
     "spire": Species(            # anti-air
         girth=1.15, stretch=0.95, stance=1.05, shank=0.95, limb=1.10,
         blade=0.35, thorns=2.60, tail=0.70, skull=0.85, ride=1.20,
-        chitin=(126, 118, 158), bone=(236, 226, 200),
+        chitin=(150, 97, 124), bone=(240, 224, 208),
     ),
     "hauler": Species(           # transport
         girth=1.85, stretch=1.20, stance=1.15, shank=0.80, limb=1.40,
         blade=0.25, thorns=0.60, tail=0.45, skull=0.80, ride=0.95,
-        chitin=(138, 124, 150), flesh=(198, 140, 128),
+        chitin=(136, 82, 111), flesh=(176, 128, 112),
     ),
     "lobber": Species(           # artillery
         girth=1.55, stretch=1.10, stance=1.10, shank=0.85, limb=1.30,
         blade=0.30, thorns=1.20, tail=1.65, skull=0.75, ride=1.00,
-        chitin=(134, 110, 140), flesh=(200, 150, 96),
+        chitin=(126, 72, 101), flesh=(160, 112, 96),
     ),
     "watcher": Species(          # radar
         girth=0.95, stretch=0.95, stance=1.10, shank=1.25, limb=0.85,
         blade=0.40, thorns=2.10, tail=0.95, skull=1.45, ride=1.45,
-        chitin=(120, 130, 164),
+        chitin=(164, 113, 139),
     ),
     "mender": Species(           # repair
         girth=1.25, stretch=0.85, stance=0.95, shank=0.75, limb=1.15,
         blade=0.35, thorns=0.40, tail=0.60, skull=0.85, ride=0.85,
-        chitin=(140, 126, 140), flesh=(210, 146, 148),
+        chitin=(150, 97, 124), flesh=(192, 144, 128),
     ),
     "seeder": Species(           # minelayer
         girth=1.45, stretch=1.30, stance=1.25, shank=0.70, limb=1.20,
         blade=0.20, thorns=0.55, tail=1.45, skull=0.70, ride=0.75,
-        chitin=(128, 118, 128), flesh=(196, 158, 110),
+        chitin=(116, 62, 91), flesh=(176, 128, 112),
     ),
     "arcer": Species(            # lightning
         girth=1.05, stretch=1.00, stance=1.15, shank=1.30, limb=0.90,
         blade=0.60, thorns=2.30, tail=1.20, skull=0.90, ride=1.40,
-        chitin=(110, 118, 170),
+        chitin=(136, 82, 111),
     ),
     "lurker": Species(           # stealth
         girth=1.15, stretch=1.50, stance=1.35, shank=0.65, limb=0.95,
         blade=1.20, thorns=0.30, tail=1.60, skull=0.85, ride=0.62,
-        chitin=(104, 104, 122), bone=(200, 196, 178),
+        chitin=(97, 45, 75), bone=(224, 192, 176),
     ),
     "jammer": Species(           # ecm
         girth=1.00, stretch=0.90, stance=1.05, shank=1.10, limb=0.90,
         blade=0.30, thorns=1.90, tail=1.35, skull=1.10, ride=1.25,
-        chitin=(132, 122, 168), flesh=(188, 148, 168),
+        chitin=(164, 113, 139), flesh=(160, 112, 96),
     ),
     "dart": Species(             # bike
         girth=0.80, stretch=1.25, stance=1.30, shank=1.20, limb=0.75,
         blade=1.00, thorns=0.70, tail=1.30, skull=0.80, ride=0.90,
-        chitin=(124, 116, 148),
+        chitin=(150, 97, 124),
     ),
     # Shocker role. A swollen acid sac on short legs, blades all but gone.
     "spitter": Species(
@@ -336,9 +344,9 @@ SPECIES = {
         tail=0.35,
         skull=1.15,
         ride=0.82,
-        chitin=(126, 108, 152),
-        flesh=(178, 152, 96),
-        bone=(214, 206, 168),
+        chitin=(126, 72, 101),
+        flesh=(144, 96, 80),
+        bone=(224, 192, 176),
     ),
 }
 
@@ -405,7 +413,7 @@ def assemble(pose, kind):
     for index, (first, second) in enumerate(zip(ridge, ridge[1:])):
         level = 120 + 45 * index
         tint = (0, max(int(level * pose.glow), 1), max(int(level * pose.glow), 1))
-        parts.append(Part(place(first), place(second), 0.050 * g, tint))
+        parts.append(Part(place(first), place(second), 0.034 * g, tint))
 
     # Thorns down the back, and a pair off each shoulder. These carry the
     # silhouette: at this size an outline reads before any interior detail.
@@ -636,18 +644,24 @@ def depth(point, tilt):
 def draw_capsule(draw, start, end, r0, r1, colour, light, tone):
     """A stack of circles, each with a highlight offset toward the light."""
     steps = max(3, int(math.dist(start, end) / 1.2) + 3)
+    # The generated buildings run from near-white down to near-black across one
+    # plate. Two adjacent ramp entries read as a flat blob next to that, so the
+    # body is drawn in three bands: a shaded rim, the base, and a hard highlight.
+    rim = colour if is_team(colour) else shift(colour, tone - 0.30)
     base = colour if is_team(colour) else shift(colour, tone)
-    peak = colour if is_team(colour) else shift(colour, tone + 0.30)
+    peak = colour if is_team(colour) else shift(colour, tone + 0.55)
     for i in range(steps + 1):
         t = i / steps
         x = start[0] + (end[0] - start[0]) * t
         y = start[1] + (end[1] - start[1]) * t
         r = r0 + (r1 - r0) * t
-        draw.ellipse([x - r, y - r, x + r, y + r], fill=base)
-        if r > 1.6:
-            hr = r * 0.58
-            hx = x + light[0] * r * 0.34
-            hy = y + light[1] * r * 0.34
+        draw.ellipse([x - r, y - r, x + r, y + r], fill=rim)
+        if r > 1.2:
+            draw.ellipse([x - r * 0.82, y - r * 0.82, x + r * 0.82, y + r * 0.82], fill=base)
+        if r > 1.8:
+            hr = r * 0.46
+            hx = x + light[0] * r * 0.40
+            hy = y + light[1] * r * 0.40
             draw.ellipse([hx - hr, hy - hr, hx + hr, hy + hr], fill=peak)
 
 
@@ -682,7 +696,10 @@ def render_frame(parts, facing, size, supersample, scale):
         pb = project(b, unit, tilt)
         # Parts further from the camera sit in shadow, which separates the
         # legs on the far side from the legs on the near side.
-        tone = -0.34 + 0.34 * ((nearness - far) / span)
+        # Depth used to darken by a third, which walked the whole body down to
+        # the bottom of the palette ramp and read as mud. Enough to separate the
+        # far limbs from the near ones, not enough to leave the ramp.
+        tone = -0.18 + 0.26 * ((nearness - far) / span)
         draw_capsule(
             draw,
             (cx + pa[0], cy - pa[1]),
