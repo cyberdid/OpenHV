@@ -907,9 +907,17 @@ swarm-harvester-deep:
 		Filename: swarm-harvester-deep.png
 		Length: 1
 	active:
-		Filename: blank.png
+		Filename: swarm-harvester-deep.png
 	depleted:
-		Filename: blank.png
+		Filename: swarm-harvester-deep.png
+	damaged-active:
+		Filename: swarm-harvester-deep.png
+		Start: 7
+		Length: 1
+	damaged-depleted:
+		Filename: swarm-harvester-deep.png
+		Start: 7
+		Length: 1
 	silo:
 		Filename: blank.png
 	flame:
