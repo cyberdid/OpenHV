@@ -572,6 +572,88 @@ Container@OBSERVER_WIDGETS:
 									Text: label-combat-stats-vision-header
 									Align: Right
 									Shadow: True
+						Container@RELATIONS_STATS_HEADERS:
+							X: 0
+							Y: 0
+							Width: 760
+							Height: PARENT_HEIGHT
+							Children:
+								ColorBlock@HEADER_COLOR:
+									X: 0
+									Y: 0
+									Color: 00000090
+									Width: PARENT_WIDTH - 200
+									Height: PARENT_HEIGHT
+								GradientColorBlock@HEADER_GRADIENT:
+									X: PARENT_WIDTH - 200
+									Y: 0
+									TopLeftColor: 00000090
+									BottomLeftColor: 00000090
+									Width: 200
+									Height: PARENT_HEIGHT
+								Label@PAIR_HEADER:
+									X: 10
+									Y: 0
+									Width: 230
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-pair-header
+									Align: Left
+									Shadow: True
+								Label@STATE_HEADER:
+									X: 240
+									Y: 0
+									Width: 90
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-state-header
+									Align: Left
+									Shadow: True
+								Label@TRUST_HEADER:
+									X: 330
+									Y: 0
+									Width: 60
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-trust-header
+									Align: Right
+									Shadow: True
+								Label@GRIEVANCE_HEADER:
+									X: 395
+									Y: 0
+									Width: 95
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-grievance-header
+									Align: Right
+									Shadow: True
+								Label@TRADE_HEADER:
+									X: 495
+									Y: 0
+									Width: 95
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-trade-header
+									Align: Left
+									Shadow: True
+								Label@SHIPPED_HEADER:
+									X: 590
+									Y: 0
+									Width: 90
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-shipped-header
+									Align: Right
+									Shadow: True
+								Label@CASUALTIES_HEADER:
+									X: 680
+									Y: 0
+									Width: 75
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Text: label-relations-stats-casualties-header
+									Align: Right
+									Shadow: True
 						Container@CIVILIZATION_STATS_HEADERS:
 							X: 0
 							Y: 0
@@ -1083,6 +1165,90 @@ Container@OBSERVER_WIDGETS:
 									X: 700
 									Y: 0
 									Width: 60
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+						ScrollItem@RELATIONS_TEMPLATE:
+							X: 0
+							Y: 0
+							Width: 760
+							Height: 25
+							Background: scrollitem-nohover
+							EnableChildMouseOver: true
+							Children:
+								ColorBlock@RELATION_COLOR:
+									X: 0
+									Y: 0
+									Width: PARENT_WIDTH - 200
+									Height: PARENT_HEIGHT
+								GradientColorBlock@RELATION_GRADIENT:
+									X: PARENT_WIDTH - 200
+									Y: 0
+									Width: 200
+									Height: PARENT_HEIGHT
+								Label@FIRST:
+									X: 10
+									Y: 0
+									Width: 105
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Align: Left
+									Shadow: True
+								Label@LINK:
+									X: 115
+									Y: 0
+									Width: 20
+									Height: PARENT_HEIGHT
+									Align: Left
+									Shadow: True
+								Label@SECOND:
+									X: 135
+									Y: 0
+									Width: 105
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Align: Left
+									Shadow: True
+								Label@STATE:
+									X: 240
+									Y: 0
+									Width: 90
+									Height: PARENT_HEIGHT
+									Font: Bold
+									Align: Left
+									Shadow: True
+								Label@TRUST:
+									X: 330
+									Y: 0
+									Width: 60
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@GRIEVANCE:
+									X: 395
+									Y: 0
+									Width: 95
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@TRADE:
+									X: 495
+									Y: 0
+									Width: 95
+									Height: PARENT_HEIGHT
+									Align: Left
+									Shadow: True
+								Label@SHIPPED:
+									X: 590
+									Y: 0
+									Width: 90
+									Height: PARENT_HEIGHT
+									Align: Right
+									Shadow: True
+								Label@CASUALTIES:
+									X: 680
+									Y: 0
+									Width: 75
 									Height: PARENT_HEIGHT
 									Align: Right
 									Shadow: True

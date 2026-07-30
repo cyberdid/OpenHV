@@ -25,7 +25,7 @@ using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.Widgets.Logic
 {
-	public enum ObserverStatsPanel { None, Basic, Economy, Production, SupportPowers, Combat, Army, Civilization, Graph, ArmyGraph }
+	public enum ObserverStatsPanel { None, Basic, Economy, Production, SupportPowers, Combat, Army, Civilization, Relations, Graph, ArmyGraph }
 
 	[ChromeLogicArgsHotkeys(
 		"StatisticsBasicKey",
@@ -63,6 +63,26 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		const string Civilization = "options-observer-stats.civilization";
 
 		[FluentReference]
+		const string Relations = "options-observer-stats.relations";
+
+		// Chosen per row from the relation's own state, so the lint cannot see
+		// them at the call site.
+		[FluentReference]
+		const string StateNeutral = "relations-state-neutral";
+
+		[FluentReference]
+		const string StateWar = "relations-state-war";
+
+		[FluentReference]
+		const string StateAlliance = "relations-state-alliance";
+
+		[FluentReference]
+		const string TradeOpen = "trade-status-active";
+
+		[FluentReference]
+		const string TradeSuspended = "trade-status-suspended";
+
+		[FluentReference]
 		const string EarningsGraph = "options-observer-stats.earnings-graph";
 
 		[FluentReference]
@@ -80,6 +100,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		readonly ContainerWidget supportPowerStatsHeaders;
 		readonly ContainerWidget combatStatsHeaders;
 		readonly ContainerWidget civilizationStatsHeaders;
+		readonly ContainerWidget relationsStatsHeaders;
 		readonly ContainerWidget armyHeaders;
 		readonly ScrollPanelWidget playerStatsPanel;
 		readonly ScrollItemWidget basicPlayerTemplate;
@@ -89,6 +110,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		readonly ScrollItemWidget armyPlayerTemplate;
 		readonly ScrollItemWidget combatPlayerTemplate;
 		readonly ScrollItemWidget civilizationPlayerTemplate;
+		readonly ScrollItemWidget relationsTemplate;
 		readonly ContainerWidget incomeGraphContainer;
 		readonly ContainerWidget armyValueGraphContainer;
 		readonly ScrollableLineGraphWidget incomeGraph;
@@ -131,6 +153,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			armyHeaders = widget.Get<ContainerWidget>("ARMY_HEADERS");
 			combatStatsHeaders = widget.Get<ContainerWidget>("COMBAT_STATS_HEADERS");
 			civilizationStatsHeaders = widget.Get<ContainerWidget>("CIVILIZATION_STATS_HEADERS");
+			relationsStatsHeaders = widget.Get<ContainerWidget>("RELATIONS_STATS_HEADERS");
 
 			playerStatsPanel = widget.Get<ScrollPanelWidget>("PLAYER_STATS_PANEL");
 			playerStatsPanel.Layout = new GridLayout(playerStatsPanel);
@@ -156,6 +179,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			armyPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("ARMY_PLAYER_TEMPLATE");
 			combatPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("COMBAT_PLAYER_TEMPLATE");
 			civilizationPlayerTemplate = playerStatsPanel.Get<ScrollItemWidget>("CIVILIZATION_PLAYER_TEMPLATE");
+			relationsTemplate = playerStatsPanel.Get<ScrollItemWidget>("RELATIONS_TEMPLATE");
 
 			incomeGraphContainer = widget.Get<ContainerWidget>("INCOME_GRAPH_CONTAINER");
 			incomeGraph = incomeGraphContainer.Get<ScrollableLineGraphWidget>("INCOME_GRAPH");
@@ -209,7 +233,8 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				CreateStatsOption(SupportPowers, ObserverStatsPanel.SupportPowers, supportPowersPlayerTemplate, () => DisplayStats(SupportPowerStats)),
 				CreateStatsOption(Combat, ObserverStatsPanel.Combat, combatPlayerTemplate, () => DisplayStats(CombatStats)),
 				CreateStatsOption(Army, ObserverStatsPanel.Army, armyPlayerTemplate, () => DisplayStats(ArmyStats)),
-				CreateStatsOption(Civilization, ObserverStatsPanel.Civilization, civilizationPlayerTemplate, () => DisplayStats(CivilizationStats)),
+					CreateStatsOption(Civilization, ObserverStatsPanel.Civilization, civilizationPlayerTemplate, () => DisplayStats(CivilizationStats)),
+				CreateStatsOption(Relations, ObserverStatsPanel.Relations, relationsTemplate, DisplayRelations),
 				CreateStatsOption(EarningsGraph, ObserverStatsPanel.Graph, null, IncomeGraph),
 				CreateStatsOption(ArmyGraph, ObserverStatsPanel.ArmyGraph, null, ArmyValueGraph),
 			};
@@ -259,6 +284,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			armyHeaders.Visible = false;
 			combatStatsHeaders.Visible = false;
 			civilizationStatsHeaders.Visible = false;
+			relationsStatsHeaders.Visible = false;
 
 			incomeGraphContainer.Visible = false;
 			armyValueGraphContainer.Visible = false;
@@ -325,6 +351,107 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 					playerStatsPanel.AddChild(createItem(player));
 				}
 			}
+		}
+
+		/// <summary>
+		/// One row per pair of factions. Every other panel answers "how is this
+		/// faction doing"; none of them can show who is at war with whom, who
+		/// trades with whom, or what that costs, because a per-faction row has
+		/// nowhere to put the other side.
+		/// </summary>
+		void DisplayRelations()
+		{
+			relationsStatsHeaders.Visible = true;
+
+			var diplomacy = world.WorldActor.TraitOrDefault<DiplomacyManager>();
+			if (diplomacy == null)
+				return;
+
+			var trade = world.WorldActor.TraitOrDefault<TradeManager>();
+			var routes = trade?.Routes;
+
+			foreach (var relation in diplomacy.Relations)
+			{
+				var route = routes?.FirstOrDefault(r => r.Relation == relation);
+				playerStatsPanel.AddChild(RelationRow(relation, route));
+			}
+		}
+
+		ScrollItemWidget RelationRow(DiplomaticRelation relation, TradeRoute route)
+		{
+			var template = ScrollItemWidget.Setup(relationsTemplate, () => false, () => { });
+			var first = relation.PlayerA;
+			var second = relation.PlayerB;
+
+			var color = template.Get<ColorBlockWidget>("RELATION_COLOR");
+			var gradient = template.Get<GradientColorBlockWidget>("RELATION_GRADIENT");
+			SetupPlayerColor(first, template, color, gradient);
+
+			var firstLabel = template.Get<LabelWidget>("FIRST");
+			var firstName = first.ResolvedPlayerName;
+			firstLabel.GetText = () => firstName;
+			firstLabel.GetColor = () => first.Color;
+
+			var linkLabel = template.Get<LabelWidget>("LINK");
+			linkLabel.GetText = () => "/";
+
+			var secondLabel = template.Get<LabelWidget>("SECOND");
+			var secondName = second.ResolvedPlayerName;
+			secondLabel.GetText = () => secondName;
+			secondLabel.GetColor = () => second.Color;
+
+			var stateLabel = template.Get<LabelWidget>("STATE");
+			stateLabel.GetText = () => FluentProvider.GetMessage(StateKey(relation.State));
+			stateLabel.GetColor = () => relation.State switch
+			{
+				DiplomaticRelationState.War => Color.Salmon,
+				DiplomaticRelationState.Alliance => Color.LightGreen,
+				_ => Color.LightGray
+			};
+
+			var number = new Func<int, string>(i => i.ToString(NumberFormatInfo.CurrentInfo));
+
+			var trustText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("TRUST").GetText = () => trustText.Update(relation.Trust);
+
+			// Grievance runs both ways and the asymmetry is the interesting part.
+			var grievanceText = new CachedTransform<(int, int), string>(
+				pair => $"{pair.Item1} / {pair.Item2}");
+			template.Get<LabelWidget>("GRIEVANCE").GetText =
+				() => grievanceText.Update((relation.GrievanceA, relation.GrievanceB));
+
+			var tradeLabel = template.Get<LabelWidget>("TRADE");
+			if (route == null)
+				tradeLabel.GetText = () => "-";
+			else
+				tradeLabel.GetText = () => FluentProvider.GetMessage(
+					route.Status == TradeRouteStatus.Active
+						? TradeOpen
+						: TradeSuspended);
+
+			var shippedText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("SHIPPED").GetText = () => shippedText.Update(
+				route == null
+					? 0
+					: route.FoodAToB + route.FoodBToA
+						+ route.MaterialsAToB + route.MaterialsBToA
+						+ route.EnergyAToB + route.EnergyBToA);
+
+			var fallenText = new CachedTransform<int, string>(number);
+			template.Get<LabelWidget>("CASUALTIES").GetText =
+				() => fallenText.Update(relation.LastDeathsA + relation.LastDeathsB);
+
+			return template;
+		}
+
+		static string StateKey(DiplomaticRelationState state)
+		{
+			return state switch
+			{
+				DiplomaticRelationState.War => StateWar,
+				DiplomaticRelationState.Alliance => StateAlliance,
+				_ => StateNeutral
+			};
 		}
 
 		readonly record struct CivilSummary(

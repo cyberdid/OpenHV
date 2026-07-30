@@ -42,6 +42,7 @@ namespace OpenRA.Mods.HV.Traits
 
 	[TraitLocation(SystemActors.World)]
 	[Desc("Runs synchronized, stock-backed bilateral trade between non-hostile living factions.")]
+	[IncludeStaticFluentReferences(typeof(TradeManager))]
 	public sealed class TradeManagerInfo : TraitInfo, ILobbyOptions
 	{
 		public const string OptionId = "tradeenabled";
@@ -279,6 +280,27 @@ namespace OpenRA.Mods.HV.Traits
 				.FirstOrDefault();
 		}
 
+		[FluentReference]
+		const string RouteLine = "notification-trade-route";
+
+		[FluentReference]
+		const string StatusActive = "trade-status-active";
+
+		[FluentReference]
+		const string StatusSuspended = "trade-status-suspended";
+
+		[FluentReference]
+		const string ReasonInitialAgreement = "trade-reason-initial-agreement";
+
+		[FluentReference]
+		const string ReasonWarSuspension = "trade-reason-war-suspension";
+
+		[FluentReference]
+		const string ReasonCapacityUnavailable = "trade-reason-capacity-unavailable";
+
+		[FluentReference]
+		const string ReasonResumed = "trade-reason-resumed";
+
 		static void SetStatus(TradeRoute route, TradeRouteStatus status, TradeRouteReason reason)
 		{
 			if (route.Status == status && route.StatusReason == reason)
@@ -291,13 +313,13 @@ namespace OpenRA.Mods.HV.Traits
 			// Display only; see the note on DiplomacyManager.Announce.
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
-					"notification-trade-route",
+					RouteLine,
 					"first", route.Relation.PlayerA.PlayerName,
 					"second", route.Relation.PlayerB.PlayerName,
 					"status", FluentProvider.GetMessage(
 						status == TradeRouteStatus.Active
-							? "trade-status-active"
-							: "trade-status-suspended"),
+							? StatusActive
+							: StatusSuspended),
 					"reason", FluentProvider.GetMessage(ReasonKey(reason))));
 		}
 
@@ -305,10 +327,10 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			return reason switch
 			{
-				TradeRouteReason.InitialAgreement => "trade-reason-initial-agreement",
-				TradeRouteReason.WarSuspension => "trade-reason-war-suspension",
-				TradeRouteReason.CapacityUnavailable => "trade-reason-capacity-unavailable",
-				_ => "trade-reason-resumed"
+				TradeRouteReason.InitialAgreement => ReasonInitialAgreement,
+				TradeRouteReason.WarSuspension => ReasonWarSuspension,
+				TradeRouteReason.CapacityUnavailable => ReasonCapacityUnavailable,
+				_ => ReasonResumed
 			};
 		}
 

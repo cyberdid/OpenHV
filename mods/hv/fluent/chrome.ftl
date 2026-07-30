@@ -111,3 +111,15 @@ label-civilization-stats-stability-header = Stabil.
 label-civilization-stats-technologies-header = Tech
 label-civilization-stats-strategy-header = Strategy
 label-civilization-stats-wars-header = Wars
+
+label-relations-stats-pair-header = Who with whom
+label-relations-stats-state-header = Standing
+label-relations-stats-trust-header = Trust
+label-relations-stats-grievance-header = Grievance
+label-relations-stats-trade-header = Trade
+label-relations-stats-shipped-header = Shipped
+label-relations-stats-casualties-header = Fallen
+
+relations-state-neutral = neutral
+relations-state-war = at war
+relations-state-alliance = allied

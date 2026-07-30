@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenRA.Mods.Common.Lint;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
 using OpenRA.Traits;
@@ -48,6 +49,7 @@ namespace OpenRA.Mods.HV.Traits
 
 	[TraitLocation(SystemActors.Player)]
 	[Desc("Stores deterministic civilization-level identity and exposes the player's settlements.")]
+	[IncludeStaticFluentReferences(typeof(CivilizationState))]
 	public sealed class CivilizationStateInfo : TraitInfo
 	{
 		[Desc("Stable identifier for the first civilization model.")]
@@ -61,6 +63,9 @@ namespace OpenRA.Mods.HV.Traits
 
 	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision, IBotNotifyIdleBaseUnits
 	{
+		[FluentReference]
+		const string TechnologyLine = "notification-technology";
+
 		public static readonly string[] TechnologyNames =
 		[
 			"agricultural-systems",
@@ -396,7 +401,7 @@ namespace OpenRA.Mods.HV.Traits
 			// Display only; see the note on DiplomacyManager.Announce.
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
-					"notification-technology",
+					TechnologyLine,
 					"player", owner.PlayerName,
 					"technology", TechnologyNames[CurrentTechnologyIndex]));
 

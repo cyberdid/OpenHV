@@ -26,5 +26,6 @@ options-observer-stats =
     .combat = Combat
     .army = Army
     .civilization = Civilization
+    .relations = Relations
     .earnings-graph = Earnings (graph)
     .army-graph = Army (graph)

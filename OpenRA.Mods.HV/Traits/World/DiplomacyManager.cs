@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenRA.Effects;
 using OpenRA.Graphics;
+using OpenRA.Mods.Common.Lint;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
@@ -37,6 +38,7 @@ namespace OpenRA.Mods.HV.Traits
 
 	[TraitLocation(SystemActors.World)]
 	[Desc("Owns synchronized bilateral diplomacy and applies it to OpenRA player targeting masks.")]
+	[IncludeStaticFluentReferences(typeof(DiplomacyManager))]
 	public sealed class DiplomacyManagerInfo : TraitInfo
 	{
 		[Desc("Ticks between strategic relationship decisions.")]
@@ -149,6 +151,27 @@ namespace OpenRA.Mods.HV.Traits
 				Transition(relation, DiplomaticRelationState.War, DiplomacyReason.StrategicRivalry);
 		}
 
+		[FluentReference]
+		const string WarLine = "notification-diplomacy-war";
+
+		[FluentReference]
+		const string PeaceLine = "notification-diplomacy-peace";
+
+		[FluentReference]
+		const string ReasonInitialNeutrality = "diplomacy-reason-initial-neutrality";
+
+		[FluentReference]
+		const string ReasonStrategicRivalry = "diplomacy-reason-strategic-rivalry";
+
+		[FluentReference]
+		const string ReasonWarExhaustion = "diplomacy-reason-war-exhaustion";
+
+		[FluentReference]
+		const string ReasonDefensiveResponse = "diplomacy-reason-defensive-response";
+
+		[FluentReference]
+		const string ReasonFactionCollapse = "diplomacy-reason-faction-collapse";
+
 		/// <summary>
 		/// Put the change on screen. A civil system nobody can see while the match
 		/// runs is indistinguishable from one that is not running at all, and the
@@ -161,8 +184,8 @@ namespace OpenRA.Mods.HV.Traits
 			DiplomacyReason reason)
 		{
 			var message = state == DiplomaticRelationState.War
-				? "notification-diplomacy-war"
-				: "notification-diplomacy-peace";
+				? WarLine
+				: PeaceLine;
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
 					message,
@@ -175,11 +198,11 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			return reason switch
 			{
-				DiplomacyReason.InitialNeutrality => "diplomacy-reason-initial-neutrality",
-				DiplomacyReason.StrategicRivalry => "diplomacy-reason-strategic-rivalry",
-				DiplomacyReason.WarExhaustion => "diplomacy-reason-war-exhaustion",
-				DiplomacyReason.DefensiveResponse => "diplomacy-reason-defensive-response",
-				_ => "diplomacy-reason-faction-collapse"
+				DiplomacyReason.InitialNeutrality => ReasonInitialNeutrality,
+				DiplomacyReason.StrategicRivalry => ReasonStrategicRivalry,
+				DiplomacyReason.WarExhaustion => ReasonWarExhaustion,
+				DiplomacyReason.DefensiveResponse => ReasonDefensiveResponse,
+				_ => ReasonFactionCollapse
 			};
 		}
 
