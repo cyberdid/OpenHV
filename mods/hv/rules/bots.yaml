@@ -305,17 +305,6 @@ Player:
 		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
 		UnitsToBuild:
 			miner: 3
-			swarmharvester: 3
-			swarmcarrier: 1
-			swarmwarrior: 10
-			swarmspitter: 8
-			swarmrunner: 4
-			swarmbruiser: 8
-			swarmmortar: 3
-			swarmlance: 3
-			swarmburrower: 3
-			swarmdrifter: 3
-			swarminterceptor: 3
 			builder: 1
 			builder2: 1
 			radartank: 1
@@ -363,6 +352,17 @@ Player:
 			mineship2: 1
 			battleship: 1
 			mothership: 1
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 		UnitLimits:
 			miner: 2
 			builder: 1
@@ -423,6 +423,17 @@ Player:
 			carrier: 1
 			mineship: 1
 			mineship2: 1
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 		UnitLimits:
 			miner: 4
 			builder: 2
@@ -476,6 +487,17 @@ Player:
 			carrier: 4
 			battleship: 4
 			mothership: 2
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 		UnitLimits:
 			miner: 2
 			builder: 1
@@ -533,6 +555,17 @@ Player:
 			mineship: 4
 			mineship2: 4
 			battleship: 5
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 		UnitLimits:
 			miner: 3
 			swarmharvester: 3

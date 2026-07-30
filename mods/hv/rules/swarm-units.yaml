@@ -2,6 +2,7 @@
 
 SWARMWARRIOR:
 	Inherits: ^Pod
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Pod
 		BuildPaletteOrder: 10
@@ -25,6 +26,7 @@ SWARMWARRIOR:
 
 SWARMSPITTER:
 	Inherits: ^Pod
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Pod
 		BuildPaletteOrder: 20
@@ -48,6 +50,7 @@ SWARMSPITTER:
 
 SWARMRUNNER:
 	Inherits: ^Pod
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Pod
 		BuildPaletteOrder: 30
@@ -74,6 +77,7 @@ SWARMRUNNER:
 
 SWARMBRUISER:
 	Inherits: ^Vehicle
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Tank
 		BuildPaletteOrder: 10
@@ -97,6 +101,7 @@ SWARMBRUISER:
 
 SWARMMORTAR:
 	Inherits: ^Vehicle
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Tank
 		BuildPaletteOrder: 20
@@ -120,6 +125,7 @@ SWARMMORTAR:
 
 SWARMLANCE:
 	Inherits: ^Vehicle
+	Inherits@AutoTarget: ^AutoTargetAirAssaultMove
 	Buildable:
 		Queue: Tank
 		BuildPaletteOrder: 30
@@ -143,6 +149,7 @@ SWARMLANCE:
 
 SWARMBURROWER:
 	Inherits: ^Vehicle
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Tank
 		BuildPaletteOrder: 40
@@ -225,6 +232,7 @@ SWARMCARRIER:
 
 SWARMDRIFTER:
 	Inherits: ^Helicopter
+	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
 		Queue: Aircraft
 		BuildPaletteOrder: 10
@@ -245,6 +253,7 @@ SWARMDRIFTER:
 
 SWARMINTERCEPTOR:
 	Inherits: ^Helicopter
+	Inherits@AutoTarget: ^AutoTargetAirAssaultMove
 	Buildable:
 		Queue: Aircraft
 		BuildPaletteOrder: 20
