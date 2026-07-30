@@ -46,6 +46,16 @@ VARIANTS = {
         "AI-004 target-scoring, retreat, and regroup candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "baseline-v2": (
+        "baseline-112-v2",
+        "Baseline re-measured on the same schedule at the commit immediately "
+        "before AI-005, so the candidate differs by the regroup change alone.",
+    ),
+    "ai005-candidate": (
+        "ai005-candidate-112-v1",
+        "AI-005 regroup locality and early re-engagement candidate on the "
+        "exact baseline-112-v1 map, slot, profile, and seed schedule.",
+    ),
 }
 
 
