@@ -228,6 +228,9 @@ FLAMER:
 		VoiceSet: FlameVoice
 
 TECHNICIAN:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-tender
 	Inherits: ^Pod
 	Inherits@Selection: ^SelectableSupportUnit
 	Buildable:
@@ -286,8 +289,14 @@ TECHNICIAN:
 		PauseOnCondition: jammed
 		FacingTolerance: 0
 		Voice: Repair
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 
 BROKER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-envoy
 	Inherits: ^Pod
 	Inherits@Selection: ^SelectableSupportUnit
 	Buildable:
@@ -335,6 +344,7 @@ BROKER:
 	AttackFrontal:
 		FacingTolerance: 10
 		Voice: Attack
+	WithMoveAnimation:
 	AutoTarget:
 		MinimumScanTimeInterval: 5
 		MaximumScanTimeInterval: 15
@@ -343,6 +353,9 @@ BROKER:
 		InvalidTargets: NoAutoTarget
 
 JETPACKER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-flier
 	Inherits: ^Helicopter
 	Inherits@AutoTarget: ^AutoTargetAllAssaultMove
 	Buildable:
@@ -377,6 +390,8 @@ JETPACKER:
 		Voice: Attack
 	WithMuzzleOverlay:
 	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	-FireWarheadsOnDeath@SpawnPilot:
 	-GrantRandomCondition@SpawnPilot:
 	RevealsShroud:
@@ -391,6 +406,9 @@ JETPACKER:
 		VoiceSet: JetpackerVoice
 
 BLASTER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-bloat
 	Inherits: ^Pod
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
@@ -430,6 +448,9 @@ BLASTER:
 		EmptyWeapon: BlasterExplosion
 		DamageSource: Killer
 	AttackFrontal:
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	Armament:
 		Weapon: ExplosiveCharge
 		MuzzlePalette:

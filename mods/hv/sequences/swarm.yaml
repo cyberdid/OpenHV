@@ -1852,3 +1852,128 @@ hive-miner2:
 		Filename: blank.png
 	icon:
 		Filename: hive-miner2.png
+
+swarm-tender:
+	idle:
+		Filename: swarm-tender.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-tender.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 80
+	shoot:
+		Filename: swarm-tender.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	die:
+		Filename: swarm-tender.png
+		Start: 144
+		Length: 10
+		Tick: 80
+	icon:
+		Filename: swarm-tender.png
+		Start: 16
+		Length: 1
+
+swarm-envoy:
+	idle:
+		Filename: swarm-envoy.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-envoy.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 55
+	shoot:
+		Filename: swarm-envoy.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	die:
+		Filename: swarm-envoy.png
+		Start: 144
+		Length: 10
+		Tick: 80
+	icon:
+		Filename: swarm-envoy.png
+		Start: 16
+		Length: 1
+
+swarm-flier:
+	idle:
+		Filename: swarm-flier.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-flier.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 35
+	shoot:
+		Filename: swarm-flier.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	die:
+		Filename: swarm-flier.png
+		Start: 144
+		Length: 10
+		Tick: 80
+	icon:
+		Filename: swarm-flier.png
+		Start: 16
+		Length: 1
+
+swarm-bloat:
+	animation:
+		Filename: swarm-bloat.png
+		Facings: 8
+		Length: 4
+		Tick: 150
+	idle:
+		Filename: swarm-bloat.png
+		Facings: 8
+		Length: 4
+		Tick: 200
+	move:
+		Filename: swarm-bloat.png
+		Start: 32
+		Facings: 8
+		Length: 8
+		Tick: 70
+	shoot:
+		Filename: swarm-bloat.png
+		Start: 96
+		Facings: 8
+		Length: 6
+		Tick: 40
+	muzzle:
+		Filename: blank.png
+	die:
+		Filename: swarm-bloat.png
+		Start: 144
+		Length: 10
+		Tick: 80
+	icon:
+		Filename: swarm-bloat.png
+		Start: 16
+		Length: 1

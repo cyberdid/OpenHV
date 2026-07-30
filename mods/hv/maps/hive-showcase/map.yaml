@@ -163,3 +163,15 @@ Actors:
 	Actor38: apc
 		Owner: Multi0
 		Location: 65,27
+	Actor39: technician
+		Owner: Multi0
+		Location: 20,44
+	Actor40: broker
+		Owner: Multi0
+		Location: 24,44
+	Actor41: jetpacker
+		Owner: Multi0
+		Location: 28,44
+	Actor42: blaster
+		Owner: Multi0
+		Location: 32,44

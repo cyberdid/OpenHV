@@ -121,6 +121,12 @@ sniper:
 		Filename: sniper-icon.png
 
 technician:
+	move:
+		Filename: technician.png
+		Facings: 8
+	shoot:
+		Filename: technician.png
+		Facings: 8
 	idle:
 		Filename: technician.png
 		Facings: 8
@@ -147,6 +153,9 @@ flamer:
 		Filename: flamer-icon.png
 
 broker:
+	move:
+		Filename: broker.png
+		Facings: 8
 	idle:
 		Filename: broker.png
 		Facings: 8
@@ -159,6 +168,9 @@ broker:
 		Filename: broker-icon.png
 
 jetpacker:
+	shoot:
+		Filename: jetpacker.png
+		Facings: 8
 	idle:
 		Filename: jetpacker.png
 		Frames: 0, 2, 4, 6, 8, 10, 12, 14
@@ -220,6 +232,12 @@ jetpacker:
 		Filename: jetpacker-icon.png
 
 blaster:
+	move:
+		Filename: blaster.png
+		Facings: 8
+	shoot:
+		Filename: blaster.png
+		Facings: 8
 	idle:
 		Filename: blaster.png
 		Facings: 8
@@ -243,9 +261,6 @@ shocker:
 		Filename: shocker.png
 		Facings: 8
 	move:
-		Filename: shocker.png
-		Facings: 8
-	shoot:
 		Filename: shocker.png
 		Facings: 8
 	shoot:
