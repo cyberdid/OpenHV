@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
 
 namespace OpenRA.Mods.HV
@@ -32,6 +33,8 @@ namespace OpenRA.Mods.HV
 		public string MapTitle { get; init; }
 		public string MapHash { get; init; }
 		public string[] BotTypes { get; init; }
+
+		public string[] Factions { get; init; }
 		public bool Headless { get; init; }
 		public bool DeterministicSimulation { get; init; }
 		public string GameSpeed { get; init; }
@@ -73,6 +76,25 @@ namespace OpenRA.Mods.HV
 				throw new ArgumentException(
 					$"Unknown simulation bot type(s): {string.Join(", ", unknownBotTypes)}. " +
 					$"Available types: {string.Join(", ", availableBotTypes.OrderBy(type => type))}.");
+
+			// Factions are otherwise drawn from the lobby RNG, so a schedule cannot
+			// hold the faction fixed while it varies something else. Naming them
+			// makes the matchup part of the experiment rather than part of the seed.
+			var factions = args.GetValue("Launch.SimulationFactions", "")
+				.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			if (factions.Length > 0)
+			{
+				var selectable = new HashSet<string>(
+					map.WorldActorInfo.TraitInfos<FactionInfo>()
+						.Where(faction => faction.Selectable)
+						.Select(faction => faction.InternalName),
+					StringComparer.Ordinal);
+				var unknown = factions.Where(faction => !selectable.Contains(faction)).Distinct().ToArray();
+				if (unknown.Length > 0)
+					throw new ArgumentException(
+						$"Unknown simulation faction(s): {string.Join(", ", unknown)}. " +
+						$"Available factions: {string.Join(", ", selectable.OrderBy(name => name))}.");
+			}
 
 			var gameSpeed = args.GetValue("Launch.SimulationSpeed", "fastest");
 			var gameSpeeds = Game.ModData.GetOrCreate<GameSpeeds>();
@@ -176,6 +198,7 @@ namespace OpenRA.Mods.HV
 			return new SimulationConfig
 			{
 				MatchId = matchId,
+				Factions = factions,
 				MapRequest = args.GetValue("Launch.Map", map.Uid),
 				MapUid = map.Uid,
 				MapTitle = map.Title,

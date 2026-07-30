@@ -59,6 +59,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 			string[] simulationSlots = null;
 			var lobbyConfigurationIssued = false;
 			var simulationStarted = false;
+			var factionsPending = false;
 			void StartSimulation()
 			{
 				if (simulationStarted)
@@ -96,6 +97,11 @@ namespace OpenRA.Mods.HV.LoadScreens
 							Order.Command($"slot_bot {simulationSlots[i]} {localClientIndex} {slotBotType}"));
 					}
 
+					// Bots are placed before factions because the faction order needs the
+					// bot client to already occupy the slot.
+					if (config.Factions.Length > 0)
+						factionsPending = true;
+
 					orderManager.IssueOrder(Order.Command($"option gamespeed {config.GameSpeed}"));
 					orderManager.IssueOrder(
 						Order.Command($"option civilizationprofile {config.CivilizationProfile}"));
@@ -118,6 +124,33 @@ namespace OpenRA.Mods.HV.LoadScreens
 				{
 					var expectedBotType = config.BotTypes[i % config.BotTypes.Length];
 					if (simulationClients[i].Bot != expectedBotType)
+					{
+						Game.RunAfterTick(StartSimulation);
+						return;
+					}
+				}
+
+				if (factionsPending)
+				{
+					factionsPending = false;
+					for (var i = 0; i < simulationClients.Length; i++)
+					{
+						var faction = config.Factions[i % config.Factions.Length];
+						orderManager.IssueOrder(
+							Order.Command($"faction {simulationClients[i].Index} {faction}"));
+					}
+
+					Game.RunAfterTick(StartSimulation);
+					return;
+				}
+
+				for (var i = 0; i < simulationClients.Length; i++)
+				{
+					if (config.Factions.Length == 0)
+						break;
+
+					var faction = config.Factions[i % config.Factions.Length];
+					if (simulationClients[i].Faction != faction)
 					{
 						Game.RunAfterTick(StartSimulation);
 						return;

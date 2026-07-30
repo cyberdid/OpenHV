@@ -8,6 +8,7 @@ SUPPORT_DIR="${OPENHV_SUPPORT_DIR:-${PROJECT_DIR}/../.openhv-support}"
 SIMULATION_MAP="${1:-coldrage}"
 SIMULATION_BOT="${SIMULATION_BOT:-rogue}"
 SIMULATION_BOTS="${SIMULATION_BOTS:-${SIMULATION_BOT}}"
+SIMULATION_FACTIONS="${SIMULATION_FACTIONS:-}"
 SIMULATION_HEADLESS="${SIMULATION_HEADLESS:-false}"
 SIMULATION_SPEED="${SIMULATION_SPEED:-fastest}"
 SIMULATION_SEED="${SIMULATION_SEED:-}"
@@ -53,6 +54,7 @@ exec "${PROJECT_DIR}/launch-game.sh" \
 	"Launch.Map=${SIMULATION_MAP}" \
 	"Launch.SimulationBot=${SIMULATION_BOT}" \
 	"Launch.SimulationBots=${SIMULATION_BOTS}" \
+	"Launch.SimulationFactions=${SIMULATION_FACTIONS}" \
 	"Launch.SimulationSpeed=${SIMULATION_SPEED}" \
 	"Launch.SimulationSeed=${SIMULATION_SEED}" \
 	"Launch.SimulationMaxTicks=${SIMULATION_MAX_TICKS}" \
