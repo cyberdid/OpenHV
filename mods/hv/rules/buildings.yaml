@@ -363,6 +363,9 @@ GENERATOR:
 			yi: generator
 
 RADAR:
+	RenderSprites:
+		FactionImages:
+			sw: hive-radar
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x2Shape
 	Inherits@Flame: ^BuildingFlame
@@ -564,6 +567,7 @@ TRADER:
 		FactionImages:
 			sc: trader2
 			yi: trader
+			sw: hive-trader
 
 MODULE:
 	RenderSprites:
@@ -754,6 +758,9 @@ MINER2:
 		-BeingCapturedCondition: being-captured
 
 STARPORT:
+	RenderSprites:
+		FactionImages:
+			sw: hive-starport
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x3Shape
 	Inherits@Flame: ^BuildingFlame2
@@ -1149,6 +1156,7 @@ TECHCENTER:
 		FactionImages:
 			sc: techcenter2
 			yi: techcenter
+			sw: hive-techcenter
 	WithIdleOverlay@ANIMATION:
 		Sequence: animation
 		RequiresCondition: !build-incomplete && !disabled && !burning
@@ -1200,6 +1208,9 @@ ORESMELT:
 		RequiresCondition: !build-incomplete && !disabled && !burning && !selling
 
 OREPURIFIER:
+	RenderSprites:
+		FactionImages:
+			sw: hive-orepurifier
 	Inherits: ORESMELT
 	Selectable:
 		Bounds: 1024, 2048, 0, 0
@@ -1215,6 +1226,9 @@ OREPURIFIER:
 		Interval: 35
 
 BUNKER:
+	RenderSprites:
+		FactionImages:
+			sw: hive-bunker
 	Inherits: ^DefenseBuilding
 	Inherits@AutoTarget: ^AutoTargetGround
 	Buildable:

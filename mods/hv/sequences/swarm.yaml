@@ -1671,3 +1671,155 @@ swarm-warrior:
 		Filename: swarm-warrior.png
 		Start: 16
 		Length: 1
+
+hive-radar:
+	idle:
+		Filename: hive-radar.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-radar.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-radar.png
+
+hive-trader:
+	idle:
+		Filename: hive-trader.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-trader.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	active:
+		Filename: hive-trader.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	flame:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	icon:
+		Filename: hive-trader.png
+
+hive-starport:
+	idle:
+		Filename: hive-starport.png
+	production-inprogress:
+		Filename: hive-starport.png
+	production-done:
+		Filename: hive-starport.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-starport.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	flame:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	icon:
+		Filename: hive-starport.png
+
+hive-techcenter:
+	idle:
+		Filename: hive-techcenter.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-techcenter.png
+	animation:
+		Filename: hive-techcenter.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	flame:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	icon:
+		Filename: hive-techcenter.png
+
+hive-orepurifier:
+	idle:
+		Filename: hive-orepurifier.png
+	active:
+		Filename: hive-orepurifier.png
+	damaged-idle:
+		Filename: hive-orepurifier.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-orepurifier.png
+
+hive-bunker:
+	idle:
+		Filename: hive-bunker.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-bunker.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	flame:
+		Filename: flame2.png
+		Length: *
+		Tick: 60
+	icon:
+		Filename: hive-bunker.png
