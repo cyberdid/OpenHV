@@ -287,6 +287,29 @@ namespace OpenRA.Mods.HV.Traits
 			route.Status = status;
 			route.StatusReason = reason;
 			route.StatusSequence++;
+
+			// Display only; see the note on DiplomacyManager.Announce.
+			TextNotificationsManager.AddSystemLine(
+				FluentProvider.GetMessage(
+					"notification-trade-route",
+					"first", route.Relation.PlayerA.PlayerName,
+					"second", route.Relation.PlayerB.PlayerName,
+					"status", FluentProvider.GetMessage(
+						status == TradeRouteStatus.Active
+							? "trade-status-active"
+							: "trade-status-suspended"),
+					"reason", FluentProvider.GetMessage(ReasonKey(reason))));
+		}
+
+		static string ReasonKey(TradeRouteReason reason)
+		{
+			return reason switch
+			{
+				TradeRouteReason.InitialAgreement => "trade-reason-initial-agreement",
+				TradeRouteReason.WarSuspension => "trade-reason-war-suspension",
+				TradeRouteReason.CapacityUnavailable => "trade-reason-capacity-unavailable",
+				_ => "trade-reason-resumed"
+			};
 		}
 
 		static int GetStock(SettlementCore settlement, TradeResource resource)

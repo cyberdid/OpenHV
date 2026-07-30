@@ -149,6 +149,40 @@ namespace OpenRA.Mods.HV.Traits
 				Transition(relation, DiplomaticRelationState.War, DiplomacyReason.StrategicRivalry);
 		}
 
+		/// <summary>
+		/// Put the change on screen. A civil system nobody can see while the match
+		/// runs is indistinguishable from one that is not running at all, and the
+		/// result file is not something a viewer reads. Display only: nothing here
+		/// touches synchronized state.
+		/// </summary>
+		static void Announce(
+			DiplomaticRelation relation,
+			DiplomaticRelationState state,
+			DiplomacyReason reason)
+		{
+			var message = state == DiplomaticRelationState.War
+				? "notification-diplomacy-war"
+				: "notification-diplomacy-peace";
+			TextNotificationsManager.AddSystemLine(
+				FluentProvider.GetMessage(
+					message,
+					"first", relation.PlayerA.PlayerName,
+					"second", relation.PlayerB.PlayerName,
+					"reason", FluentProvider.GetMessage(ReasonKey(reason))));
+		}
+
+		static string ReasonKey(DiplomacyReason reason)
+		{
+			return reason switch
+			{
+				DiplomacyReason.InitialNeutrality => "diplomacy-reason-initial-neutrality",
+				DiplomacyReason.StrategicRivalry => "diplomacy-reason-strategic-rivalry",
+				DiplomacyReason.WarExhaustion => "diplomacy-reason-war-exhaustion",
+				DiplomacyReason.DefensiveResponse => "diplomacy-reason-defensive-response",
+				_ => "diplomacy-reason-faction-collapse"
+			};
+		}
+
 		void Transition(
 			DiplomaticRelation relation,
 			DiplomaticRelationState state,
@@ -161,6 +195,7 @@ namespace OpenRA.Mods.HV.Traits
 			relation.TransitionTick = self.World.WorldTick;
 			relation.Reason = reason;
 			relation.TransitionSequence++;
+			Announce(relation, state, reason);
 			if (state == DiplomaticRelationState.War)
 			{
 				relation.WarStartedTick = self.World.WorldTick;

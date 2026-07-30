@@ -1444,3 +1444,22 @@ actor-swarmhowitzer =
 actor-swarmsilo =
    .name = Brood Silo
    .description = Brood Silo of the Hive Swarm.
+
+## Civilization events, announced in the message area while a match runs.
+notification-diplomacy-war = { $first } and { $second } are at war — { $reason }
+notification-diplomacy-peace = { $first } and { $second } are at peace — { $reason }
+notification-trade-route = Trade { $first } / { $second } is { $status } — { $reason }
+notification-technology = { $player } completed { $technology }
+
+diplomacy-reason-initial-neutrality = initial neutrality
+diplomacy-reason-strategic-rivalry = strategic rivalry
+diplomacy-reason-war-exhaustion = war exhaustion
+diplomacy-reason-defensive-response = defensive response
+diplomacy-reason-faction-collapse = faction collapse
+
+trade-status-active = open
+trade-status-suspended = suspended
+trade-reason-initial-agreement = agreed
+trade-reason-war-suspension = war
+trade-reason-capacity-unavailable = no capacity
+trade-reason-resumed = resumed

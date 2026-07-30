@@ -392,6 +392,14 @@ namespace OpenRA.Mods.HV.Traits
 
 			CompletedTechnologyMask |= 1 << CurrentTechnologyIndex;
 			ResearchProgress = 0;
+
+			// Display only; see the note on DiplomacyManager.Announce.
+			TextNotificationsManager.AddSystemLine(
+				FluentProvider.GetMessage(
+					"notification-technology",
+					"player", owner.PlayerName,
+					"technology", TechnologyNames[CurrentTechnologyIndex]));
+
 			SelectAvailableTechnology();
 		}
 
