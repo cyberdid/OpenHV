@@ -116,11 +116,16 @@ never exceeds nine on average while squads hold eleven to twenty-nine, so
 
 ## Limitations
 
-Only the four military profiles on the four held-out maps. The candidate was
-kept in the tree rather than reverted; it costs about twenty-five lines of the
-engine patch that has to survive every engine update, and carries no measured
-benefit, so reverting it is defensible and is a maintenance judgement rather
-than a correctness one. Air squads were not changed and not measured.
+Only the four military profiles on the four held-out maps. Air squads were not
+changed and not measured.
+
+The candidate was reverted. It carried no measured benefit and about
+twenty-five lines of an engine patch that has to survive every engine update,
+and reverting has a second payoff: `HEAD` now reproduces `baseline-112-v2`
+exactly - the same seed gives synchronized state hash `D4CB3490` from both,
+against `A75BD56B` for the candidate - so the next experiment can be compared
+against a baseline that is already measured rather than paying for a fresh
+one.
 
 ## Next
 

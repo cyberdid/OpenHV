@@ -1,8 +1,8 @@
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
-index b06ff126..6514d569 100644
+index b06ff12..6514d56 100644
 --- a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
-@@ -93,12 +93,54 @@ public class SquadManagerBotModuleInfo : ConditionalTraitInfo
+@@ -93,12 +93,54 @@ namespace OpenRA.Mods.Common.Traits
  		[Desc("Enemy target types to never target.")]
  		public readonly BitSet<TargetableType> IgnoredEnemyTargetTypes = default;
  
@@ -57,7 +57,7 @@ index b06ff126..6514d569 100644
  		}
  
  		public override object Create(ActorInitializer init) { return new SquadManagerBotModule(init.Self, this); }
-@@ -133,6 +175,7 @@ public CPos GetRandomBaseCenter()
+@@ -133,6 +175,7 @@ namespace OpenRA.Mods.Common.Traits
  		IBot bot;
  		IBotPositionsUpdated[] notifyPositionsUpdated;
  		IBotNotifyIdleBaseUnits[] notifyIdleBaseUnits;
@@ -65,7 +65,7 @@ index b06ff126..6514d569 100644
  
  		List<Actor> unitsHangingAroundTheBase = [];
  		CPos initialBaseCenter;
-@@ -187,6 +230,7 @@ protected override void Created(Actor self)
+@@ -187,6 +230,7 @@ namespace OpenRA.Mods.Common.Traits
  		{
  			notifyPositionsUpdated = self.Owner.PlayerActor.TraitsImplementing<IBotPositionsUpdated>().ToArray();
  			notifyIdleBaseUnits = self.Owner.PlayerActor.TraitsImplementing<IBotNotifyIdleBaseUnits>().ToArray();
@@ -73,7 +73,7 @@ index b06ff126..6514d569 100644
  		}
  
  		protected override void TraitEnabled(Actor self)
-@@ -302,7 +346,157 @@ internal static Actor ClosestTo(IEnumerable<Actor> ownActors, Actor targetActor)
+@@ -302,7 +346,157 @@ namespace OpenRA.Mods.Common.Traits
  
  		(Actor Actor, WVec Offset) FindClosestEnemy(IEnumerable<Actor> actors, Actor sourceActor)
  		{
@@ -233,7 +233,7 @@ index b06ff126..6514d569 100644
  
  		void CleanSquads()
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
-index 4d90ce27..b4bdff15 100644
+index 4d90ce2..b4bdff1 100644
 --- a/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/Squad.cs
 @@ -18,6 +18,31 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
@@ -268,7 +268,7 @@ index 4d90ce27..b4bdff15 100644
  	public class Squad
  	{
  		public HashSet<Actor> Units = [];
-@@ -39,6 +64,7 @@ public class Squad
+@@ -39,6 +64,7 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  		/// Actor that is targeted, for any actor based checks. Use <see cref="Target"/> for a targeting location.
  		/// </summary>
  		internal Actor TargetActor;
@@ -276,7 +276,7 @@ index 4d90ce27..b4bdff15 100644
  
  		public Squad(IBot bot, SquadManagerBotModule squadManager, SquadType type)
  			: this(bot, squadManager, type, default) { }
-@@ -83,6 +109,7 @@ public void SetActorToTarget((Actor Actor, WVec Offset) target)
+@@ -83,6 +109,7 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  			if (TargetActor == null)
  			{
  				Target = Target.Invalid;
@@ -284,7 +284,7 @@ index 4d90ce27..b4bdff15 100644
  				return;
  			}
  
-@@ -90,6 +117,12 @@ public void SetActorToTarget((Actor Actor, WVec Offset) target)
+@@ -90,6 +117,12 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  				Target = Target.FromActor(TargetActor);
  			else
  				Target = Target.FromPos(TargetActor.CenterPosition + target.Offset);
@@ -298,10 +298,10 @@ index 4d90ce27..b4bdff15 100644
  
  		/// <summary>
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
-index 54bfebb7..35110a89 100644
+index 54bfebb..7eaf7cc 100644
 --- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/GroundStates.cs
-@@ -56,7 +56,39 @@ static Actor NewLeader(Squad owner)
+@@ -56,7 +56,39 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  		protected virtual bool ShouldFlee(Squad owner)
  		{
@@ -342,7 +342,7 @@ index 54bfebb7..35110a89 100644
  		}
  
  		protected (Actor Actor, WVec Offset) NewLeaderAndFindClosestEnemy(Squad owner)
-@@ -254,17 +286,50 @@ public void Deactivate(Squad owner) { }
+@@ -254,7 +286,14 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  	sealed class GroundUnitsFleeState : GroundStateBase, IState
  	{
@@ -352,17 +352,13 @@ index 54bfebb7..35110a89 100644
 +			if (owner.SquadManager.Info.RegroupTicks <= 0)
 +				return;
 +
-+			GoToNearestOwnBuilding(owner);
++			GoToRandomOwnBuilding(owner);
 +			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsRegroupState());
 +		}
  
  		public void Tick(Squad owner)
  		{
- 			if (!owner.IsValid)
- 				return;
- 
--			GoToRandomOwnBuilding(owner);
-+			GoToNearestOwnBuilding(owner);
+@@ -265,6 +304,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  			owner.FuzzyStateMachine.ChangeState(owner, new GroundUnitsIdleState());
  		}
  
@@ -397,10 +393,10 @@ index 54bfebb7..35110a89 100644
  	}
  }
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
-index d58d6f12..73196629 100644
+index d58d6f1..df740ba 100644
 --- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/ProtectionStates.cs
-@@ -46,6 +46,18 @@ public void Tick(Squad owner)
+@@ -46,6 +46,18 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  			owner.Bot.QueueOrder(new Order("AttackMove", null, owner.Target, false, groupedActors: owner.Units.ToArray()));
  
@@ -419,14 +415,7 @@ index d58d6f12..73196629 100644
  			if (!owner.IsTargetVisible)
  			{
  				if (Backoff < 0)
-@@ -75,10 +87,38 @@ public void Tick(Squad owner)
- 			if (!owner.IsValid)
- 				return;
- 
--			GoToRandomOwnBuilding(owner);
-+			GoToNearestOwnBuilding(owner);
- 			owner.FuzzyStateMachine.ChangeState(owner, new UnitsForProtectionIdleState());
- 		}
+@@ -81,4 +93,32 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
  
  		public void Deactivate(Squad owner) { owner.SquadManager.UnregisterSquad(owner); }
  	}
@@ -443,7 +432,7 @@ index d58d6f12..73196629 100644
 +		public void Activate(Squad owner)
 +		{
 +			reengageTick = owner.World.WorldTick + owner.SquadManager.Info.RegroupTicks;
-+			GoToNearestOwnBuilding(owner);
++			GoToRandomOwnBuilding(owner);
 +			owner.SquadManager.RecordRegroup(owner);
 +		}
 +
@@ -459,57 +448,3 @@ index d58d6f12..73196629 100644
 +		public void Deactivate(Squad owner) { }
 +	}
  }
-diff --git a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/StateBase.cs b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/StateBase.cs
-index 9fbd4608..531dff32 100644
---- a/OpenRA.Mods.Common/Traits/BotModules/Squads/States/StateBase.cs
-+++ b/OpenRA.Mods.Common/Traits/BotModules/Squads/States/StateBase.cs
-@@ -19,9 +19,17 @@ namespace OpenRA.Mods.Common.Traits.BotModules.Squads
- {
- 	abstract class StateBase
- 	{
--		protected static void GoToRandomOwnBuilding(Squad squad)
-+		/// <summary>
-+		/// Fall back to the closest own building.
-+		/// A squad that disengages is already under pressure, and sending it to a
-+		/// building chosen at random can march it the width of the base before it
-+		/// begins its regroup hold - dead time that scales with how well the base
-+		/// has developed. The nearest building is the one it can actually reach
-+		/// while the hold is doing something.
-+		/// </summary>
-+		protected static void GoToNearestOwnBuilding(Squad squad)
- 		{
--			var loc = RandomBuildingLocation(squad);
-+			var loc = NearestBuildingLocation(squad);
- 			foreach (var a in squad.Units)
- 				squad.Bot.QueueOrder(new Order("Move", a, Target.FromCell(squad.World, loc), false));
- 		}
-@@ -37,6 +45,29 @@ protected static CPos RandomBuildingLocation(Squad squad)
- 			return location;
- 		}
- 
-+		protected static CPos NearestBuildingLocation(Squad squad)
-+		{
-+			var center = squad.CenterPosition();
-+			Actor closest = null;
-+			var closestDistance = long.MaxValue;
-+			foreach (var building in squad.World.ActorsHavingTrait<Building>())
-+			{
-+				if (building.Owner != squad.Bot.Player)
-+					continue;
-+
-+				var distance = (building.CenterPosition - center).LengthSquared;
-+
-+				// Ties break on actor id so the choice stays synchronized.
-+				if (distance < closestDistance || (distance == closestDistance && closest != null && building.ActorID < closest.ActorID))
-+				{
-+					closest = building;
-+					closestDistance = distance;
-+				}
-+			}
-+
-+			return closest?.Location ?? squad.SquadManager.GetRandomBaseCenter();
-+		}
-+
- 		protected static bool BusyAttack(Actor a)
- 		{
- 			if (a.IsIdle)
