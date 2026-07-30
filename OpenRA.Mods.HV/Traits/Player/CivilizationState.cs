@@ -87,7 +87,14 @@ namespace OpenRA.Mods.HV.Traits
 			"builder2"
 		];
 
-		static readonly int[] TechnologyCosts = [40, 60, 80, 100, 120];
+		// The five nodes cost 400 knowledge between them. A Technologist produces
+		// about 418 across a match and finishes 2.7; every other profile produces
+		// about 91, which buys the first node and nothing else, so 322 of 448
+		// civilisations end a match on exactly one technology and civil
+		// engineering has never been completed by anyone. Halved, the tree is
+		// reachable by the profile built for it and the others can afford a
+		// second and third.
+		static readonly int[] TechnologyCosts = [20, 30, 40, 50, 60];
 		static readonly int[] TechnologyPrerequisites = [0, 0, 1 << 0, 1 << 2, 1 << 1];
 
 		public readonly CivilizationStateInfo Info;

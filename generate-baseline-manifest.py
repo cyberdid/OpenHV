@@ -61,6 +61,11 @@ VARIANTS = {
         "ECON-001 levelling trade candidate on the exact baseline-112-v1 map, "
         "slot, profile, and seed schedule.",
     ),
+    "econ002-candidate": (
+        "econ002-candidate-112-v1",
+        "ECON-002 reachable technology tree candidate on the exact "
+        "baseline-112-v1 map, slot, profile, and seed schedule.",
+    ),
 }
 
 
