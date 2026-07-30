@@ -494,3 +494,21 @@ which is what happens to a profile that banks materials when research starts
 spending them. Score-lead rates unchanged. The tick ceiling has now survived
 five candidates. See
 [Reachable Technology ECON-002](experiments/2026-07-30-reachable-technology-econ002.md).
+
+## [2026-07-30] experiment | Reject DIP-001 strategic interval
+
+Every war in the simulation involved Aggressor: the other three pairings fought
+in under 5% of matches, economist against fortress once in 112. At six times the
+match length, three survivors still carried transitionSequence 0 after 72,000
+ticks. The cause was the sampling rate — StrategicInterval 5000 against a
+12,000-tick match ran the whole diplomatic system twice, and two samples cannot
+accumulate grievance, so only the largest constant baseline reached the
+threshold. At 1000 every pairing fought, economist against fortress in 91% of
+matches. But every profile ended in fewer active wars, because exhaustion
+accrues a flat 250 per update and six times the updates burns the peace
+threshold six times faster: war became universal and brief. Collapses fell 21 to
+3, the world got less decisive rather than more, and the Economist lost 0.13 of
+its score-lead rate — the first score-lead movement any candidate has produced.
+Rejected and reverted. A v2 must scale the exhaustion increment with the
+interval so sampling rate changes who fights without changing how long. See
+[Strategic Interval DIP-001](experiments/2026-07-30-strategic-interval-dip001.md).

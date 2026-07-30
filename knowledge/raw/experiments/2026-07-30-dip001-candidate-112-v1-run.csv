@@ -1,0 +1,13 @@
+key,value
+runId,dip001-candidate-112-v1
+scheduleHash,5bc884d2a57ca27fcc713ba0625fc657fd6ad7370ecfb2bd386fad502f13edc3
+candidateWallSeconds,503.763
+candidateCounts,"{""completed"": 112}"
+baselineRunId,econ002-candidate-112-v1
+baselineCommit,8358e953b93a868e651987ddf0e0b147a1f7819a
+candidateCommit,a68514205f33366f6c6f7250030eb7c2f9dce1b3
+pairedObservations,448
+baselineCollapsedFactions,21
+candidateCollapsedFactions,3
+baselineEndReasons,"{""world-tick-limit"": 112}"
+candidateEndReasons,"{""world-tick-limit"": 112}"

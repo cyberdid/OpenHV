@@ -42,13 +42,16 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class DiplomacyManagerInfo : TraitInfo
 	{
 		[Desc("Ticks between strategic relationship decisions.")]
-		// Grievance is written to accumulate across a match, but at 5000 ticks a
-		// 12,000-tick match granted the whole diplomatic system two updates. Two
-		// samples cannot accumulate anything: the war threshold was reachable
-		// only by whichever profile carried the largest constant, so 100% of
-		// wars involved Aggressor and the other three pairings fought in under
-		// 5% of matches. A twelfth of the match gives the model room to build.
-		public readonly int StrategicInterval = 1000;
+		// DIP-001 measured what this controls: at 5000 ticks a 12,000-tick match
+		// runs the whole diplomatic system twice, and two samples cannot
+		// accumulate grievance, so only the profile with the largest constant
+		// baseline ever reaches the war threshold. Lowering it to 1000 made
+		// every pairing fight - and made every war shorter, because exhaustion
+		// accrues a flat amount per update. Wars became universal and brief,
+		// collapses fell from 21 to 3 and the Economist lost 0.13 of its
+		// score-lead rate. Any v2 has to scale the exhaustion increment with
+		// this interval before changing it.
+		public readonly int StrategicInterval = 5000;
 
 		[Desc("Combined grievance required before an AI pair enters war.")]
 		public readonly int WarGrievanceThreshold = 400;
