@@ -15,6 +15,17 @@ The limit on the image model is not quota. It is that a unit needs the *same*
 creature from eight angles and through a walk cycle, and nothing in the prompt
 can pin that down. A rig can be posed, so units come from the rig.
 
+## Read the reading order every time
+
+The importer matches names to subjects in reading order — rows grouped by
+vertical overlap, then left to right within a row. On a scattered composition
+that order is often **not** what the eye reads off the canvas: the first sheet
+came back in the order asked for, the second put the brain organ first. Crop
+the detected subjects and look before naming them.
+
+The model also draws a subject twice if the description is close to another
+one's. Detect one more than you asked for, name the extra, and delete it.
+
 ## Buildings still missing
 
 The swarm inherits `structures.yi`, so only the Yuruki line matters. `BARRIER`
@@ -133,9 +144,10 @@ Bottom row, left to right:
 4. SPIRE. A slender tapering chitin spire with three fleshy antennae fronds
    curling outward near the top and a knot of exposed muscle at the base. Much
    taller than wide.
-5. TELEPORT PAD. A flat oval chitin pad set into the ground, its centre an open
-   pit of swirling membrane, ringed by eight short bone teeth. Wide and very
-   low, almost flush.
+5. MINING TOWER. A tall drilling organ standing over ore: a broad chitin base
+   gripping the ground with four bone claws, and a thick segmented proboscis
+   rising from it and angling down into the rock, ringed with muscle where the
+   segments meet. Half again as tall as it is wide.
 6. HARBOUR. A broad chitin shelf sloping down at the front into an open muscled
    channel, flanked by two curved bone arms reaching forward like crab claws.
    The largest of the six.
@@ -150,9 +162,9 @@ reading order, so they must be listed in the same order the prompt asked for.
 python3 import-sprite.py mods/hv/bits/sprites/buildings \
   --background 8D9894 --background-tolerance 40 --team-tolerance 150 \
   --animation "batch=<downloaded sheet>,detect=6,facings=0" \
-  --subject "hive-radar=35x46"      --subject "hive-trader=40x40" \
-  --subject "hive-starport=40x60"   --subject "hive-techcenter=36x52" \
-  --subject "hive-orepurifier=24x44" --subject "hive-bunker=22x23" \
+  --subject "hive-turret=47x40"     --subject "hive-aaturret=40x40" \
+  --subject "hive-field=40x42"      --subject "hive-uplink=40x60" \
+  --subject "hive-miner2=40x60"     --subject "hive-harbor=53x67" \
   --author "Nano Banana Pro, Universe"
 ```
 

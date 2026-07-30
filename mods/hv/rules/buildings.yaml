@@ -692,9 +692,6 @@ MODULE2:
 	-Encyclopedia:
 
 MINER2:
-	RenderSprites:
-		FactionImages:
-			sw: swarm-harvester-deep
 	Inherits: ^Building
 	Inherits@Shape: ^2x3Shape
 	Inherits@Flame: ^BuildingFlame2
