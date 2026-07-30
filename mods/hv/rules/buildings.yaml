@@ -1287,6 +1287,9 @@ BUNKER2:
 	-Encyclopedia:
 
 TURRET:
+	RenderSprites:
+		FactionImages:
+			sw: hive-turret
 	Inherits: ^DefenseBuilding
 	Inherits@AutoTarget: ^AutoTargetGround
 	Buildable:
@@ -1364,6 +1367,9 @@ TURRET2:
 		Sequence: shoot
 
 AATURRET:
+	RenderSprites:
+		FactionImages:
+			sw: hive-aaturret
 	Inherits: ^DefenseBuilding
 	Inherits@AutoTarget: ^AutoTargetAir
 	Selectable:
@@ -1597,6 +1603,7 @@ FIELD:
 	RenderSprites:
 		Image: field
 		FactionImages:
+			sw: hive-field
 			sc: field2
 			yi: field
 
@@ -1678,6 +1685,9 @@ SILO:
 		RequiresCondition: !build-incomplete
 
 UPLINK:
+	RenderSprites:
+		FactionImages:
+			sw: hive-uplink
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x1Shape
 	Inherits@Flame: ^BuildingFlame2
@@ -1847,6 +1857,9 @@ STORAGE:
 		Sequence: make-platform4
 
 TELEVATOR:
+	RenderSprites:
+		FactionImages:
+			sw: hive-televator
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x1Shape
 	Inherits@Flame: ^BuildingFlame
@@ -1950,6 +1963,9 @@ TELEVATOR2:
 	-Encyclopedia:
 
 HARBOR:
+	RenderSprites:
+		FactionImages:
+			sw: hive-harbor
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^3x3Shape
 	Inherits@Flame: ^BuildingFlame2

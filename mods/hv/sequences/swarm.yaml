@@ -2265,3 +2265,163 @@ swarm-dart:
 		Filename: swarm-dart.png
 		Start: 16
 		Length: 1
+
+hive-turret:
+	Inherits@Flame: ^BuildingFlame3
+	idle:
+		Filename: hive-turret.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-turret.png
+	turret:
+		Filename: blank.png
+	shoot:
+		Filename: hive-turret.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-turret.png
+
+hive-aaturret:
+	Inherits@Flame: ^BuildingFlame3
+	idle:
+		Filename: hive-aaturret.png
+	shadow-overlay:
+		Filename: blank.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	damaged-idle:
+		Filename: hive-aaturret.png
+	turret:
+		Filename: blank.png
+	shoot:
+		Filename: hive-aaturret.png
+	charge:
+		Filename: hive-aaturret.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-aaturret.png
+
+hive-field:
+	Inherits@Flame: ^BuildingFlame3
+	idle:
+		Filename: hive-field.png
+	shadow-overlay:
+		Filename: blank.png
+	charged:
+		Filename: hive-field.png
+	loop:
+		Filename: hive-field.png
+	end:
+		Filename: hive-field.png
+	damaged-idle:
+		Filename: hive-field.png
+	damaged-charged:
+		Filename: hive-field.png
+	damaged-loop:
+		Filename: hive-field.png
+	damaged-end:
+		Filename: hive-field.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-field.png
+
+hive-uplink:
+	Inherits@Flame: ^BuildingFlame3
+	idle:
+		Filename: hive-uplink.png
+	animation:
+		Filename: hive-uplink.png
+	damaged-idle:
+		Filename: hive-uplink.png
+	shadow-overlay:
+		Filename: blank.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-uplink.png
+
+hive-harbor:
+	Inherits@Flame: ^BuildingFlame3
+	idle:
+		Filename: hive-harbor.png
+	idle-entry:
+		Filename: hive-harbor.png
+	shadow-overlay:
+		Filename: blank.png
+	production-inprogress:
+		Filename: hive-harbor.png
+	damaged-idle:
+		Filename: hive-harbor.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-harbor.png
+
+hive-televator:
+	shadow-overlay:
+		Filename: blank.png
+	damaged-shadow-overlay:
+		Filename: blank.png
+	Inherits@Flame: ^BuildingFlame3
+	active:
+		Filename: hive-televator.png
+	idle:
+		Filename: hive-televator.png
+	damaged-idle:
+		Filename: hive-televator.png
+	make:
+		Filename: build.png
+		Length: 39
+		Tick: 30
+		ZOffset: 2048
+	make-overlay:
+		Filename: build-vanish.png
+		Length: 26
+		Tick: 30
+		ZOffset: 2048
+	icon:
+		Filename: hive-televator.png

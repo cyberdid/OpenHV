@@ -175,3 +175,21 @@ Actors:
 	Actor42: blaster
 		Owner: Multi0
 		Location: 32,44
+	Actor43: turret
+		Owner: Multi0
+		Location: 20,50
+	Actor44: aaturret
+		Owner: Multi0
+		Location: 25,50
+	Actor45: field
+		Owner: Multi0
+		Location: 30,50
+	Actor46: uplink
+		Owner: Multi0
+		Location: 35,50
+	Actor47: harbor
+		Owner: Multi0
+		Location: 40,50
+	Actor48: televator
+		Owner: Multi0
+		Location: 45,50
