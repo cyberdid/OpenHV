@@ -198,8 +198,8 @@ namespace OpenRA.Mods.HV.Traits
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
 					message,
-					"first", relation.PlayerA.PlayerName,
-					"second", relation.PlayerB.PlayerName,
+					"first", relation.PlayerA.ResolvedPlayerName,
+					"second", relation.PlayerB.ResolvedPlayerName,
 					"reason", FluentProvider.GetMessage(ReasonKey(reason))));
 		}
 

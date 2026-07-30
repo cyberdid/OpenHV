@@ -409,7 +409,7 @@ namespace OpenRA.Mods.HV.Traits
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
 					TechnologyLine,
-					"player", owner.PlayerName,
+					"player", owner.ResolvedPlayerName,
 					"technology", TechnologyNames[CurrentTechnologyIndex]));
 
 			SelectAvailableTechnology();

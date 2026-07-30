@@ -320,8 +320,8 @@ namespace OpenRA.Mods.HV.Traits
 			TextNotificationsManager.AddSystemLine(
 				FluentProvider.GetMessage(
 					RouteLine,
-					"first", route.Relation.PlayerA.PlayerName,
-					"second", route.Relation.PlayerB.PlayerName,
+					"first", route.Relation.PlayerA.ResolvedPlayerName,
+					"second", route.Relation.PlayerB.ResolvedPlayerName,
 					"status", FluentProvider.GetMessage(
 						status == TradeRouteStatus.Active
 							? StatusActive
