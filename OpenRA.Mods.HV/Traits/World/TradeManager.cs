@@ -213,9 +213,15 @@ namespace OpenRA.Mods.HV.Traits
 			var sourceStock = GetStock(source, resource);
 			var destinationStock = GetStock(destination, resource);
 			var sourceReserve = ReserveTarget(source, resource);
-			var destinationTarget = ReserveTarget(destination, resource);
 			var surplus = Math.Max(0, sourceStock - sourceReserve);
-			var deficit = Math.Max(0, destinationTarget - destinationStock);
+
+			// Trade levels holdings; it does not only relieve emergencies. Buying
+			// solely to climb back to an absolute floor means nothing moves unless
+			// somebody is close to running out, and across the 112-match baseline
+			// nobody ever was: 672 routes carried zero goods. Half the gap, so a
+			// single shipment cannot overshoot into the exporter being the poorer
+			// of the two.
+			var deficit = Math.Max(0, (sourceStock - destinationStock) / 2);
 			var freeStorage = Math.Max(0, GetStorage(destination, resource) - destinationStock);
 			var amount = Math.Min(capacity, Math.Min(surplus, Math.Min(deficit, freeStorage)));
 			if (amount > best.Amount)

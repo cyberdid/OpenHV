@@ -56,6 +56,11 @@ VARIANTS = {
         "AI-005 regroup locality and early re-engagement candidate on the "
         "exact baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "econ001-candidate": (
+        "econ001-candidate-112-v1",
+        "ECON-001 levelling trade candidate on the exact baseline-112-v1 map, "
+        "slot, profile, and seed schedule.",
+    ),
 }
 
 
