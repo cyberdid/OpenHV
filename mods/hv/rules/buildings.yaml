@@ -1,6 +1,9 @@
 # License: CC-BY-SA-4.0
 
 BASE:
+	RenderSprites:
+		FactionImages:
+			sw: hive-base
 	Inherits: ^BaseBuilding
 	Inherits@Flame: ^BuildingFlame3
 	Selectable:
@@ -355,6 +358,7 @@ GENERATOR:
 	RenderSprites:
 		Image: generator
 		FactionImages:
+			sw: hive-generator
 			sc: generator3
 			yi: generator
 
@@ -562,6 +566,9 @@ TRADER:
 			yi: trader
 
 MODULE:
+	RenderSprites:
+		FactionImages:
+			sw: hive-module
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x2Shape
 	Inherits@Flame: ^BuildingFlame2
@@ -681,6 +688,9 @@ MODULE2:
 	-Encyclopedia:
 
 MINER2:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-harvester-deep
 	Inherits: ^Building
 	Inherits@Shape: ^2x3Shape
 	Inherits@Flame: ^BuildingFlame2
@@ -832,6 +842,9 @@ STARPORT2:
 	-Encyclopedia:
 
 FACTORY:
+	RenderSprites:
+		FactionImages:
+			sw: hive-factory
 	Inherits: ^BaseBuilding
 	Inherits@Shape: ^2x4Shape
 	Inherits@Flame: ^BuildingFlame2
@@ -1775,6 +1788,7 @@ STORAGE:
 	RenderSprites:
 		Image: storage2
 		FactionImages:
+			sw: hive-storage
 			sc: storage
 			yi: storage2
 	ExitsDebugOverlay:

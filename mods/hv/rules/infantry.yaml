@@ -1,6 +1,9 @@
 # License: CC-BY-SA-4.0
 
 RIFLEMAN:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-warrior
 	Inherits: ^Pod
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
@@ -122,6 +125,9 @@ MORTAR:
 		VoiceSet: GenericVoice1
 
 SNIPER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-runner
 	Inherits: ^Pod
 	Inherits@AutoTarget: ^AutoTargetGroundAssaultMove
 	Buildable:
@@ -431,6 +437,9 @@ BLASTER:
 	-WithDeathAnimation:
 
 SHOCKER:
+	RenderSprites:
+		FactionImages:
+			sw: swarm-spitter
 	Inherits: ^Pod
 	Inherits@AutoTarget: ^AutoTargetAllAssaultMove
 	Buildable:

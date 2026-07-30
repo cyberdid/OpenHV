@@ -74,8 +74,6 @@ Rules:
 	hv|rules/terrain.yaml
 	hv|rules/mothership.yaml
 	hv|rules/trade.yaml
-	hv|rules/swarm-buildings.yaml
-	hv|rules/swarm-units.yaml
 
 Sequences:
 	hv|sequences/animals.yaml

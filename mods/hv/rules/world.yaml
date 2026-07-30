@@ -478,19 +478,19 @@ World:
 		Class: none
 		ClassName: options-starting-units.base-only
 		Factions: sw
-		BaseActor: swarmbase
+		BaseActor: base
 	StartingUnits@MinerSW:
 		Class: miner
 		ClassName: options-starting-units.base-miner
 		Factions: sw
-		BaseActor: swarmbase
-		SupportActors: swarmharvester
+		BaseActor: base
+		SupportActors: miner
 	StartingUnits@ScoutSW:
 		Class: scout
 		ClassName: options-starting-units.base-scout
 		Factions: sw
-		BaseActor: swarmbase
-		SupportActors: swarmrunner
+		BaseActor: base
+		SupportActors: balloon
 	StartingUnits@MinerYI:
 		Class: miner
 		ClassName: options-starting-units.base-miner
