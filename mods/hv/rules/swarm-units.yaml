@@ -1,0 +1,264 @@
+# License: CC-BY-SA-4.0
+
+SWARMWARRIOR:
+	Inherits: ^Pod
+	Buildable:
+		Queue: Pod
+		BuildPaletteOrder: 10
+		Prerequisites: ~swarmpod
+		Description: actor-swarmwarrior.description
+	Valued:
+		Cost: 200
+	Tooltip:
+		Name: actor-swarmwarrior.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 15000
+	HitShape:
+	Mobile:
+		Speed: 90
+	Armament@Primary:
+		Weapon: Flamethrower
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMSPITTER:
+	Inherits: ^Pod
+	Buildable:
+		Queue: Pod
+		BuildPaletteOrder: 20
+		Prerequisites: ~swarmpod
+		Description: actor-swarmspitter.description
+	Valued:
+		Cost: 350
+	Tooltip:
+		Name: actor-swarmspitter.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 12000
+	HitShape:
+	Mobile:
+		Speed: 75
+	Armament@Primary:
+		Weapon: PlasmaMachineGun
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMRUNNER:
+	Inherits: ^Pod
+	Buildable:
+		Queue: Pod
+		BuildPaletteOrder: 30
+		Prerequisites: ~swarmpod
+		Description: actor-swarmrunner.description
+	Valued:
+		Cost: 150
+	Tooltip:
+		Name: actor-swarmrunner.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 9000
+	HitShape:
+	Mobile:
+		Speed: 140
+	Armament@Primary:
+		Weapon: LightMachineGun
+	AttackFrontal:
+		FacingTolerance: 0
+	RevealsShroud:
+		Range: 8c0
+		RevealGeneratedShroud: False
+
+SWARMBRUISER:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Tank
+		BuildPaletteOrder: 10
+		Prerequisites: ~swarmforge
+		Description: actor-swarmbruiser.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-swarmbruiser.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 45000
+	HitShape:
+	Mobile:
+		Speed: 60
+	Armament@Primary:
+		Weapon: TankCannon
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMMORTAR:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Tank
+		BuildPaletteOrder: 20
+		Prerequisites: ~swarmforge
+		Description: actor-swarmmortar.description
+	Valued:
+		Cost: 900
+	Tooltip:
+		Name: actor-swarmmortar.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 18000
+	HitShape:
+	Mobile:
+		Speed: 50
+	Armament@Primary:
+		Weapon: MortarGun
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMLANCE:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Tank
+		BuildPaletteOrder: 30
+		Prerequisites: ~swarmforge
+		Description: actor-swarmlance.description
+	Valued:
+		Cost: 700
+	Tooltip:
+		Name: actor-swarmlance.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 20000
+	HitShape:
+	Mobile:
+		Speed: 70
+	Armament@Primary:
+		Weapon: AntiAirRocket
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMBURROWER:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Tank
+		BuildPaletteOrder: 40
+		Prerequisites: ~swarmforge
+		Description: actor-swarmburrower.description
+	Valued:
+		Cost: 800
+	Tooltip:
+		Name: actor-swarmburrower.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 16000
+	HitShape:
+	Mobile:
+		Speed: 80
+	Armament@Primary:
+		Weapon: HeavyMachineGun
+	AttackFrontal:
+		FacingTolerance: 0
+
+SWARMHARVESTER:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Utility
+		BuildPaletteOrder: 10
+		Prerequisites: ~swarmstore
+		Description: actor-swarmharvester.description
+	Valued:
+		Cost: 1100
+	Tooltip:
+		Name: actor-swarmharvester.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 15000
+	HitShape:
+	Mobile:
+		Speed: 60
+	GrantConditionOnTerrain:
+		Condition: deposits
+		TerrainTypes: Ore
+	Miner:
+		TerrainTypes: Ore
+		Colors:
+			iron: 878787
+			gold: F07000
+	Transforms:
+		PauseOnCondition: !deposits
+		IntoActor: swarmharvester2
+		Facing: 750
+		Offset: 0,-2
+	Selectable:
+		Class: swarmharvester
+
+SWARMCARRIER:
+	Inherits: ^Vehicle
+	Buildable:
+		Queue: Utility
+		BuildPaletteOrder: 20
+		Prerequisites: ~swarmbase
+		Description: actor-swarmcarrier.description
+	Valued:
+		Cost: 2500
+	Tooltip:
+		Name: actor-swarmcarrier.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 20000
+	HitShape:
+	Mobile:
+		Speed: 60
+	Transforms:
+		IntoActor: swarmbase
+		Offset: 0,1
+		Facing: 384
+	Selectable:
+		Class: swarmcarrier
+
+SWARMDRIFTER:
+	Inherits: ^Helicopter
+	Buildable:
+		Queue: Aircraft
+		BuildPaletteOrder: 10
+		Prerequisites: ~swarmforge
+		Description: actor-swarmdrifter.description
+	Valued:
+		Cost: 1200
+	Tooltip:
+		Name: actor-swarmdrifter.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 14000
+	HitShape:
+	Armament@Primary:
+		Weapon: Bomb
+	AttackAircraft:
+
+SWARMINTERCEPTOR:
+	Inherits: ^Helicopter
+	Buildable:
+		Queue: Aircraft
+		BuildPaletteOrder: 20
+		Prerequisites: ~swarmforge
+		Description: actor-swarminterceptor.description
+	Valued:
+		Cost: 900
+	Tooltip:
+		Name: actor-swarminterceptor.name
+	UpdatesPlayerStatistics:
+		AddToArmyValue: true
+	Health:
+		HP: 10000
+	HitShape:
+	Armament@Primary:
+		Weapon: AircraftChainGunAir
+	AttackAircraft:

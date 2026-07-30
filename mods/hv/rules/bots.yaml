@@ -58,14 +58,19 @@ Player:
 		PlaceDefenseTowardsEnemyChance: 0
 		NewProductionCashThreshold: 7000
 		WaterTerrainTypes: Littoral
-		ConstructionYardTypes: base, base2
-		PowerTypes: generator
-		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2
+		ConstructionYardTypes: base, base2, swarmbase
+		PowerTypes: generator, swarmgen
+		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmbase, swarmpod, swarmforge
 		NavalProductionTypes: harbor, harbor2
-		RefineryTypes: storage
+		RefineryTypes: storage, swarmstore
 		DefenseTypes: turret, turret2, aaturret, aaturret2, bunker, bunker2
 		BuildingLimits:
 			base: 1
+			swarmbase: 1
+			swarmgen: 4
+			swarmstore: 3
+			swarmpod: 4
+			swarmforge: 4
 			storage: 3
 			module: 4
 			module2: 4
@@ -87,6 +92,11 @@ Player:
 			silo: 1
 		BuildingFractions:
 			base: 1
+			swarmbase: 1
+			swarmgen: 4
+			swarmstore: 3
+			swarmpod: 4
+			swarmforge: 4
 			storage: 1
 			module: 1
 			module2: 1
@@ -136,13 +146,18 @@ Player:
 		PlaceDefenseTowardsEnemyChance: 0
 		NewProductionCashThreshold: 7000
 		WaterTerrainTypes: Littoral
-		ConstructionYardTypes: base, base2
-		PowerTypes: generator
-		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2
+		ConstructionYardTypes: base, base2, swarmbase
+		PowerTypes: generator, swarmgen
+		ProductionTypes: module, module2, factory, factory2, starport, starport2, harbor, harbor2, base, base2, swarmbase, swarmpod, swarmforge
 		NavalProductionTypes: harbor, harbor2
-		RefineryTypes: storage
+		RefineryTypes: storage, swarmstore
 		BuildingLimits:
 			base: 1
+			swarmbase: 1
+			swarmgen: 4
+			swarmstore: 3
+			swarmpod: 4
+			swarmforge: 4
 			storage: 3
 			module: 4
 			module2: 4
@@ -160,6 +175,11 @@ Player:
 			harbor2: 1
 		BuildingFractions:
 			base: 1
+			swarmbase: 1
+			swarmgen: 4
+			swarmstore: 3
+			swarmpod: 4
+			swarmforge: 4
 			storage: 1
 			module: 1
 			module2: 1
@@ -199,10 +219,10 @@ Player:
 		RetreatHealthPercentage: 55
 		RetreatRelativeValuePercentage: 130
 		RegroupTicks: 150
-		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
-		AirUnitsTypes: gunship, jet, copter, banshee
-		ConstructionYardTypes: base, base2
+		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
+		ConstructionYardTypes: base, base2, swarmbase
 		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
 	SquadManagerBotModule@EconomistAI:
 		RequiresCondition: enable-economist-ai
@@ -223,10 +243,10 @@ Player:
 		RetreatHealthPercentage: 70
 		RetreatRelativeValuePercentage: 150
 		RegroupTicks: 500
-		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
-		AirUnitsTypes: gunship, jet, copter, banshee
-		ConstructionYardTypes: base, base2
+		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
+		ConstructionYardTypes: base, base2, swarmbase
 		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
 	SquadManagerBotModule@TechnologistAI:
 		RequiresCondition: enable-technologist-ai
@@ -247,10 +267,10 @@ Player:
 		RetreatHealthPercentage: 75
 		RetreatRelativeValuePercentage: 160
 		RegroupTicks: 600
-		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
-		AirUnitsTypes: gunship, jet, copter, banshee
-		ConstructionYardTypes: base, base2
+		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
+		ConstructionYardTypes: base, base2, swarmbase
 		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
 	SquadManagerBotModule@FortressAI:
 		RequiresCondition: enable-fortress-ai
@@ -273,10 +293,10 @@ Player:
 		RetreatHealthPercentage: 65
 		RetreatRelativeValuePercentage: 140
 		RegroupTicks: 750
-		ExcludeFromSquadsTypes: miner, builder, builder2, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
+		ExcludeFromSquadsTypes: miner, builder, builder2, swarmharvester, swarmcarrier, tanker1, tanker2, minelayer, technician, broker, mineship, mineship2, blaster
 		NavalUnitsTypes: torpedoboat, railgunboat, lightboat, patrolboat, boomer, submarine, carrier
-		AirUnitsTypes: gunship, jet, copter, banshee
-		ConstructionYardTypes: base, base2
+		AirUnitsTypes: gunship, jet, copter, banshee, swarmdrifter, swarminterceptor
+		ConstructionYardTypes: base, base2, swarmbase
 		ProtectionTypes: base, base2, outpost, outpost2, generator, miner2, storage, module, module2, radar, radar2, factory, factory2, harbor, harbor2, trader, starport, starport2, techcenter, bunker, bunker2, turret, aaturret, howitzer, uplink, field, silo
 	UnitBuilderBotModule@AggressorAI:
 		IdleBaseUnitsMaximum: 16
@@ -285,6 +305,17 @@ Player:
 		UnitQueues: Pod, Utility, Tank, Aircraft, Ship, Trade
 		UnitsToBuild:
 			miner: 3
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 			builder: 1
 			builder2: 1
 			radartank: 1
@@ -504,6 +535,17 @@ Player:
 			battleship: 5
 		UnitLimits:
 			miner: 3
+			swarmharvester: 3
+			swarmcarrier: 1
+			swarmwarrior: 10
+			swarmspitter: 8
+			swarmrunner: 4
+			swarmbruiser: 8
+			swarmmortar: 3
+			swarmlance: 3
+			swarmburrower: 3
+			swarmdrifter: 3
+			swarminterceptor: 3
 			builder: 1
 			builder2: 1
 			balloon: 2
@@ -523,9 +565,9 @@ Player:
 		CheckCaptureTargetsForVisibility: False
 	MinerBotModule:
 		RequiresCondition: enable-universe-ai
-		DeployableActorTypes: miner
+		DeployableActorTypes: miner, swarmharvester
 		DeployableTerrainTypes: Ore
-		DeployedActorTypes: miner2
+		DeployedActorTypes: miner2, swarmharvester2
 		VehiclesQueue: Utility
 	MinelayerBotModule:
 		RequiresCondition: enable-universe-ai

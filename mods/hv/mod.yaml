@@ -74,6 +74,8 @@ Rules:
 	hv|rules/terrain.yaml
 	hv|rules/mothership.yaml
 	hv|rules/trade.yaml
+	hv|rules/swarm-buildings.yaml
+	hv|rules/swarm-units.yaml
 
 Sequences:
 	hv|sequences/animals.yaml
@@ -87,6 +89,7 @@ Sequences:
 	hv|sequences/weapons.yaml
 	hv|sequences/terrain.yaml
 	hv|sequences/ships.yaml
+	hv|sequences/swarm.yaml
 
 Weapons:
 	hv|weapons/explosions.yaml

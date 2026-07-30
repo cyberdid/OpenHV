@@ -168,10 +168,16 @@
 		Side: Corporations
 		Selectable: true
 		Description: faction-synapol.description
+	Faction@Swarm:
+		Name: faction-swarm.name
+		InternalName: sw
+		Side: Swarm
+		Selectable: true
+		Description: faction-swarm.description
 	Faction@Random:
 		Name: faction-random.name
 		InternalName: Random
-		RandomFactionMembers: yi, sc
+		RandomFactionMembers: yi, sc, sw
 		Side: Random
 		Description: faction-random.description
 	PaletteFromGimpOrJascFile@Terrain:
@@ -468,6 +474,23 @@ World:
 		ClassName: options-starting-units.base-only
 		Factions: sc
 		BaseActor: base2
+	StartingUnits@BaseSW:
+		Class: none
+		ClassName: options-starting-units.base-only
+		Factions: sw
+		BaseActor: swarmbase
+	StartingUnits@MinerSW:
+		Class: miner
+		ClassName: options-starting-units.base-miner
+		Factions: sw
+		BaseActor: swarmbase
+		SupportActors: swarmharvester
+	StartingUnits@ScoutSW:
+		Class: scout
+		ClassName: options-starting-units.base-scout
+		Factions: sw
+		BaseActor: swarmbase
+		SupportActors: swarmrunner
 	StartingUnits@MinerYI:
 		Class: miner
 		ClassName: options-starting-units.base-miner

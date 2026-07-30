@@ -1,0 +1,199 @@
+# License: CC-BY-SA-4.0
+
+SWARMBASE:
+	Inherits: ^BaseBuilding
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 0
+		Prerequisites: ~disabled
+		Description: actor-swarmbase.description
+	Valued:
+		Cost: 5000
+	Tooltip:
+		Name: actor-swarmbase.name
+	Building:
+		Footprint: xx xx ++
+		Dimensions: 2,3
+	Health:
+		HP: 250000
+	Armor:
+		Type: Steel
+	HitShape:
+	RevealsShroud:
+		Range: 6c0
+		RevealGeneratedShroud: False
+	BaseBuilding:
+	SettlementCore:
+	CivilInfrastructure:
+		Housing: 1200
+		Jobs: 700
+		Food: 30
+		Materials: 12
+		Energy: 10
+		Knowledge: 2
+		EnergyUse: 8
+		MaterialsUse: 2
+		FoodStorage: 3000
+		MaterialsStorage: 2000
+		EnergyStorage: 1500
+		TradeCapacity: 12
+	BaseProvider:
+		Range: 14c0
+	Power:
+		Amount: 120
+	ProvidesPrerequisite@BuildingName:
+	ProvidesPrerequisite@Swarm:
+		Prerequisite: structures.sw
+	TechPrerequisiteWithBots:
+		Prerequisite: bots
+	Production:
+		Produces: Building
+
+SWARMGEN:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 10
+		Prerequisites: ~structures.sw
+		Description: actor-swarmgen.description
+	Valued:
+		Cost: 500
+	Tooltip:
+		Name: actor-swarmgen.name
+	Building:
+		Footprint: xx
+		Dimensions: 1,2
+	Health:
+		HP: 60000
+	Armor:
+		Type: Steel
+	HitShape:
+	RevealsShroud:
+		Range: 6c0
+		RevealGeneratedShroud: False
+	Power:
+		Amount: 200
+	ProvidesPrerequisite@BuildingName:
+
+SWARMSTORE:
+	Inherits: ^Building
+	CivilInfrastructure:
+		Housing: 300
+		Jobs: 50
+		FoodStorage: 2500
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 20
+		Prerequisites: ~structures.sw
+		Description: actor-swarmstore.description
+	Valued:
+		Cost: 1000
+	Tooltip:
+		Name: actor-swarmstore.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 80000
+	Armor:
+		Type: Steel
+	HitShape:
+	RevealsShroud:
+		Range: 6c0
+		RevealGeneratedShroud: False
+	Power:
+		Amount: -30
+	ProvidesPrerequisite@BuildingName:
+
+SWARMPOD:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 30
+		Prerequisites: ~structures.sw
+		Description: actor-swarmpod.description
+	Valued:
+		Cost: 500
+	Tooltip:
+		Name: actor-swarmpod.name
+	Building:
+		Footprint: xx xx
+		Dimensions: 2,2
+	Health:
+		HP: 60000
+	Armor:
+		Type: Steel
+	HitShape:
+	RevealsShroud:
+		Range: 6c0
+		RevealGeneratedShroud: False
+	Power:
+		Amount: -40
+	Production:
+		Produces: Pod
+	ProvidesPrerequisite@BuildingName:
+	PrimaryBuilding:
+	Exit:
+
+SWARMFORGE:
+	Inherits: ^Building
+	Buildable:
+		Queue: Building
+		BuildPaletteOrder: 40
+		Prerequisites: ~structures.sw
+		Description: actor-swarmforge.description
+	Valued:
+		Cost: 2000
+	Tooltip:
+		Name: actor-swarmforge.name
+	Building:
+		Footprint: xx xx ++
+		Dimensions: 2,3
+	Health:
+		HP: 90000
+	Armor:
+		Type: Steel
+	HitShape:
+	RevealsShroud:
+		Range: 6c0
+		RevealGeneratedShroud: False
+	Power:
+		Amount: -60
+	Production:
+		Produces: Tank, Utility
+	ProvidesPrerequisite@BuildingName:
+	PrimaryBuilding:
+	Exit:
+
+SWARMHARVESTER2:
+	Inherits: ^Building
+	Inherits@Shape: ^2x3Shape
+	Building:
+		Footprint: ++ ++ xx
+		Dimensions: 2,3
+		TerrainTypes: Clear, Road, Crater, Grass, Grass Pit, Ore, Mountain, Rock, Ice, Snow, Red Snow, Sand, Black Sand, Stone, Tech, Dirt, Blocked
+	Tooltip:
+		Name: actor-swarmharvester2.name
+	Valued:
+		Cost: 1000
+	Health:
+		HP: 45000
+	Armor:
+		Type: Steel
+	ProvidesPrerequisite@BuildingName:
+	ResourceCollector:
+		InitialDelay: 100
+		Interval: 75
+		Amount: 80
+		Capacity: 800
+		DepletionModifier: 25
+		MinimumReserves: 700
+		DeliveryVehicleType: tanker1
+		Deposits:
+			iron: 50000
+			gold: 75000
+		Colors:
+			iron: 878787
+			gold: F07000
+	Exit:
+	WithSpriteBody:
