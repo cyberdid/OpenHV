@@ -685,6 +685,14 @@ def parse_args() -> argparse.Namespace:
         help="Downscaled team-mask coverage, 0-255, above which a pixel joins the "
         "player ramp. Lower keeps thin keyed edges; higher avoids bleed.",
     )
+    parser.add_argument(
+        "--subject",
+        action="append",
+        metavar="NAME=WIDTHxHEIGHT",
+        help="With a detecting animation, write each found subject to its own "
+        "sprite under OUTPUT as a directory, in reading order. Repeat once per "
+        "subject.",
+    )
     parser.add_argument("--author", required=True)
     parser.add_argument("--license", default="CC-BY-SA-4.0")
     parser.add_argument(
@@ -694,6 +702,75 @@ def parse_args() -> argparse.Namespace:
         help="Downscale filter; box suits already-blocky art",
     )
     return parser.parse_args()
+
+
+
+def split_subjects(args, animations, palette, resample, background, team_key):
+    """Cut one sheet of several objects into one sprite file per object.
+
+    Asking an image model for twelve buildings one at a time costs twelve
+    generations and twelve chances to drift in palette or lighting. Asked for
+    six on a single canvas they come back sharing both, and at 4096 pixels each
+    one still has a thousand to itself - far more than a forty pixel frame
+    needs. This splits that canvas back apart.
+    """
+    if len(animations) != 1:
+        raise SystemExit("--subject expects exactly one --animation to split")
+
+    animation = animations[0]
+    if not animation.detect:
+        raise SystemExit("--subject needs the animation to carry detect=N")
+
+    subjects = []
+    for entry in args.subject:
+        name, _, size = entry.partition("=")
+        if not name.strip() or not size.strip():
+            raise SystemExit(f"--subject expects NAME=WIDTHxHEIGHT, got {entry!r}")
+        subjects.append((name.strip(), parse_size(size.strip())))
+
+    frames = load_animation_frames(animation)
+    if len(frames) != len(subjects):
+        raise SystemExit(
+            f"detect={animation.detect} found {len(frames)} subjects but "
+            f"{len(subjects)} were named; they are matched in reading order"
+        )
+
+    convert = build_index_map(palette)
+    args.output.mkdir(parents=True, exist_ok=True)
+    for (name, size), frame in zip(subjects, frames):
+        keyed = key_background(
+            trim_inset(frame, args.inset),
+            background,
+            args.background_tolerance,
+            args.background_hue_tolerance,
+            args.background_min_saturation,
+        )
+        marked = team_mask(keyed, team_key, args.team_tolerance)
+        fitted = fit_to_frame(keyed, marked, size, resample)
+        sheet = compose_sheet([fitted], size, 1, palette, convert, args.team_mask_threshold)
+
+        target = args.output / f"{name}.png"
+        temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+        sheet.save(temporary, "PNG", optimize=False)
+        os.replace(temporary, target)
+        target.with_suffix(".yaml").write_text(
+            f"FrameSize: {size[0]},{size[1]}\n"
+            f"FrameAmount: 1\n"
+            f"Offset: 0,0\n"
+            f"Author: {args.author}\n"
+            f"License: {args.license}\n"
+        )
+
+        data = list(sheet.getdata())
+        opaque = sum(1 for index in data if index != TRANSPARENT_INDEX)
+        team = sum(1 for index in data if index in TEAM_RAMP)
+        print(
+            f"  {name:<22}{size[0]}x{size[1]}  team colour "
+            f"{100 * team // max(opaque, 1)}%"
+        )
+
+    print(f"Wrote {len(subjects)} sprites to {args.output}.")
+    return 0
 
 
 def main() -> int:
@@ -713,6 +790,9 @@ def main() -> int:
             raise SystemExit(f"--animation expects NAME=PATH, got {entry!r}")
         name, _, spec = entry.partition("=")
         animations.append(Animation(name.strip(), spec.strip()))
+
+    if args.subject:
+        return split_subjects(args, animations, palette, resample, background, team_key)
 
     packed: list[Image.Image] = []
     for animation in animations:
