@@ -4,6 +4,12 @@ rifleman:
 	idle:
 		Filename: rifleman.png
 		Facings: 8
+	move:
+		Filename: rifleman.png
+		Facings: 8
+	shoot:
+		Filename: rifleman.png
+		Facings: 8
 	muzzle:
 		Filename: muzzle2.png
 		Length: 3
@@ -93,6 +99,12 @@ mortar:
 
 sniper:
 	idle:
+		Filename: sniper.png
+		Facings: 8
+	move:
+		Filename: sniper.png
+		Facings: 8
+	shoot:
 		Filename: sniper.png
 		Facings: 8
 	muzzle:
@@ -228,6 +240,12 @@ blaster:
 
 shocker:
 	idle:
+		Filename: shocker.png
+		Facings: 8
+	move:
+		Filename: shocker.png
+		Facings: 8
+	shoot:
 		Filename: shocker.png
 		Facings: 8
 	shoot:

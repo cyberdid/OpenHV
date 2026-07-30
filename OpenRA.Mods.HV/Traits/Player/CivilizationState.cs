@@ -59,7 +59,7 @@ namespace OpenRA.Mods.HV.Traits
 		public override object Create(ActorInitializer init) { return new CivilizationState(init, this); }
 	}
 
-	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision
+	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision, IBotNotifyIdleBaseUnits
 	{
 		public static readonly string[] TechnologyNames =
 		[
@@ -175,6 +175,19 @@ namespace OpenRA.Mods.HV.Traits
 		[VerifySync]
 		public int ReengageCount;
 
+		/// <summary>
+		/// Combat units waiting at the base for a squad to be formed around them.
+		/// A standing crowd can mean either of two very different things - squads
+		/// are not being formed, or squads are formed and then stall - and the
+		/// only way to tell them apart is to count both sides.
+		/// </summary>
+		[VerifySync]
+		public int IdleBaseUnits;
+
+		/// <summary>Combat units the squad manager has already taken charge of.</summary>
+		[VerifySync]
+		public int CommittedUnits;
+
 		[VerifySync]
 		public int SurvivalUtility;
 
@@ -272,6 +285,23 @@ namespace OpenRA.Mods.HV.Traits
 			return plannerRequestCounts >> (actorCode * 4) & 0xF;
 		}
 
+		void IBotNotifyIdleBaseUnits.UpdatedIdleBaseUnits(List<Actor> idleUnits)
+		{
+			IdleBaseUnits = idleUnits.Count;
+		}
+
+		void CountCommittedUnits(Actor self)
+		{
+			// Everything armed and mobile the player owns, less the ones still
+			// waiting at the base, is what the squads are actually holding.
+			var armed = 0;
+			foreach (var actor in self.World.ActorsHavingTrait<AttackBase>())
+				if (actor.Owner == self.Owner && actor.Info.HasTraitInfo<MobileInfo>())
+					armed++;
+
+			CommittedUnits = Math.Max(armed - IdleBaseUnits, 0);
+		}
+
 		void INotifySquadDecision.SquadDecision(
 			SquadDecisionType decision,
 			SquadDecisionReason reason,
@@ -319,6 +349,7 @@ namespace OpenRA.Mods.HV.Traits
 				return;
 
 			researchTicks = 0;
+			CountCommittedUnits(self);
 			UpdateStrategy(self);
 			SelectAvailableTechnology();
 			if (CurrentTechnologyIndex >= TechnologyNames.Length)

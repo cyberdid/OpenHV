@@ -41,6 +41,9 @@ RIFLEMAN:
 		PauseOnCondition: jammed
 		FacingTolerance: 0
 		Voice: Attack
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	WithMuzzleOverlay:
 		IgnoreOffset: true
 
@@ -168,6 +171,9 @@ SNIPER:
 		PauseOnCondition: jammed
 		FacingTolerance: 0
 		Voice: Attack
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	WithMuzzleOverlay:
 	Cloak:
 		InitialDelay: 250
@@ -476,6 +482,9 @@ SHOCKER:
 		PauseOnCondition: jammed
 		FacingTolerance: 0
 		Voice: Attack
+	WithMoveAnimation:
+	WithAttackAnimation:
+		Sequence: shoot
 	WithAttackAnimation:
 		Sequence: shoot
 

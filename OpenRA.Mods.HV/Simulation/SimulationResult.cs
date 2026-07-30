@@ -134,6 +134,10 @@ namespace OpenRA.Mods.HV
 		public int TargetSelectionCount { get; init; }
 		public int RetreatCount { get; init; }
 		public int RegroupCount { get; init; }
+
+		public int IdleBaseUnits { get; init; }
+
+		public int CommittedUnits { get; init; }
 		public int ReengageCount { get; init; }
 		public int SurvivalUtility { get; init; }
 		public int ResearchUtility { get; init; }

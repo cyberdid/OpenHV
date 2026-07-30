@@ -93,6 +93,8 @@ namespace OpenRA.Mods.HV
 				TargetSelectionCount = civilization?.TargetSelectionCount ?? 0,
 				RetreatCount = civilization?.RetreatCount ?? 0,
 				RegroupCount = civilization?.RegroupCount ?? 0,
+				IdleBaseUnits = civilization?.IdleBaseUnits ?? 0,
+				CommittedUnits = civilization?.CommittedUnits ?? 0,
 				ReengageCount = civilization?.ReengageCount ?? 0,
 				SurvivalUtility = civilization?.SurvivalUtility ?? 0,
 				ResearchUtility = civilization?.ResearchUtility ?? 0,

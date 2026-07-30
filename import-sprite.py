@@ -32,6 +32,9 @@ PROJECT_DIR = Path(__file__).resolve().parent
 DEFAULT_PALETTE = PROJECT_DIR / "mods/hv/bits/palettes/colors.pal"
 FRAME_SUFFIXES = (".png", ".webp", ".jpg", ".jpeg")
 
+# Filled in from the command line before any sheet is read.
+DETECT_BACKGROUND = [(255, 0, 255), 90]
+
 TRANSPARENT_INDEX = 255
 
 # PlayerColorPalette@GreenRemap in mods/hv/rules/world.yaml, and the range every
@@ -49,7 +52,7 @@ RESAMPLERS = {
 
 class Animation:
     OPTION_KEYS = frozenset(
-        {"facings", "length", "tick", "cells", "offset", "cols", "rows", "row", "col"}
+        {"facings", "length", "tick", "cells", "offset", "cols", "rows", "row", "col", "mirror", "detect"}
     )
 
     def __init__(self, name: str, spec: str):
@@ -63,6 +66,8 @@ class Animation:
         self.rows = 1
         self.row: int | None = None
         self.col: int | None = None
+        self.mirror = False
+        self.detect: int | None = None
 
         # Generated files are routinely named "Image July 29, 2026 - 6_46PM.jpg",
         # so the path cannot simply be everything before the first comma. Peel
@@ -112,6 +117,10 @@ class Animation:
                 self.row = int(value)
             elif key == "col":
                 self.col = int(value)
+            elif key == "mirror":
+                self.mirror = value.strip().lower() in ("1", "true", "yes")
+            elif key == "detect":
+                self.detect = int(value)
             else:
                 raise SystemExit(f"--animation {name}: unknown option {key!r}")
 
@@ -171,6 +180,111 @@ def luminance(color: tuple[int, int, int]) -> float:
     return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
 
 
+
+def suppress_grid_lines(mask, width, height):
+    """Repaint ruled cell borders as backdrop.
+
+    Sheets often arrive with the grid drawn in, and a ruled line welds every
+    subject on the sheet into a single blob. A line is recognisable as a thin
+    run of rows or columns that is inked edge to edge; nothing the model draws
+    spans a whole sheet, so anything that does is furniture, not a subject.
+    """
+    def runs(indices, limit):
+        """Group consecutive indices, keeping only the runs thin enough to be a line."""
+        start = previous = None
+        for index in indices + [None]:
+            if previous is not None and index == previous + 1:
+                previous = index
+                continue
+            if start is not None and previous - start + 1 <= limit:
+                yield start, previous
+            start = previous = index
+
+    inked = 0.1
+    rows = [y for y in range(height) if sum(mask[y * width : (y + 1) * width]) < width * inked]
+    columns = [x for x in range(width) if sum(mask[x::width]) < height * inked]
+
+    for first, last in runs(rows, max(6, height // 128)):
+        for y in range(first, last + 1):
+            mask[y * width : (y + 1) * width] = b"\x01" * width
+    for first, last in runs(columns, max(6, width // 128)):
+        for x in range(first, last + 1):
+            mask[x::width] = b"\x01" * height
+
+
+def detect_subjects(sheet, background, tolerance, expected):
+    """Find each drawn subject, whatever grid the sheet was laid out on.
+
+    Image tools rarely honour a requested grid: cells come out unequal, offset,
+    or scattered with blanks. The subjects themselves are unambiguous, so find
+    them instead - flood the backdrop from the border, label what survives, and
+    return the largest blobs in reading order.
+    """
+    width, height = sheet.size
+    pixels = sheet.convert("RGB").load()
+    threshold = tolerance * tolerance
+
+    mask = bytearray(width * height)
+    for y in range(height):
+        row = y * width
+        for x in range(width):
+            if distance(pixels[x, y], background) <= threshold:
+                mask[row + x] = 1
+    suppress_grid_lines(mask, width, height)
+
+    def is_background(x, y):
+        return mask[y * width + x]
+
+    seen = bytearray(width * height)
+    boxes = []
+    for start_y in range(height):
+        row = start_y * width
+        for start_x in range(width):
+            if seen[row + start_x] or is_background(start_x, start_y):
+                continue
+            stack = [(start_x, start_y)]
+            seen[row + start_x] = 1
+            left = right = start_x
+            top = bottom = start_y
+            count = 0
+            while stack:
+                x, y = stack.pop()
+                count += 1
+                left, right = min(left, x), max(right, x)
+                top, bottom = min(top, y), max(bottom, y)
+                for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                    if 0 <= nx < width and 0 <= ny < height:
+                        offset = ny * width + nx
+                        if not seen[offset] and not is_background(nx, ny):
+                            seen[offset] = 1
+                            stack.append((nx, ny))
+            boxes.append((count, left, top, right, bottom))
+
+    boxes.sort(reverse=True)
+    boxes = boxes[:expected]
+    if len(boxes) < expected:
+        raise SystemExit(
+            f"detect={expected} found only {len(boxes)} subjects; check the backdrop colour"
+        )
+
+    # Reading order: group into rows by vertical overlap, then left to right.
+    boxes.sort(key=lambda b: b[2])
+    rows, current = [], [boxes[0]]
+    for box in boxes[1:]:
+        if box[2] < current[-1][4]:
+            current.append(box)
+        else:
+            rows.append(current)
+            current = [box]
+    rows.append(current)
+
+    frames = []
+    for row in rows:
+        for _, left, top, right, bottom in sorted(row, key=lambda b: b[1]):
+            frames.append(sheet.crop((left, top, right + 1, bottom + 1)))
+    return frames
+
+
 def load_animation_frames(animation: Animation) -> list[Image.Image]:
     path = animation.path
     if path.is_dir():
@@ -187,6 +301,9 @@ def load_animation_frames(animation: Animation) -> list[Image.Image]:
         raise SystemExit(f"--animation {animation.name}: {path} does not exist")
 
     sheet = Image.open(path).convert("RGBA")
+
+    if animation.detect:
+        return detect_subjects(sheet, DETECT_BACKGROUND[0], DETECT_BACKGROUND[1], animation.detect)
 
     if (
         animation.cols is not None
@@ -523,7 +640,7 @@ def parse_args() -> argparse.Namespace:
         action="append",
         required=True,
         metavar="NAME=PATH[,facings=8][,length=1][,tick=N][,cells=N]"
-        "[,cols=N,rows=M,row=K,col=J][,offset=X,Y]",
+        "[,cols=N,rows=M,row=K,col=J][,mirror=true][,offset=X,Y]",
         help="Animation block, repeat in the order they should be packed. PATH is "
         "a folder of frames, one horizontal strip, or - with cols/rows/row - one "
         "row or single cell of a shared rigid-grid sheet.",
@@ -587,6 +704,8 @@ def main() -> int:
     background = parse_color(args.background)
 
     team_key = parse_color(args.team_key)
+    DETECT_BACKGROUND[0] = background
+    DETECT_BACKGROUND[1] = max(args.background_tolerance, 90)
 
     animations = []
     for entry in args.animation:
@@ -604,6 +723,24 @@ def main() -> int:
                 f"facings x length is {animation.expected}; using the supplied count.",
                 file=sys.stderr,
             )
+        if animation.mirror:
+            # South, south-west, west, north-west and north are drawn; the
+            # remaining three facings are those same frames mirrored, which is
+            # exact geometry rather than another attempt at the same pose.
+            if len(frames) % 5:
+                raise SystemExit(
+                    f"--animation {animation.name}: mirror needs a multiple of five "
+                    f"frames (five drawn facings), got {len(frames)}"
+                )
+            per = len(frames) // 5
+            mirrored = []
+            for facing in (3, 2, 1):
+                for step in range(per):
+                    source = frames[facing * per + step]
+                    mirrored.append(source.transpose(Image.FLIP_LEFT_RIGHT))
+            frames = frames + mirrored
+            animation.facings = 8
+
         animation.start = len(packed)
         animation.frames = []
         for frame in frames:

@@ -1052,25 +1052,30 @@ swarm-spitter:
 	idle:
 		Filename: swarm-spitter.png
 		Facings: 8
-	animation:
+		Length: 4
+		Tick: 200
+	move:
 		Filename: swarm-spitter.png
-		Start: 8
+		Start: 32
 		Facings: 8
-		Tick: 30
+		Length: 8
+		Tick: 90
 	shoot:
 		Filename: swarm-spitter.png
-		Start: 16
+		Start: 96
 		Facings: 8
-		Tick: 60
+		Length: 6
+		Tick: 40
 	muzzle:
 		Filename: blank.png
 	die:
-		Filename: pod-death.png
-		Length: 7
+		Filename: swarm-spitter.png
+		Start: 144
+		Length: 10
 		Tick: 80
-		Offset: 0,-2
 	icon:
 		Filename: swarm-spitter.png
+		Start: 16
 		Length: 1
 	idle-platform1:
 		Filename: blank.png
@@ -1198,25 +1203,30 @@ swarm-runner:
 	idle:
 		Filename: swarm-runner.png
 		Facings: 8
-	animation:
+		Length: 4
+		Tick: 200
+	move:
 		Filename: swarm-runner.png
-		Start: 8
+		Start: 32
 		Facings: 8
-		Tick: 30
+		Length: 8
+		Tick: 40
 	shoot:
 		Filename: swarm-runner.png
-		Start: 16
+		Start: 96
 		Facings: 8
-		Tick: 60
+		Length: 6
+		Tick: 40
 	muzzle:
 		Filename: blank.png
 	die:
-		Filename: pod-death.png
-		Length: 7
+		Filename: swarm-runner.png
+		Start: 144
+		Length: 10
 		Tick: 80
-		Offset: 0,-2
 	icon:
 		Filename: swarm-runner.png
+		Start: 16
 		Length: 1
 	idle-platform1:
 		Filename: blank.png
@@ -1636,24 +1646,28 @@ swarm-warrior:
 	idle:
 		Filename: swarm-warrior.png
 		Facings: 8
-	animation:
+		Length: 4
+		Tick: 200
+	move:
 		Filename: swarm-warrior.png
-		Start: 8
+		Start: 32
 		Facings: 8
-		Tick: 30
+		Length: 8
+		Tick: 60
 	shoot:
 		Filename: swarm-warrior.png
-		Start: 16
+		Start: 96
 		Facings: 8
-		Length: 3
-		Tick: 60
+		Length: 6
+		Tick: 40
 	muzzle:
 		Filename: blank.png
 	die:
-		Filename: pod-death.png
-		Length: 7
+		Filename: swarm-warrior.png
+		Start: 144
+		Length: 10
 		Tick: 80
-		Offset: 0,-2
 	icon:
 		Filename: swarm-warrior.png
+		Start: 16
 		Length: 1
