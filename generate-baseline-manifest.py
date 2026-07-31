@@ -104,6 +104,11 @@ VARIANTS = {
         "The baseline schedule run to 60,000 ticks, long enough for matches to "
         "reach a natural end, so the ending rate becomes a live metric.",
     ),
+    "dip005b-candidate": (
+        "dip005b-candidate-112-v1",
+        "DIP-005b belligerence baseline halved to 100, bracketing the constant "
+        "that made the world decisive at 200 but moved three score-lead rates.",
+    ),
     "dip005-candidate": (
         "dip005-candidate-112-v1",
         "DIP-005 belligerence baseline candidate on the long schedule, which "
@@ -115,7 +120,9 @@ VARIANTS = {
 # Candidates aimed at how a match ends have to be measured on the schedule
 # where matches can end. Keep this beside VARIANTS so adding one is a single
 # decision rather than two conditions further down.
-LONG_SCHEDULE_VARIANTS = frozenset({"baseline-long", "dip005-candidate"})
+LONG_SCHEDULE_VARIANTS = frozenset(
+    {"baseline-long", "dip005-candidate", "dip005b-candidate"}
+)
 
 
 def build_manifest(variant: str = "baseline") -> dict[str, Any]:

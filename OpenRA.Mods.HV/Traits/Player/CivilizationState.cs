@@ -112,6 +112,10 @@ namespace OpenRA.Mods.HV.Traits
 		static readonly int[] TechnologyCosts = [20, 30, 40, 50, 60];
 		static readonly int[] TechnologyPrerequisites = [0, 0, 1 << 0, 1 << 2, 1 << 1];
 
+		// DIP-005b. Added to every non-zero disposition; see StrategicPressureAgainst
+		// for why 200 was rejected and what this is bracketing.
+		const int BelligerenceBaseline = 100;
+
 		public readonly CivilizationStateInfo Info;
 		readonly Player owner;
 
@@ -514,6 +518,18 @@ namespace OpenRA.Mods.HV.Traits
 				"fortress" => 100,
 				_ => 0
 			};
+
+			// DIP-005b. DIP-005 added 200 here and the world did get more decisive -
+			// 7 natural victories against 5, 196 collapses against 185 - but three
+			// score-lead rates moved with it, because a constant added to every
+			// disposition makes disposition outrank every situational term and takes
+			// the decision back from relative power, undoing DIP-003 by arithmetic.
+			// 200 is known to be too much and nothing smaller was measured, so this
+			// brackets it: half the constant, and the relative spread falls to 2.75
+			// rather than 2.17 against the baseline's 4.50. It still lifts the share
+			// of sides able to accumulate grievance at all from 10.6% to 24.9%.
+			if (disposition > 0)
+				disposition += BelligerenceBaseline;
 			var settlements = Settlements(owner.World, owner)
 				.Select(actor => actor.Trait<SettlementCore>())
 				.ToArray();
