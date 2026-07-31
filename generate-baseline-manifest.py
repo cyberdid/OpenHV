@@ -20,6 +20,14 @@ MAPS = (
 PROFILES = ("aggressor", "economist", "technologist", "fortress")
 REPLICATES = 7
 SEED_BASE = 820_000
+# Matches resolve naturally around tick 60,000: a four-seed probe on the current
+# build produced one natural victory at 59,309 and two or three eliminations in
+# the rest, where the same probe before the economy and diplomacy work produced
+# one elimination and no endings. The 12,000-tick schedule therefore asks why a
+# match has not finished after a fifth of it, which is why seven candidates in a
+# row could not move the tick-ceiling rate.
+LONG_MATCH_TICKS = 60_000
+
 VARIANTS = {
     "baseline": (
         "baseline-112-v1",
@@ -91,6 +99,11 @@ VARIANTS = {
         "DIP-004 symmetric trade restraint candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "baseline-long": (
+        "baseline-long-112-v1",
+        "The baseline schedule run to 60,000 ticks, long enough for matches to "
+        "reach a natural end, so the ending rate becomes a live metric.",
+    ),
 }
 
 
@@ -126,14 +139,14 @@ def build_manifest(variant: str = "baseline") -> dict[str, Any]:
             "bots": list(PROFILES),
             "headless": True,
             "gameSpeed": "fastest",
-            "maxWorldTicks": 12_000,
+            "maxWorldTicks": LONG_MATCH_TICKS if variant == "baseline-long" else 12_000,
             "scenarioMode": "conflict",
             "observationHorizonTicks": 0,
             "stalemateWindowTicks": 2_000,
             "stalemateTerminates": False,
             "collapsePopulationThreshold": 250,
             "collapseStabilityThreshold": 250,
-            "watchdogSeconds": 180,
+            "watchdogSeconds": 900 if variant == "baseline-long" else 180,
             "telemetryIntervalTicks": 1_000,
             "civilizationProfile": "balanced",
             "tradeEnabled": True,
