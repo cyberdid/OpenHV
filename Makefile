@@ -151,7 +151,7 @@ test-simulation:
 	@python3 -m py_compile analyze-baseline.py compare-candidate.py \
 		generate-baseline-manifest.py import-sprite.py generate-sprite.py \
 		run-batch.py tests/fake-simulation.py tests/test_baseline_analysis.py \
-		tests/test_batch_runner.py
+		tests/test_batch_runner.py tests/test_battle_contract.py
 	@python3 generate-baseline-manifest.py --check
 	@python3 generate-baseline-manifest.py \
 		--variant ai003-candidate \
@@ -213,7 +213,12 @@ test-simulation:
 		--variant dip005-candidate \
 		--output batch-manifests/dip005-candidate-112-v1.json \
 		--check
-	@python3 -m unittest -v tests.test_baseline_analysis tests.test_batch_runner
+	@python3 generate-baseline-manifest.py \
+		--variant dip005b-candidate \
+		--output batch-manifests/dip005b-candidate-112-v1.json \
+		--check
+	@python3 -m unittest -v tests.test_baseline_analysis tests.test_batch_runner \
+		tests.test_battle_contract
 	@sh -n apply-engine-patches.sh check-headless-equivalence.sh \
 		check-simulation-determinism.sh fetch-engine.sh launch-game.sh \
 		run-simulation.sh run-tournament.sh

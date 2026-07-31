@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "requestId": "coruscant-0042-cell-18-57",
+  "origin": {
+    "campaignId": "coruscant-seed-42",
+    "step": 42,
+    "gitCommit": "34ac2eb6",
+    "gitDirty": false
+  },
+  "cell": {
+    "latitudeIndex": 18,
+    "longitudeIndex": 57,
+    "latitude": 2.5,
+    "longitude": 285.0,
+    "district": "Works District"
+  },
+  "environment": {
+    "surfaceTemperatureK": 291.4,
+    "precipitationMmDay": 3.1,
+    "windSpeedMs": 7.8,
+    "populationDensity": 0.83,
+    "biome": "urban-temperate"
+  },
+  "map": {
+    "generator": {
+      "tileset": "temperate",
+      "sizeX": 98,
+      "sizeY": 98
+    }
+  },
+  "participants": [
+    {
+      "factionId": 1,
+      "name": "Vanguard AI",
+      "botType": "aggressor",
+      "faction": "yi",
+      "role": "attacker",
+      "armyValue": 184300,
+      "assetsValue": 220100,
+      "cashAndResources": 4120,
+      "civilization": {
+        "population": 894,
+        "prosperity": 812,
+        "stability": 640,
+        "hope": 430,
+        "radicals": 610,
+        "completedTechnologies": ["agricultural-systems", "energy-grid"]
+      }
+    },
+    {
+      "factionId": 3,
+      "name": "Bastion AI",
+      "botType": "fortress",
+      "faction": "sw",
+      "role": "defender",
+      "armyValue": 230200,
+      "assetsValue": 343600,
+      "cashAndResources": 5660,
+      "civilization": {
+        "population": 994,
+        "prosperity": 916,
+        "stability": 913,
+        "hope": 705,
+        "radicals": 180,
+        "completedTechnologies": ["agricultural-systems"]
+      }
+    }
+  ],
+  "stakes": {
+    "cellControl": true,
+    "attackerWithdrawsOnLoss": true,
+    "casualtiesFeedRadicalisation": true
+  },
+  "determinism": {
+    "seed": 820042,
+    "maxWorldTicks": 60000,
+    "gameSpeed": "fastest",
+    "watchdogSeconds": 900
+  }
+}

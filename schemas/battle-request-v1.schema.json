@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/battle-request-v1.schema.json",
+  "title": "Battle Request v1",
+  "description": "A campaign layer asking the tactical engine to resolve one battle. The reply is a simulation-result-v1 document, which already carries everything a campaign needs to apply the outcome, so there is deliberately no separate battle-result schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "origin",
+    "cell",
+    "environment",
+    "map",
+    "participants",
+    "determinism"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Correlates this request with the resulting simulation-result document. Must be unique within a campaign run."
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["campaignId", "step"],
+      "description": "Provenance of the request, mirroring how a result carries its build and config.",
+      "properties": {
+        "campaignId": { "type": "string", "minLength": 1 },
+        "step": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Campaign step (one day) that raised the request."
+        },
+        "gitCommit": { "type": "string" },
+        "gitDirty": { "type": "boolean" }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latitudeIndex", "longitudeIndex", "latitude", "longitude"],
+      "description": "Which planet cell is being fought over. Indices are authoritative; degrees are for humans and for placing the event on a globe.",
+      "properties": {
+        "latitudeIndex": { "type": "integer", "minimum": 0 },
+        "longitudeIndex": { "type": "integer", "minimum": 0 },
+        "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
+        "longitude": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
+        "district": { "type": "string" }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surfaceTemperatureK"],
+      "description": "Physics-derived state of the cell. The tactical engine uses it to pick or generate terrain, so a battle is fought on the planet the physics produced rather than on an unrelated map.",
+      "properties": {
+        "surfaceTemperatureK": { "type": "number" },
+        "precipitationMmDay": { "type": "number", "minimum": 0 },
+        "windSpeedMs": { "type": "number", "minimum": 0 },
+        "populationDensity": { "type": "number", "minimum": 0 },
+        "biome": { "type": "string" }
+      }
+    },
+    "map": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Either a named map or the parameters to generate one. Exactly one of the two, so a request is never ambiguous about what will be played.",
+      "oneOf": [
+        { "required": ["name"] },
+        { "required": ["generator"] }
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tileset", "sizeX", "sizeY"],
+          "properties": {
+            "tileset": { "type": "string", "minLength": 1 },
+            "sizeX": { "type": "integer", "minimum": 32, "maximum": 256 },
+            "sizeY": { "type": "integer", "minimum": 32, "maximum": 256 }
+          }
+        }
+      }
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 2,
+      "description": "Sides brought to the battle. Order is not significant; slots are assigned by the engine from the seed.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["factionId", "name", "botType", "role", "armyValue"],
+        "properties": {
+          "factionId": { "type": "integer", "minimum": 0 },
+          "name": { "type": "string", "minLength": 1 },
+          "botType": { "type": "string", "minLength": 1 },
+          "faction": {
+            "type": "string",
+            "description": "Mod faction to play, e.g. yi, sc, sw. Omitted means the engine rolls one."
+          },
+          "role": { "enum": ["attacker", "defender"] },
+          "armyValue": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Military value the campaign is committing, in the same units the result reports back."
+          },
+          "assetsValue": { "type": "integer", "minimum": 0 },
+          "cashAndResources": { "type": "integer", "minimum": 0 },
+          "civilization": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Campaign state that should colour how this side fights. Every field is per mille unless named otherwise.",
+            "properties": {
+              "population": { "type": "integer", "minimum": 0 },
+              "prosperity": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "stability": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "hope": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "radicals": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "completedTechnologies": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stakes": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "What the campaign will apply on each outcome. Recorded in the request so the decision is auditable even if the campaign later changes its mind.",
+      "properties": {
+        "cellControl": {
+          "type": "boolean",
+          "description": "Winner takes control of the cell."
+        },
+        "attackerWithdrawsOnLoss": { "type": "boolean" },
+        "casualtiesFeedRadicalisation": { "type": "boolean" }
+      }
+    },
+    "determinism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "maxWorldTicks"],
+      "description": "Everything the tactical engine needs to be reproducible. A request with the same values must produce the same synchronizedStateHash.",
+      "properties": {
+        "seed": { "type": "integer", "minimum": 0 },
+        "maxWorldTicks": { "type": "integer", "minimum": 1 },
+        "gameSpeed": { "type": "string" },
+        "watchdogSeconds": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
