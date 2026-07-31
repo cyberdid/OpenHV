@@ -552,3 +552,23 @@ rejected both predecessors. The cost is population and stability, significant
 for all four profiles, which is what more war costs. The tick ceiling still
 stands, but 36% more factions are dead when it arrives. See
 [Relative Power DIP-003](experiments/2026-07-31-relative-power-dip003.md).
+
+## [2026-07-31] experiment | Reject DIP-004 symmetric trade restraint
+
+Trade dependency restrains only the partner being fed: of 1,344 observed sides,
+36% received more than they sent and carried the full brake while 36% only sent
+and carried none, and since war needs both sides' grievance summed, the
+unrestrained exporter drags the pair in anyway. Rebuilding the term on route
+volume rather than direction, with the constant chosen so the median restraint
+landed on 328 per mille exactly as before, made it symmetric - and lost. Active
+wars fell significantly for three profiles and collapsed factions went from 30
+back to 25, giving up a third of what DIP-003 had just gained. No score-lead
+rate moved.
+
+Holding the median held the wrong statistic. The old form reaches -422 for a
+heavily dependent partner, enough to veto a war alone; the volume form cannot
+pass -272 however much flows. A veto term does its work in the tail, and the
+median says nothing about how hard a brake can grip. DIP-002 held a mean and
+that was right, because the question there was spread. Rejected and reverted; a
+v2 must preserve the tail. See
+[Symmetric Trade Restraint DIP-004](experiments/2026-07-31-symmetric-trade-dip004.md).

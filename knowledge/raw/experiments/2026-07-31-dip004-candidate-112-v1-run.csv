@@ -1,0 +1,10 @@
+key,value
+runId,dip004-candidate-112-v1
+scheduleHash,f1bf6f20f5b023a1f965c522e81ab551f4f26b316b373ae408a4f7e68146b88c
+candidateWallSeconds,517.805
+baselineRunId,dip003-candidate-112-v1
+baselineCommit,1fe5498ae5f9968196b4e58d0d36ab46700cfc1d
+candidateCommit,c4b1037452868d75a5cc93121de4fa254a479a37
+pairedObservations,448
+baselineCollapsedFactions,30
+candidateCollapsedFactions,25

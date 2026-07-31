@@ -764,20 +764,25 @@ namespace OpenRA.Mods.HV.Traits
 			if (route == null)
 				return 0;
 
-			// DIP-004. This used to be the share of the route's traffic flowing
-			// inward, which restrained only the partner being fed: across 1,344
-			// observed sides, 36% received and carried the full brake while 36%
-			// only sent and carried none. War needs the sum of both sides to cross
-			// the threshold, so the unrestrained exporter dragged the pair in
-			// regardless of the trade between them.
+			// DIP-004 measured this and found the brake grips one side only: of
+			// 1,344 observed sides, 36% received more than they sent and carried the
+			// full restraint while 36% only sent and carried none, so an exporter
+			// with everything to lose drags the pair into war anyway.
 			//
-			// Volume instead, so both partners are held by the same route. The
-			// scale is chosen from the data - median route volume is 262, and 537
-			// puts the median brake at the 328 per mille the old form produced -
-			// so this changes the shape of the restraint and not its strength.
-			var carried = route.FoodAToB + route.MaterialsAToB + route.EnergyAToB
-				+ route.FoodBToA + route.MaterialsBToA + route.EnergyBToA;
-			return Ratio(carried, carried + 537);
+			// Rebuilding it on route volume held the median restraint at 328 per
+			// mille exactly and still failed, because a veto term does its work in
+			// the tail: the old form reaches -422 for a heavily dependent partner
+			// and the volume form cannot pass -272. Collapses fell from 30 to 25.
+			// The asymmetry is still worth removing, but a v2 has to preserve the
+			// tail and let the median fall where it lands.
+			var isA = route.Relation.PlayerA == player;
+			var incoming = isA
+				? route.FoodBToA + route.MaterialsBToA + route.EnergyBToA
+				: route.FoodAToB + route.MaterialsAToB + route.EnergyAToB;
+			var outgoing = isA
+				? route.FoodAToB + route.MaterialsAToB + route.EnergyAToB
+				: route.FoodBToA + route.MaterialsBToA + route.EnergyBToA;
+			return Ratio(incoming, incoming + outgoing + 100);
 		}
 
 		static int RelativePower(Player player, Player other)
