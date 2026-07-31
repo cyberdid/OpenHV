@@ -400,8 +400,11 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			secondLabel.GetText = () => secondName;
 			secondLabel.GetColor = () => second.Color;
 
+			// Standing says what the relationship is; the term beside it says which
+			// part of the world is pushing it there.
 			var stateLabel = template.Get<LabelWidget>("STATE");
-			stateLabel.GetText = () => FluentProvider.GetMessage(StateKey(relation.State));
+			stateLabel.GetText = () => FluentProvider.GetMessage(StateKey(relation.State))
+				+ " \u00b7 " + PressureLabel(relation);
 			stateLabel.GetColor = () => relation.State switch
 			{
 				DiplomaticRelationState.War => Color.Salmon,
@@ -442,6 +445,28 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				() => fallenText.Update(relation.LastDeathsA + relation.LastDeathsB);
 
 			return template;
+		}
+
+		static string PressureLabel(DiplomaticRelation relation)
+		{
+			var a = (PressureTerm)relation.PressureTermA;
+			var b = (PressureTerm)relation.PressureTermB;
+			return a == b ? Short(a) : Short(a) + "/" + Short(b);
+		}
+
+		static string Short(PressureTerm term)
+		{
+			return term switch
+			{
+				PressureTerm.Disposition => "temper",
+				PressureTerm.RelativePower => "power",
+				PressureTerm.Prosperity => "wealth",
+				PressureTerm.Stability => "order",
+				PressureTerm.TradeDependency => "trade",
+				PressureTerm.ResearchCommitment => "study",
+				PressureTerm.CasualtyAversion => "losses",
+				_ => "-"
+			};
 		}
 
 		static string StateKey(DiplomaticRelationState state)

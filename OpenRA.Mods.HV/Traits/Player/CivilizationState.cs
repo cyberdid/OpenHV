@@ -19,6 +19,19 @@ using OpenRA.Traits;
 
 namespace OpenRA.Mods.HV.Traits
 {
+	/// <summary>One named contribution to a faction's appetite for a particular war.</summary>
+	public enum PressureTerm
+	{
+		None,
+		Disposition,
+		RelativePower,
+		Prosperity,
+		Stability,
+		TradeDependency,
+		ResearchCommitment,
+		CasualtyAversion,
+	}
+
 	public enum CivilizationStrategy
 	{
 		Development,
@@ -65,6 +78,8 @@ namespace OpenRA.Mods.HV.Traits
 	{
 		[FluentReference]
 		const string TechnologyLine = "notification-technology";
+
+		static readonly int PressureTermCount = Enum.GetValues<PressureTerm>().Length;
 
 		public static readonly string[] TechnologyNames =
 		[
@@ -452,15 +467,37 @@ namespace OpenRA.Mods.HV.Traits
 			};
 		}
 
+		/// <summary>
+		/// Why this faction wants a war with that one, term by term.
+		///
+		/// The pressure used to be a single clamped number, and DIP-001 measured
+		/// what that costs: the profile baseline outweighed everything else, so
+		/// every war in 112 matches involved the Aggressor and two of the six
+		/// pairings fought once each. A scalar cannot say which part of the world
+		/// carried a decision, and cannot be changed in one place without moving
+		/// the rest - which is what AI-004 asked for and could not have.
+		///
+		/// Named terms, after Unciv's motivation-to-attack: each is attributable,
+		/// the largest is recorded, and a candidate can move one while holding the
+		/// others still. The sum is deliberately identical to the old expression,
+		/// which divided every term before adding it, so this is an instrument
+		/// rather than a change.
+		/// </summary>
 		public int StrategicPressureAgainst(Player other, DiplomaticRelation relation)
 		{
+			return StrategicPressureAgainst(other, relation, out _);
+		}
+
+		public int StrategicPressureAgainst(Player other, DiplomaticRelation relation, out PressureTerm carried)
+		{
+			carried = PressureTerm.None;
 			if (other == null || relation == null || !Matches(relation, owner, other))
 				return 0;
 
 			if (owner.BotType == "steward")
 				return 0;
 
-			var baseline = owner.BotType switch
+			var disposition = owner.BotType switch
 			{
 				"rogue" => 450,
 				"aggressor" => 450,
@@ -480,16 +517,32 @@ namespace OpenRA.Mods.HV.Traits
 				? 0
 				: 100 + ResearchProgress * 200 / CurrentTechnologyCost;
 			var casualtyAversion = Math.Min(250, settlements.Sum(s => s.WarCasualties));
-			return Math.Clamp(
-				baseline +
-				(relativePower - 500) / 2 -
-				(1000 - prosperity) / 2 -
-				(1000 - stability) / 4 -
-				dependency / 2 -
-				researchCommitment / 4 -
-				casualtyAversion,
-				0,
-				1000);
+
+			Span<int> terms = stackalloc int[PressureTermCount];
+			terms[(int)PressureTerm.Disposition] = disposition;
+			terms[(int)PressureTerm.RelativePower] = (relativePower - 500) / 2;
+			terms[(int)PressureTerm.Prosperity] = -((1000 - prosperity) / 2);
+			terms[(int)PressureTerm.Stability] = -((1000 - stability) / 4);
+			terms[(int)PressureTerm.TradeDependency] = -(dependency / 2);
+			terms[(int)PressureTerm.ResearchCommitment] = -(researchCommitment / 4);
+			terms[(int)PressureTerm.CasualtyAversion] = -casualtyAversion;
+
+			// The carrying term is the one furthest from neutral, so a faction held
+			// back by trade reads as clearly as one driven by a power advantage.
+			var total = 0;
+			var strongest = 0;
+			for (var index = 1; index < PressureTermCount; index++)
+			{
+				total += terms[index];
+				var weight = Math.Abs(terms[index]);
+				if (weight > strongest)
+				{
+					strongest = weight;
+					carried = (PressureTerm)index;
+				}
+			}
+
+			return Math.Clamp(total, 0, 1000);
 		}
 
 		void UpdateStrategy(Actor self)

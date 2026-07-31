@@ -204,6 +204,10 @@ namespace OpenRA.Mods.HV
 		public string PlayerB { get; init; }
 		public string State { get; init; }
 		public int GrievanceA { get; init; }
+
+		public string PressureTermA { get; init; }
+
+		public string PressureTermB { get; init; }
 		public int GrievanceB { get; init; }
 		public int Trust { get; init; }
 		public int WarExhaustion { get; init; }

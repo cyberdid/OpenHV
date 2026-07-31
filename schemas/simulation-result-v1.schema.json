@@ -417,6 +417,8 @@
         "state": { "enum": ["neutral", "war", "alliance"] },
         "grievanceA": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "grievanceB": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "pressureTermA": { "type": "string" },
+        "pressureTermB": { "type": "string" },
         "trust": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "warExhaustion": { "type": "integer", "minimum": 0, "maximum": 1000 },
         "warStartedTick": { "type": "integer", "minimum": 0 },

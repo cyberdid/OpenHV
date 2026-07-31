@@ -29,6 +29,8 @@ namespace OpenRA.Mods.HV
 					PlayerB = relation.PlayerB.ResolvedPlayerName,
 					State = StateIdentifier(relation.State),
 					GrievanceA = relation.GrievanceA,
+					PressureTermA = PressureTermIdentifier((PressureTerm)relation.PressureTermA),
+					PressureTermB = PressureTermIdentifier((PressureTerm)relation.PressureTermB),
 					GrievanceB = relation.GrievanceB,
 					Trust = relation.Trust,
 					WarExhaustion = relation.WarExhaustion,
@@ -64,5 +66,21 @@ namespace OpenRA.Mods.HV
 				_ => "unknown"
 			};
 		}
+
+		static string PressureTermIdentifier(PressureTerm term)
+		{
+			return term switch
+			{
+				PressureTerm.Disposition => "disposition",
+				PressureTerm.RelativePower => "relative-power",
+				PressureTerm.Prosperity => "prosperity",
+				PressureTerm.Stability => "stability",
+				PressureTerm.TradeDependency => "trade-dependency",
+				PressureTerm.ResearchCommitment => "research-commitment",
+				PressureTerm.CasualtyAversion => "casualty-aversion",
+				_ => "none"
+			};
+		}
+
 	}
 }

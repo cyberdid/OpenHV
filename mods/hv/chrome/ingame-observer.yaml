@@ -603,7 +603,7 @@ Container@OBSERVER_WIDGETS:
 								Label@STATE_HEADER:
 									X: 240
 									Y: 0
-									Width: 90
+									Width: 150
 									Height: PARENT_HEIGHT
 									Font: Bold
 									Text: label-relations-stats-state-header
@@ -1212,7 +1212,7 @@ Container@OBSERVER_WIDGETS:
 								Label@STATE:
 									X: 240
 									Y: 0
-									Width: 90
+									Width: 150
 									Height: PARENT_HEIGHT
 									Font: Bold
 									Align: Left

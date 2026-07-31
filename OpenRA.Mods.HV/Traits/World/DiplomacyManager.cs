@@ -148,13 +148,17 @@ namespace OpenRA.Mods.HV.Traits
 				relation.GrievanceA + StrategicPressure(
 					relation.PlayerA,
 					relation.PlayerB,
-					relation));
+					relation,
+					out var carriedA));
+			relation.PressureTermA = (int)carriedA;
 			relation.GrievanceB = Math.Min(
 				1000,
 				relation.GrievanceB + StrategicPressure(
 					relation.PlayerB,
 					relation.PlayerA,
-					relation));
+					relation,
+					out var carriedB));
+			relation.PressureTermB = (int)carriedB;
 			relation.Trust = Math.Min(1000, relation.Trust + 25);
 			if (relation.GrievanceA + relation.GrievanceB >= info.WarGrievanceThreshold)
 				Transition(relation, DiplomaticRelationState.War, DiplomacyReason.StrategicRivalry);
@@ -271,11 +275,12 @@ namespace OpenRA.Mods.HV.Traits
 		static int StrategicPressure(
 			Player player,
 			Player other,
-			DiplomaticRelation relation)
+			DiplomaticRelation relation,
+			out PressureTerm carried)
 		{
-			return player.PlayerActor
-				.TraitOrDefault<CivilizationState>()?
-				.StrategicPressureAgainst(other, relation) ?? 0;
+			carried = PressureTerm.None;
+			var civilization = player.PlayerActor.TraitOrDefault<CivilizationState>();
+			return civilization?.StrategicPressureAgainst(other, relation, out carried) ?? 0;
 		}
 
 		static IEnumerable<Player> ActivePlayers(World world)
@@ -308,6 +313,21 @@ namespace OpenRA.Mods.HV.Traits
 
 		[VerifySync]
 		public int GrievanceB;
+
+		/// <summary>
+		/// Which named term carried each side's pressure when it was last weighed.
+		/// A single grievance number says how badly somebody wants a war; this says
+		/// what part of the world is doing the wanting.
+		///
+		/// Deliberately not marked for sync. Both are derived inside the same
+		/// synchronized pass from inputs that are already hashed, so they cannot
+		/// diverge on their own - and hashing them would move the state hash for
+		/// an instrument that changes no decision, which would cost a fresh
+		/// baseline every time a term is renamed.
+		/// </summary>
+		public int PressureTermA;
+
+		public int PressureTermB;
 
 		[VerifySync]
 		public int Trust = 500;
