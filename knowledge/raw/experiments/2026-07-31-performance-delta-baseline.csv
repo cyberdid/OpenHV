@@ -1,0 +1,5 @@
+profile,n,powerShare,committedShare,scoreShare,performanceDelta,ci95Low,ci95High,scoreLeadRate
+aggressor,112,14.287,53.105,34.932,-18.173,-22.784,-13.375,0.0
+economist,112,354.626,332.589,344.07,11.481,-0.437,24.134,0.348
+technologist,112,277.263,289.478,285.988,-3.49,-15.87,7.975,0.348
+fortress,112,353.825,324.828,335.01,10.181,-1.378,21.584,0.304

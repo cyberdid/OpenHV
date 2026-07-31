@@ -45,6 +45,13 @@ PLAYER_FIELDS = (
     "retreats",
     "regroups",
     "reengagements",
+    # Appended, never inserted: aggregate_group seeds the bootstrap with
+    # seed + field_index, so reordering this tuple would silently change every
+    # interval already recorded in the wiki.
+    "powerShare",
+    "committedShare",
+    "scoreShare",
+    "performanceDelta",
 )
 PAIRED_FIELDS = (
     "scoreLead",
@@ -59,6 +66,8 @@ PAIRED_FIELDS = (
     "activeWars",
     "targetSelections",
     "retreats",
+    "scoreShare",
+    "performanceDelta",
 )
 
 
@@ -172,6 +181,62 @@ def combat_label(civilization: dict[str, Any], field: str) -> str:
     return civilization[field] or "none"
 
 
+def conversion_shares(result: dict[str, Any]) -> dict[str, dict[str, float]]:
+    """Share of a match's material and score held by each player, per mille.
+
+    Adapted from Aligulac's performance-difference report, which reads a
+    result against what the players' strength predicted rather than reading
+    the raw win rate. The point is sensitivity, not novelty: scoreLead is a
+    binary rank over four players, so 112 matches resolve very little, while
+    a share is continuous and spends the same data harder.
+
+    Three quantities, all per mille of the match total:
+
+    powerShare      army + assets/2 at the final tick. Same shape as the
+                    simulation's own RelativePower, so it reads against
+                    DIP-003 - but not the same number, because the
+                    simulation subtracts live civilian-mobilization actors
+                    from ArmyValue and the result document does not export
+                    that subtraction.
+    committedShare  powerShare's numerator plus deathsValue, so material
+                    that was spent still counts.
+    scoreShare      score, which accumulates over the whole match.
+
+    performanceDelta is scoreShare - committedShare: score earned above the
+    material fielded to earn it. Committed, not final, is the denominator
+    because score is cumulative and a snapshot of surviving army would read
+    every profile that spent its army as efficient.
+    """
+    totals = {"power": 0, "committed": 0, "score": 0}
+    per_player: dict[str, dict[str, int]] = {}
+    for player in result["players"]:
+        power = player["armyValue"] + player["assetsValue"] // 2
+        values = {
+            "power": power,
+            "committed": power + player["deathsValue"],
+            "score": player["score"],
+        }
+        per_player[player["playerName"]] = values
+        for key, value in values.items():
+            totals[key] += value
+
+    def share(value: int, total: int) -> float:
+        return 0.0 if total <= 0 else round(1000.0 * value / total, 3)
+
+    shares = {}
+    for player_name, values in per_player.items():
+        power_share = share(values["power"], totals["power"])
+        committed_share = share(values["committed"], totals["committed"])
+        score_share = share(values["score"], totals["score"])
+        shares[player_name] = {
+            "powerShare": power_share,
+            "committedShare": committed_share,
+            "scoreShare": score_share,
+            "performanceDelta": round(score_share - committed_share, 3),
+        }
+    return shares
+
+
 def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
     natural_winners = {
         (winner["playerName"], winner["botType"])
@@ -186,6 +251,7 @@ def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
     }
     trades = trade_totals(result)
     relations = relation_totals(result)
+    shares = conversion_shares(result)
     rows = []
     for player in result["players"]:
         civilization = player["civilization"]
@@ -245,6 +311,10 @@ def player_rows(result: dict[str, Any], match_id: str) -> list[dict[str, Any]]:
             "tradeDependency": civilization.get("tradeDependency", 0),
             "tradeImported": trades[player_name]["tradeImported"],
             "tradeExported": trades[player_name]["tradeExported"],
+            "powerShare": shares[player_name]["powerShare"],
+            "committedShare": shares[player_name]["committedShare"],
+            "scoreShare": shares[player_name]["scoreShare"],
+            "performanceDelta": shares[player_name]["performanceDelta"],
             "mobilized": civilization.get("mobilized", 0),
             "availableWorkforce": civilization.get(
                 "availableWorkforce", 0

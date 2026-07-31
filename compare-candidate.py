@@ -40,6 +40,10 @@ COMPARISON_FIELDS = (
     "retreats",
     "regroups",
     "reengagements",
+    # Appended: compare_rows seeds the bootstrap with field_index, so an
+    # insertion would move every interval in the accepted DIP and ECON records.
+    "scoreShare",
+    "performanceDelta",
 )
 
 

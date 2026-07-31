@@ -78,6 +78,64 @@ class BaselineSuiteTests(unittest.TestCase):
             totals["B"], {"tradeImported": 60, "tradeExported": 15}
         )
 
+    def test_conversion_shares_credit_material_that_was_spent(self) -> None:
+        # Two players hold identical score. The spender lost its army; the
+        # hoarder still fields one. Final power alone would call the spender
+        # twice as efficient, which is only an artifact of measuring a
+        # snapshot against a cumulative total.
+        shares = analysis.conversion_shares(
+            {
+                "players": [
+                    {
+                        "playerName": "spender",
+                        "armyValue": 0,
+                        "assetsValue": 200,
+                        "deathsValue": 400,
+                        "score": 1000,
+                    },
+                    {
+                        "playerName": "hoarder",
+                        "armyValue": 400,
+                        "assetsValue": 200,
+                        "deathsValue": 0,
+                        "score": 1000,
+                    },
+                ]
+            }
+        )
+        self.assertEqual(shares["spender"]["scoreShare"], 500.0)
+        self.assertEqual(shares["hoarder"]["scoreShare"], 500.0)
+        self.assertEqual(shares["spender"]["powerShare"], 166.667)
+        self.assertEqual(shares["hoarder"]["powerShare"], 833.333)
+        self.assertEqual(shares["spender"]["committedShare"], 500.0)
+        self.assertEqual(shares["hoarder"]["committedShare"], 500.0)
+        self.assertEqual(shares["spender"]["performanceDelta"], 0.0)
+        self.assertEqual(shares["hoarder"]["performanceDelta"], 0.0)
+
+    def test_conversion_shares_survive_an_empty_match(self) -> None:
+        shares = analysis.conversion_shares(
+            {
+                "players": [
+                    {
+                        "playerName": "a",
+                        "armyValue": 0,
+                        "assetsValue": 0,
+                        "deathsValue": 0,
+                        "score": 0,
+                    }
+                ]
+            }
+        )
+        self.assertEqual(
+            shares["a"],
+            {
+                "powerShare": 0.0,
+                "committedShare": 0.0,
+                "scoreShare": 0.0,
+                "performanceDelta": 0.0,
+            },
+        )
+
     def test_combat_fields_never_invent_a_decision(self) -> None:
         def result_for(civilization: dict) -> dict:
             return {
