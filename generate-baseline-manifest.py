@@ -104,7 +104,18 @@ VARIANTS = {
         "The baseline schedule run to 60,000 ticks, long enough for matches to "
         "reach a natural end, so the ending rate becomes a live metric.",
     ),
+    "dip005-candidate": (
+        "dip005-candidate-112-v1",
+        "DIP-005 belligerence baseline candidate on the long schedule, which "
+        "is the only one where the ending rate this candidate targets is a "
+        "live metric at all.",
+    ),
 }
+
+# Candidates aimed at how a match ends have to be measured on the schedule
+# where matches can end. Keep this beside VARIANTS so adding one is a single
+# decision rather than two conditions further down.
+LONG_SCHEDULE_VARIANTS = frozenset({"baseline-long", "dip005-candidate"})
 
 
 def build_manifest(variant: str = "baseline") -> dict[str, Any]:
@@ -139,14 +150,20 @@ def build_manifest(variant: str = "baseline") -> dict[str, Any]:
             "bots": list(PROFILES),
             "headless": True,
             "gameSpeed": "fastest",
-            "maxWorldTicks": LONG_MATCH_TICKS if variant == "baseline-long" else 12_000,
+            "maxWorldTicks": (
+                LONG_MATCH_TICKS
+                if variant in LONG_SCHEDULE_VARIANTS
+                else 12_000
+            ),
             "scenarioMode": "conflict",
             "observationHorizonTicks": 0,
             "stalemateWindowTicks": 2_000,
             "stalemateTerminates": False,
             "collapsePopulationThreshold": 250,
             "collapseStabilityThreshold": 250,
-            "watchdogSeconds": 900 if variant == "baseline-long" else 180,
+            "watchdogSeconds": (
+                900 if variant in LONG_SCHEDULE_VARIANTS else 180
+            ),
             "telemetryIntervalTicks": 1_000,
             "civilizationProfile": "balanced",
             "tradeEnabled": True,
