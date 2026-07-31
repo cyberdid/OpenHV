@@ -1,0 +1,13 @@
+run,pairing,matchesEverAtWar,matches
+baseline-112-v3,aggressor / economist,104,112
+baseline-112-v3,aggressor / fortress,74,112
+baseline-112-v3,aggressor / technologist,112,112
+baseline-112-v3,economist / fortress,1,112
+baseline-112-v3,economist / technologist,1,112
+baseline-112-v3,fortress / technologist,5,112
+dip002-candidate-112-v1,aggressor / economist,71,112
+dip002-candidate-112-v1,aggressor / fortress,34,112
+dip002-candidate-112-v1,aggressor / technologist,55,112
+dip002-candidate-112-v1,economist / fortress,10,112
+dip002-candidate-112-v1,economist / technologist,13,112
+dip002-candidate-112-v1,fortress / technologist,14,112

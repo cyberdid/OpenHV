@@ -512,3 +512,21 @@ its score-lead rate — the first score-lead movement any candidate has produced
 Rejected and reverted. A v2 must scale the exhaustion increment with the
 interval so sampling rate changes who fights without changing how long. See
 [Strategic Interval DIP-001](experiments/2026-07-30-strategic-interval-dip001.md).
+
+## [2026-07-31] experiment | Reject DIP-002 compressed disposition
+
+The war decision was refactored into seven named terms after Unciv's
+motivation-to-attack, with the carrying term recorded per relation; the sum is
+bit-identical and the record is kept out of the sync hash, so the instrument is
+free. It immediately showed disposition carrying 883 of 1,344 decisions against
+25 for relative power. DIP-002 then held the disposition mean at 237.5 and cut
+its spread from 350 to 100. War stopped being the Aggressor's property -
+economist against fortress went 0.9% to 8.9%, fortress against technologist 4.5%
+to 12.5%, and the Aggressor's own war count did not move at all - but fewer
+pairings ever fought, collapses fell from 22 to 12, and Technologist took 0.13
+of the score-lead rate. The instrument explained why: every situational term
+except relative power subtracts, so disposition is the counterweight that keeps
+pressure above zero, and lowering it lets the others zero it out rather than
+decide. Rejected and reverted. A v3 must raise RelativePower, which carried 25
+decisions out of 1,344. See
+[Compressed Disposition DIP-002](experiments/2026-07-31-compressed-disposition-dip002.md).
