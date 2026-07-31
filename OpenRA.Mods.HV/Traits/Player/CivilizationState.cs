@@ -497,13 +497,19 @@ namespace OpenRA.Mods.HV.Traits
 			if (owner.BotType == "steward")
 				return 0;
 
+			// DIP-002. The spread across profiles used to be 350 against a mean of
+			// 237.5, and it outweighed the six terms below it: every war in 112
+			// matches involved the Aggressor, and Economist fought Fortress once.
+			// The mean is held exactly and the spread cut to 100, so anything that
+			// moves is the spread and not the appetite - halving the numbers
+			// outright would have lowered both at once and explained nothing.
 			var disposition = owner.BotType switch
 			{
-				"rogue" => 450,
-				"aggressor" => 450,
+				"rogue" => 290,
+				"aggressor" => 290,
 				"technologist" => 250,
-				"economist" => 150,
-				"fortress" => 100,
+				"economist" => 220,
+				"fortress" => 190,
 				_ => 0
 			};
 			var settlements = Settlements(owner.World, owner)
