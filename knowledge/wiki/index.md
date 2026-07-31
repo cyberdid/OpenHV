@@ -63,6 +63,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Relative Power DIP-003, 2026-07-31](experiments/2026-07-31-relative-power-dip003.md)
+  — the accepted change that made war a property of the power gap, and the
+  first candidate to move collapsed factions upward.
 - [Compressed Disposition DIP-002, 2026-07-31](experiments/2026-07-31-compressed-disposition-dip002.md)
   — war stopped being one profile's property, and the named-term instrument
   explained why that was not enough: disposition is the counterweight, not

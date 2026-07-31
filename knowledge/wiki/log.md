@@ -530,3 +530,25 @@ pressure above zero, and lowering it lets the others zero it out rather than
 decide. Rejected and reverted. A v3 must raise RelativePower, which carried 25
 decisions out of 1,344. See
 [Compressed Disposition DIP-002](experiments/2026-07-31-compressed-disposition-dip002.md).
+
+## [2026-07-31] experiment | Accept DIP-003 relative power
+
+Relative power runs from 126 to 873 per mille across 1,344 observed pairings,
+so halving it gave a term spanning plus or minus 186 - real, but outranked by a
+disposition of up to 450 and a trade dependency of up to -500, and it carried 25
+decisions out of 1,344. Undivided it reaches plus or minus 373 and outweighs
+every profile but the Aggressor. The gap is symmetric, but pressure clamps at
+zero, so the weaker side's penalty is absorbed and the stronger side's advantage
+is not: unequal pairs grow warlike and even ones do not.
+
+Economist against technologist went from 0.9% of matches to 18.8%, aggressor
+against fortress from 66.1% to 75.0%, and the Aggressor's own war count did not
+change - war was added everywhere rather than taken from anyone, which is where
+DIP-002 failed. Relative power now carries 150 decisions against 25.
+
+Collapsed factions rose from 22 to 30, the first candidate to move that upward
+where DIP-001 took it to 3 and DIP-002 to 12. No score-lead rate moved, which
+rejected both predecessors. The cost is population and stability, significant
+for all four profiles, which is what more war costs. The tick ceiling still
+stands, but 36% more factions are dead when it arrives. See
+[Relative Power DIP-003](experiments/2026-07-31-relative-power-dip003.md).
