@@ -764,14 +764,20 @@ namespace OpenRA.Mods.HV.Traits
 			if (route == null)
 				return 0;
 
-			var isA = route.Relation.PlayerA == player;
-			var incoming = isA
-				? route.FoodBToA + route.MaterialsBToA + route.EnergyBToA
-				: route.FoodAToB + route.MaterialsAToB + route.EnergyAToB;
-			var outgoing = isA
-				? route.FoodAToB + route.MaterialsAToB + route.EnergyAToB
-				: route.FoodBToA + route.MaterialsBToA + route.EnergyBToA;
-			return Ratio(incoming, incoming + outgoing + 100);
+			// DIP-004. This used to be the share of the route's traffic flowing
+			// inward, which restrained only the partner being fed: across 1,344
+			// observed sides, 36% received and carried the full brake while 36%
+			// only sent and carried none. War needs the sum of both sides to cross
+			// the threshold, so the unrestrained exporter dragged the pair in
+			// regardless of the trade between them.
+			//
+			// Volume instead, so both partners are held by the same route. The
+			// scale is chosen from the data - median route volume is 262, and 537
+			// puts the median brake at the 328 per mille the old form produced -
+			// so this changes the shape of the restraint and not its strength.
+			var carried = route.FoodAToB + route.MaterialsAToB + route.EnergyAToB
+				+ route.FoodBToA + route.MaterialsBToA + route.EnergyBToA;
+			return Ratio(carried, carried + 537);
 		}
 
 		static int RelativePower(Player player, Player other)

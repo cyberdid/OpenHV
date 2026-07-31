@@ -201,6 +201,10 @@ test-simulation:
 		--variant dip003-candidate \
 		--output batch-manifests/dip003-candidate-112-v1.json \
 		--check
+	@python3 generate-baseline-manifest.py \
+		--variant dip004-candidate \
+		--output batch-manifests/dip004-candidate-112-v1.json \
+		--check
 	@python3 -m unittest -v tests.test_baseline_analysis tests.test_batch_runner
 	@sh -n apply-engine-patches.sh check-headless-equivalence.sh \
 		check-simulation-determinism.sh fetch-engine.sh launch-game.sh \

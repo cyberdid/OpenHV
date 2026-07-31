@@ -86,6 +86,11 @@ VARIANTS = {
         "DIP-003 undivided relative power candidate on the exact "
         "baseline-112-v1 map, slot, profile, and seed schedule.",
     ),
+    "dip004-candidate": (
+        "dip004-candidate-112-v1",
+        "DIP-004 symmetric trade restraint candidate on the exact "
+        "baseline-112-v1 map, slot, profile, and seed schedule.",
+    ),
 }
 
 
