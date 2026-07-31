@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/planet-state-v1.schema.json",
+  "title": "Planet State v1",
+  "description": "One frame of a planet, shaped for a tile renderer rather than for a browser. The campaign simulation serves this over HTTP and the client polls it; the client never writes back through this channel, and nothing here enters a match - a battle is set up once from a battle-request-v1 document and is deterministic from that point on. Keeping the two apart is what lets the campaign be floating-point Python and the battle be integer lockstep.\n\nCells are flat arrays in row-major order, latitude-major, which is the layout a tile map wants and avoids ten thousand JSON objects per frame.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planetId", "step", "grid", "cells", "factions"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "planetId": { "type": "string", "minLength": 1 },
+    "planetName": { "type": "string" },
+    "step": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Campaign step, which is one day. The client uses it to tell a new frame from a repeat."
+    },
+    "grid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latitudeCells", "longitudeCells"],
+      "properties": {
+        "latitudeCells": { "type": "integer", "minimum": 1, "maximum": 512 },
+        "longitudeCells": { "type": "integer", "minimum": 1, "maximum": 512 }
+      }
+    },
+    "cells": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["biome", "faction", "biomass", "population"],
+      "description": "Every array is latitudeCells * longitudeCells long, row-major, north to south. Quantised to small integers on purpose: this is polled about once a second and a full-precision float grid would be several megabytes a frame for detail no tile can show.",
+      "properties": {
+        "biome": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 15 },
+          "description": "Terrain class the tileset maps to. Derived from temperature, moisture and standing biomass, so a battle fought on a cell is fought on the ground the physics produced there."
+        },
+        "faction": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": -1 },
+          "description": "Controlling faction index, -1 for unclaimed."
+        },
+        "biomass": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "description": "Standing biomass, 0-255. What the hive is there to eat, and what is left after it has."
+        },
+        "population": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "description": "Occupancy relative to a fully settled cell, 0-255, saturating. Density spans orders of magnitude, so this is a log scale and not a linear one."
+        },
+        "unrest": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 }
+        },
+        "temperatureK": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "description": "Rounded to whole kelvin. Enough for a heat overlay and for choosing a tileset."
+        }
+      }
+    },
+    "factions": {
+      "type": "array",
+      "description": "Enough to label and colour what the cell array points at.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["index", "name", "colour"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "name": { "type": "string", "minLength": 1 },
+          "colour": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f]{6}$",
+            "description": "RRGGBB, matching how the mod already writes player colours."
+          },
+          "cells": { "type": "integer", "minimum": 0 },
+          "population": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "race": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Present once a race has woken. Traits are multipliers around 1.0, read off the world that raised it.",
+      "properties": {
+        "emergedStep": { "type": "integer", "minimum": 0 },
+        "cradleLatitudeIndex": { "type": "integer", "minimum": 0 },
+        "cradleLongitudeIndex": { "type": "integer", "minimum": 0 },
+        "appetite": { "type": "number" },
+        "reciprocity": { "type": "number" },
+        "adaptation": { "type": "number" },
+        "potential": { "type": "number" },
+        "expectation": { "type": "number" }
+      }
+    }
+  }
+}

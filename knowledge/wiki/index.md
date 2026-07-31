@@ -18,6 +18,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Overview](overview.md) — mission, present capabilities, constraints, and
   success criteria.
 - [Architecture](architecture.md) — runtime components and data flow.
+- [The campaign bridge](campaign-bridge.md) — how the floating-point planet
+  and the integer-lockstep battle become one game, and the three contracts
+  that keep them from compromising each other.
 - [AI profiles](ai-profiles.md) — current strategy personalities and their
   intended behavior.
 - [Living factions](faction-life.md) — population, settlements, needs,
