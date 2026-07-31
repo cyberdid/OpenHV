@@ -71,6 +71,16 @@ VARIANTS = {
         "DIP-001 strategic interval candidate on the exact baseline-112-v1 "
         "map, slot, profile, and seed schedule.",
     ),
+    "baseline-v3": (
+        "baseline-112-v3",
+        "Baseline re-measured after the art work, which reaches the simulation "
+        "because the swarm is a selectable random faction.",
+    ),
+    "dip002-candidate": (
+        "dip002-candidate-112-v1",
+        "DIP-002 compressed disposition candidate on the exact baseline-112-v1 "
+        "map, slot, profile, and seed schedule.",
+    ),
 }
 
 

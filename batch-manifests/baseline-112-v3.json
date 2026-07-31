@@ -1,0 +1,1266 @@
+{
+  "schemaVersion": 1,
+  "runId": "baseline-112-v3",
+  "description": "Baseline re-measured after the art work, which reaches the simulation because the swarm is a selectable random faction.",
+  "defaults": {
+    "bots": [
+      "aggressor",
+      "economist",
+      "technologist",
+      "fortress"
+    ],
+    "headless": true,
+    "gameSpeed": "fastest",
+    "maxWorldTicks": 12000,
+    "scenarioMode": "conflict",
+    "observationHorizonTicks": 0,
+    "stalemateWindowTicks": 2000,
+    "stalemateTerminates": false,
+    "collapsePopulationThreshold": 250,
+    "collapseStabilityThreshold": 250,
+    "watchdogSeconds": 180,
+    "telemetryIntervalTicks": 1000,
+    "civilizationProfile": "balanced",
+    "tradeEnabled": true
+  },
+  "runner": {
+    "workers": 4,
+    "maxInfrastructureRetries": 1,
+    "processTimeoutGraceSeconds": 60,
+    "successfulReplaySampleEvery": 28
+  },
+  "matches": [
+    {
+      "id": "baseline-coldrage-r1-s01",
+      "map": "coldrage",
+      "seed": 820001,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s02",
+      "map": "coldrage",
+      "seed": 820002,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s03",
+      "map": "coldrage",
+      "seed": 820003,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s04",
+      "map": "coldrage",
+      "seed": 820004,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s05",
+      "map": "coldrage",
+      "seed": 820005,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s06",
+      "map": "coldrage",
+      "seed": 820006,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r1-s07",
+      "map": "coldrage",
+      "seed": 820007,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s01",
+      "map": "coldrage",
+      "seed": 820101,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s02",
+      "map": "coldrage",
+      "seed": 820102,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s03",
+      "map": "coldrage",
+      "seed": 820103,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s04",
+      "map": "coldrage",
+      "seed": 820104,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s05",
+      "map": "coldrage",
+      "seed": 820105,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s06",
+      "map": "coldrage",
+      "seed": 820106,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r2-s07",
+      "map": "coldrage",
+      "seed": 820107,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s01",
+      "map": "coldrage",
+      "seed": 820201,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s02",
+      "map": "coldrage",
+      "seed": 820202,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s03",
+      "map": "coldrage",
+      "seed": 820203,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s04",
+      "map": "coldrage",
+      "seed": 820204,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s05",
+      "map": "coldrage",
+      "seed": 820205,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s06",
+      "map": "coldrage",
+      "seed": 820206,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r3-s07",
+      "map": "coldrage",
+      "seed": 820207,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s01",
+      "map": "coldrage",
+      "seed": 820301,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s02",
+      "map": "coldrage",
+      "seed": 820302,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s03",
+      "map": "coldrage",
+      "seed": 820303,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s04",
+      "map": "coldrage",
+      "seed": 820304,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s05",
+      "map": "coldrage",
+      "seed": 820305,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s06",
+      "map": "coldrage",
+      "seed": 820306,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-coldrage-r4-s07",
+      "map": "coldrage",
+      "seed": 820307,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s01",
+      "map": "doubles",
+      "seed": 821001,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s02",
+      "map": "doubles",
+      "seed": 821002,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s03",
+      "map": "doubles",
+      "seed": 821003,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s04",
+      "map": "doubles",
+      "seed": 821004,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s05",
+      "map": "doubles",
+      "seed": 821005,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s06",
+      "map": "doubles",
+      "seed": 821006,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r1-s07",
+      "map": "doubles",
+      "seed": 821007,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s01",
+      "map": "doubles",
+      "seed": 821101,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s02",
+      "map": "doubles",
+      "seed": 821102,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s03",
+      "map": "doubles",
+      "seed": 821103,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s04",
+      "map": "doubles",
+      "seed": 821104,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s05",
+      "map": "doubles",
+      "seed": 821105,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s06",
+      "map": "doubles",
+      "seed": 821106,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r2-s07",
+      "map": "doubles",
+      "seed": 821107,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s01",
+      "map": "doubles",
+      "seed": 821201,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s02",
+      "map": "doubles",
+      "seed": 821202,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s03",
+      "map": "doubles",
+      "seed": 821203,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s04",
+      "map": "doubles",
+      "seed": 821204,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s05",
+      "map": "doubles",
+      "seed": 821205,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s06",
+      "map": "doubles",
+      "seed": 821206,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r3-s07",
+      "map": "doubles",
+      "seed": 821207,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s01",
+      "map": "doubles",
+      "seed": 821301,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s02",
+      "map": "doubles",
+      "seed": 821302,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s03",
+      "map": "doubles",
+      "seed": 821303,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s04",
+      "map": "doubles",
+      "seed": 821304,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s05",
+      "map": "doubles",
+      "seed": 821305,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s06",
+      "map": "doubles",
+      "seed": 821306,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-doubles-r4-s07",
+      "map": "doubles",
+      "seed": 821307,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s01",
+      "map": "tournament-island",
+      "seed": 822001,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s02",
+      "map": "tournament-island",
+      "seed": 822002,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s03",
+      "map": "tournament-island",
+      "seed": 822003,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s04",
+      "map": "tournament-island",
+      "seed": 822004,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s05",
+      "map": "tournament-island",
+      "seed": 822005,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s06",
+      "map": "tournament-island",
+      "seed": 822006,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r1-s07",
+      "map": "tournament-island",
+      "seed": 822007,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s01",
+      "map": "tournament-island",
+      "seed": 822101,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s02",
+      "map": "tournament-island",
+      "seed": 822102,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s03",
+      "map": "tournament-island",
+      "seed": 822103,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s04",
+      "map": "tournament-island",
+      "seed": 822104,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s05",
+      "map": "tournament-island",
+      "seed": 822105,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s06",
+      "map": "tournament-island",
+      "seed": 822106,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r2-s07",
+      "map": "tournament-island",
+      "seed": 822107,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s01",
+      "map": "tournament-island",
+      "seed": 822201,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s02",
+      "map": "tournament-island",
+      "seed": 822202,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s03",
+      "map": "tournament-island",
+      "seed": 822203,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s04",
+      "map": "tournament-island",
+      "seed": 822204,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s05",
+      "map": "tournament-island",
+      "seed": 822205,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s06",
+      "map": "tournament-island",
+      "seed": 822206,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r3-s07",
+      "map": "tournament-island",
+      "seed": 822207,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s01",
+      "map": "tournament-island",
+      "seed": 822301,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s02",
+      "map": "tournament-island",
+      "seed": 822302,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s03",
+      "map": "tournament-island",
+      "seed": 822303,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s04",
+      "map": "tournament-island",
+      "seed": 822304,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s05",
+      "map": "tournament-island",
+      "seed": 822305,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s06",
+      "map": "tournament-island",
+      "seed": 822306,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-island-r4-s07",
+      "map": "tournament-island",
+      "seed": 822307,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s01",
+      "map": "abwinter",
+      "seed": 823001,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s02",
+      "map": "abwinter",
+      "seed": 823002,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s03",
+      "map": "abwinter",
+      "seed": 823003,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s04",
+      "map": "abwinter",
+      "seed": 823004,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s05",
+      "map": "abwinter",
+      "seed": 823005,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s06",
+      "map": "abwinter",
+      "seed": 823006,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r1-s07",
+      "map": "abwinter",
+      "seed": 823007,
+      "bots": [
+        "aggressor",
+        "economist",
+        "technologist",
+        "fortress"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s01",
+      "map": "abwinter",
+      "seed": 823101,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s02",
+      "map": "abwinter",
+      "seed": 823102,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s03",
+      "map": "abwinter",
+      "seed": 823103,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s04",
+      "map": "abwinter",
+      "seed": 823104,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s05",
+      "map": "abwinter",
+      "seed": 823105,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s06",
+      "map": "abwinter",
+      "seed": 823106,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r2-s07",
+      "map": "abwinter",
+      "seed": 823107,
+      "bots": [
+        "economist",
+        "technologist",
+        "fortress",
+        "aggressor"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s01",
+      "map": "abwinter",
+      "seed": 823201,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s02",
+      "map": "abwinter",
+      "seed": 823202,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s03",
+      "map": "abwinter",
+      "seed": 823203,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s04",
+      "map": "abwinter",
+      "seed": 823204,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s05",
+      "map": "abwinter",
+      "seed": 823205,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s06",
+      "map": "abwinter",
+      "seed": 823206,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r3-s07",
+      "map": "abwinter",
+      "seed": 823207,
+      "bots": [
+        "technologist",
+        "fortress",
+        "aggressor",
+        "economist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s01",
+      "map": "abwinter",
+      "seed": 823301,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s02",
+      "map": "abwinter",
+      "seed": 823302,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s03",
+      "map": "abwinter",
+      "seed": 823303,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s04",
+      "map": "abwinter",
+      "seed": 823304,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s05",
+      "map": "abwinter",
+      "seed": 823305,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s06",
+      "map": "abwinter",
+      "seed": 823306,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    },
+    {
+      "id": "baseline-winter-r4-s07",
+      "map": "abwinter",
+      "seed": 823307,
+      "bots": [
+        "fortress",
+        "aggressor",
+        "economist",
+        "technologist"
+      ]
+    }
+  ]
+}
