@@ -1,0 +1,15 @@
+run,carryingTerm,observations
+baseline-long-112-v1,relative-power,471
+baseline-long-112-v1,disposition,375
+baseline-long-112-v1,trade-dependency,291
+baseline-long-112-v1,prosperity,161
+baseline-long-112-v1,casualty-aversion,46
+dip005-candidate-112-v1,disposition,879
+dip005-candidate-112-v1,relative-power,277
+dip005-candidate-112-v1,prosperity,111
+dip005-candidate-112-v1,trade-dependency,77
+dip005b-candidate-112-v1,disposition,656
+dip005b-candidate-112-v1,relative-power,351
+dip005b-candidate-112-v1,trade-dependency,190
+dip005b-candidate-112-v1,prosperity,128
+dip005b-candidate-112-v1,casualty-aversion,19
