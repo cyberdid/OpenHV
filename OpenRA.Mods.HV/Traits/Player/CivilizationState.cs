@@ -528,7 +528,20 @@ namespace OpenRA.Mods.HV.Traits
 
 			Span<int> terms = stackalloc int[PressureTermCount];
 			terms[(int)PressureTerm.Disposition] = disposition;
-			terms[(int)PressureTerm.RelativePower] = (relativePower - 500) / 2;
+			// DIP-003. Relative power runs from 126 to 873 per mille across 1,344
+			// observed pairings, so halving it produced a term spanning -187 to
+			// +186 - real, but outranked by a disposition of up to 450 and a trade
+			// dependency of up to -500, which is why it carried 25 decisions out of
+			// 1,344. Undivided it reaches +-373 at the same percentiles and can
+			// outweigh every profile but the Aggressor.
+			//
+			// It is also the only term that adds, and DIP-002 established that this
+			// is what matters: lowering a subtracting term does not hand anyone the
+			// decision, it zeroes the pressure out. The gap is symmetric across a
+			// pair, but pressure clamps at zero, so the weaker side's penalty is
+			// absorbed while the stronger side's advantage is not - an unequal pair
+			// grows more warlike, an even one does not.
+			terms[(int)PressureTerm.RelativePower] = relativePower - 500;
 			terms[(int)PressureTerm.Prosperity] = -((1000 - prosperity) / 2);
 			terms[(int)PressureTerm.Stability] = -((1000 - stability) / 4);
 			terms[(int)PressureTerm.TradeDependency] = -(dependency / 2);

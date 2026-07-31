@@ -81,6 +81,11 @@ VARIANTS = {
         "DIP-002 compressed disposition candidate on the exact baseline-112-v1 "
         "map, slot, profile, and seed schedule.",
     ),
+    "dip003-candidate": (
+        "dip003-candidate-112-v1",
+        "DIP-003 undivided relative power candidate on the exact "
+        "baseline-112-v1 map, slot, profile, and seed schedule.",
+    ),
 }
 
 
