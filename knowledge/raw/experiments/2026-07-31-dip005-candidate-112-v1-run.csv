@@ -1,0 +1,11 @@
+key,value
+runId,dip005-candidate-112-v1
+baseline,baseline-long-112-v1
+matches,112
+completed,112
+elapsedWallSeconds,7839
+maxWorldTicks,60000
+gitCommit,b8394cf7
+gitDirty,False
+endReason.natural-victory,7
+endReason.world-tick-limit,105

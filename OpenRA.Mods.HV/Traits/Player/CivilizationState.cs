@@ -112,10 +112,6 @@ namespace OpenRA.Mods.HV.Traits
 		static readonly int[] TechnologyCosts = [20, 30, 40, 50, 60];
 		static readonly int[] TechnologyPrerequisites = [0, 0, 1 << 0, 1 << 2, 1 << 1];
 
-		// DIP-005. Added to every non-zero disposition, so the level moves and the
-		// spread does not. Sized from the long baseline; see StrategicPressureAgainst.
-		const int BelligerenceBaseline = 200;
-
 		public readonly CivilizationStateInfo Info;
 		readonly Player owner;
 
@@ -518,20 +514,6 @@ namespace OpenRA.Mods.HV.Traits
 				"fortress" => 100,
 				_ => 0
 			};
-
-			// DIP-005. Measured on the long baseline: only 43 of 406 surviving
-			// sides ever summed to positive pressure, so for the other 89%
-			// grievance was frozen at whatever it had reached and peace was not a
-			// state they could leave. The deficit is also flat - a median of -238
-			// at both two and three survivors - so it is not scarcity, and a term
-			// keyed to the surviving count would help least where most matches
-			// stall. This raises the level and leaves the spread at exactly 350,
-			// because DIP-002 compressed the spread and moved Technologist's
-			// score-lead rate by 0.13, which is what rejected it. 200 is the value
-			// that takes the positive share from 10.6% to 40.6%.
-			if (disposition > 0)
-				disposition += BelligerenceBaseline;
-
 			var settlements = Settlements(owner.World, owner)
 				.Select(actor => actor.Trait<SettlementCore>())
 				.ToArray();
