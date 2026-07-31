@@ -1,0 +1,8 @@
+key,value
+runId,baseline-long-112-v1
+scheduleHash,ec9b06cdf41a9cc2db0917da18834c0b7d05ded1bd3a7a5785110a165f171935
+startedUtc,2026-07-31T07:26:12.831121Z
+wallSeconds,4049.381
+counts,"{""completed"": 112}"
+maxWorldTicks,60000
+endReasons,"{""natural-victory"": 5, ""world-tick-limit"": 107}"

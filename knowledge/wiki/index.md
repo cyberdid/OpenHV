@@ -63,6 +63,9 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Civil and Military Baseline 112 v1, 2026-07-29](experiments/2026-07-29-baseline-112-v1.md)
   — clean-commit 112-match held-out matrix, uncertainty, civil/military
   profile differences, map sensitivity, and the failed natural-outcome gate.
+- [Long-Match Baseline 112, 2026-07-31](experiments/2026-07-31-long-match-baseline.md)
+  — the tick ceiling was the schedule, not the world; matches do end, and
+  the real obstacle is that the last two factions cannot finish each other.
 - [Symmetric Trade Restraint DIP-004, 2026-07-31](experiments/2026-07-31-symmetric-trade-dip004.md)
   — the rejected reshaping that held the median and lost the tail, and why a
   veto term is not characterised by its middle.

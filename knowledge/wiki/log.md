@@ -572,3 +572,24 @@ median says nothing about how hard a brake can grip. DIP-002 held a mean and
 that was right, because the question there was spread. Rejected and reverted; a
 v2 must preserve the tail. See
 [Symmetric Trade Restraint DIP-004](experiments/2026-07-31-symmetric-trade-dip004.md).
+
+## [2026-07-31] baseline | The tick ceiling was the schedule
+
+The same 112 cells run to 60,000 ticks instead of 12,000 produced 5 natural
+victories where the 12,000-tick schedule produced none in seven consecutive
+candidates. They finish at ticks 32,562 to 59,363, so half are done inside
+36,000: the old schedule was asking why a match had not ended after a fifth of
+it.
+
+The metric is alive and the real obstacle is now named. A hundred and one
+matches reach two or three survivors and stop: of the 47 two-survivor matches,
+46 end at peace, war exhaustion at a median of 0, no peace cooldown remaining,
+and the stronger side holding 585 per mille of the pair's power. Nothing is
+restraining them. Four of the five winners are the Economist and one is the
+Fortress - never the Aggressor, which dies in every long match and takes the
+world's only supply of aggression with it. Island produced zero endings of 28.
+
+Not "matches do not end" but "the last two factions have no mechanism for
+finishing each other". The shape that would fix it is a term that grows as the
+field narrows, which nothing in the pressure model has. See
+[Long-Match Baseline 112](experiments/2026-07-31-long-match-baseline.md).

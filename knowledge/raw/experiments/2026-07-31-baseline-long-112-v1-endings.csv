@@ -1,0 +1,16 @@
+metric,key,value
+natural-victory,baseline-coldrage-r1-s03,59363 fortress
+natural-victory,baseline-coldrage-r3-s06,53826 economist
+natural-victory,baseline-doubles-r1-s03,36284 economist
+natural-victory,baseline-doubles-r1-s04,53112 economist
+natural-victory,baseline-winter-r1-s01,32562 economist
+survivors,1,5
+survivors,2,47
+survivors,3,54
+survivors,4,6
+victories-by-map,coldrage,2 of 28
+victories-by-map,doubles,2 of 28
+victories-by-map,island,0 of 28
+victories-by-map,winter,1 of 28
+two-survivor-standing,neutral,46
+two-survivor-standing,war,1
