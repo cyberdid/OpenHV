@@ -59,6 +59,7 @@ namespace OpenRA.Mods.HV.Widgets
 		public int LatitudeCells { get; private set; }
 		public int LongitudeCells { get; private set; }
 		public int Step { get; private set; }
+		public string PlanetId { get; private set; }
 		public string PlanetName { get; private set; }
 		public string Error { get; private set; }
 		public bool Fetching { get; private set; }
@@ -67,6 +68,7 @@ namespace OpenRA.Mods.HV.Widgets
 		public int[] Biomass { get; private set; }
 		public int[] PopulationDensity { get; private set; }
 		public int[] Faction { get; private set; }
+		public int[] TemperatureK { get; private set; }
 		public readonly List<(int Index, string Name, Color Colour)> Factions = new();
 
 		public int2? SelectedCell { get; private set; }
@@ -288,11 +290,13 @@ namespace OpenRA.Mods.HV.Widgets
 			public int LatitudeCells;
 			public int LongitudeCells;
 			public int Step;
+			public string PlanetId;
 			public string PlanetName;
 			public int[] Biome;
 			public int[] Biomass;
 			public int[] Population;
 			public int[] Faction;
+			public int[] TemperatureK;
 			public List<(int, string, Color)> Factions = new();
 		}
 
@@ -330,6 +334,7 @@ namespace OpenRA.Mods.HV.Widgets
 				LatitudeCells = grid.GetProperty("latitudeCells").GetInt32(),
 				LongitudeCells = grid.GetProperty("longitudeCells").GetInt32(),
 				Step = root.GetProperty("step").GetInt32(),
+				PlanetId = root.GetProperty("planetId").GetString(),
 				PlanetName = root.TryGetProperty("planetName", out var n) ? n.GetString() : "planet",
 			};
 
@@ -339,6 +344,18 @@ namespace OpenRA.Mods.HV.Widgets
 			frame.Biomass = ReadInts(cells, "biomass", expected);
 			frame.Population = ReadInts(cells, "population", expected);
 			frame.Faction = ReadInts(cells, "faction", expected);
+
+			// Optional in the schema: a frame without the overlay still makes a valid
+			// battle request, it just falls back to a standard surface temperature.
+			if (cells.TryGetProperty("temperatureK", out var temps))
+			{
+				var values = new int[temps.GetArrayLength()];
+				var k = 0;
+				foreach (var v in temps.EnumerateArray())
+					values[k++] = v.GetInt32();
+				if (values.Length == expected)
+					frame.TemperatureK = values;
+			}
 
 			foreach (var f in root.GetProperty("factions").EnumerateArray())
 			{
@@ -359,11 +376,13 @@ namespace OpenRA.Mods.HV.Widgets
 			LatitudeCells = f.LatitudeCells;
 			LongitudeCells = f.LongitudeCells;
 			Step = f.Step;
+			PlanetId = f.PlanetId;
 			PlanetName = f.PlanetName;
 			Biome = f.Biome;
 			Biomass = f.Biomass;
 			PopulationDensity = f.Population;
 			Faction = f.Faction;
+			TemperatureK = f.TemperatureK;
 
 			Factions.Clear();
 			foreach (var entry in f.Factions)

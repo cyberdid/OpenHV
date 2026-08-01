@@ -11,7 +11,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using OpenRA.Mods.Common.Widgets;
+using OpenRA.Mods.HV.Campaign;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.Widgets.Logic
@@ -27,17 +30,13 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 	/// </summary>
 	public class PlanetLogic : ChromeLogic
 	{
-		static readonly string[] BiomeNames =
-		{
-			"ice", "tundra", "barrens", "steppe", "growth", "deep-growth", "scorched"
-		};
-
 		readonly PlanetMapWidget map;
 
 		[ObjectCreator.UseCtor]
 		public PlanetLogic(Widget widget, Action onExit)
 		{
 			map = widget.Get<PlanetMapWidget>("PLANET_MAP");
+			map.OnSelectionChanged = () => lastAction = null;
 
 			var status = widget.GetOrNull<LabelWidget>("PLANET_STATUS");
 			var title = widget.GetOrNull<LabelWidget>("PLANET_TITLE");
@@ -61,7 +60,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				};
 
 			if (cellInfo != null)
-				cellInfo.GetText = () => DescribeSelection();
+				cellInfo.GetText = DescribeSelectionOrAction;
 
 			var refresh = widget.GetOrNull<ButtonWidget>("REFRESH_BUTTON");
 			if (refresh != null)
@@ -87,11 +86,74 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				b.IsHighlighted = () => map.Overlay == captured;
 			}
 
+			var fight = widget.GetOrNull<ButtonWidget>("FIGHT_BUTTON");
+			if (fight != null)
+			{
+				fight.OnClick = WriteBattleRequest;
+				fight.IsDisabled = () => map.Biome == null || !map.SelectedCell.HasValue;
+			}
+
 			var back = widget.GetOrNull<ButtonWidget>("BACK_BUTTON");
 			if (back != null)
 				back.OnClick = () => { Ui.CloseWindow(); onExit(); };
 
 			map.Fetch();
+		}
+
+		/// <summary>
+		/// Writes the request rather than starting the match, because it cannot
+		/// start one: Launch.Simulation is read by PanelLoadScreen once at process
+		/// start, so a battle needs a process of its own. Pretending otherwise
+		/// would mean a button that looks like it fights and does not.
+		/// </summary>
+		void WriteBattleRequest()
+		{
+			if (map.Biome == null || !map.SelectedCell.HasValue)
+				return;
+
+			var cell = map.SelectedCell.Value;
+			var i = (cell.Y * map.LongitudeCells) + cell.X;
+			var holder = map.Faction[i];
+			var holderName = holder >= 0 && holder < map.Factions.Count
+				? map.Factions[holder].Name : "Unclaimed";
+
+			var temperature = map.TemperatureK != null ? map.TemperatureK[i] : 288.0;
+
+			var request = BattleRequestBuilder.Build(
+				map.PlanetId, map.Step, cell.X, cell.Y,
+				map.LatitudeCells, map.LongitudeCells,
+				map.Biome[i], map.Biomass[i], map.PopulationDensity[i],
+				holder, holderName, temperature);
+
+			try
+			{
+				var directory = Path.Combine(Platform.SupportDir, "battles");
+				Directory.CreateDirectory(directory);
+				var path = Path.Combine(directory, $"request-{cell.X}-{cell.Y}.json");
+				File.WriteAllText(path, request.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+
+				var mapName = request["map"]["name"].GetValue<string>();
+
+				// The command replays this document rather than passing the cell,
+				// because the campaign moves while you look at it: asking for the
+				// same cell a minute from now yields a different seed, map and
+				// army values than the ones just written down here.
+				lastAction =
+					$"Wrote request for ({cell.X}, {cell.Y})\n" +
+					$"step {map.Step}, on {mapName}.\n\n" +
+					$"Fight it with:\n./fight-cell.sh --request \\\n  \"{path}\"";
+			}
+			catch (Exception e)
+			{
+				lastAction = $"Could not write the request:\n{e.Message}";
+			}
+		}
+
+		string lastAction;
+
+		string DescribeSelectionOrAction()
+		{
+			return lastAction ?? DescribeSelection();
 		}
 
 		string DescribeSelection()
@@ -106,7 +168,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			var lines = new List<string>
 			{
 				$"cell ({cell.X}, {cell.Y})",
-				$"terrain    {(biome >= 0 && biome < BiomeNames.Length ? BiomeNames[biome] : $"class-{biome}")}",
+				$"terrain    {BattleRequestBuilder.BiomeName(biome)}",
 				$"biomass    {map.Biomass[i] / 255f:0.00} of capacity",
 				$"population {map.PopulationDensity[i] / 255f:0.00} (log scale)",
 			};

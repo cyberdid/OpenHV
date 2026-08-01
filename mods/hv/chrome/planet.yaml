@@ -72,6 +72,13 @@ Background@PLANET_PANEL:
 			Height: 30
 			Text: Refresh
 			Font: Bold
+		Button@FIGHT_BUTTON:
+			X: 176
+			Y: PARENT_HEIGHT - 46
+			Width: 180
+			Height: 30
+			Text: Fight for this cell
+			Font: Bold
 		Button@BACK_BUTTON:
 			X: PARENT_WIDTH - 160
 			Y: PARENT_HEIGHT - 46
