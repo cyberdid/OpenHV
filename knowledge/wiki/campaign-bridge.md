@@ -144,13 +144,59 @@ The command checks array lengths hard. A short array would draw a **torn map**
 rather than fail, and a torn map looks like an art problem for as long as it
 takes to think of looking here.
 
-## Next
+## The loop, closed
 
-1. Biome to tileset — seven terrain classes onto real OpenHV tiles. This is
-   also what makes a battle fought on a cell fought on that cell's ground.
-2. The planet-view widget — 144 × 72, fleet colours, biomass and population
-   overlays.
-3. Clicking a contested cell emits a `battle-request`, and the loop closes.
+A cell of the planet now becomes a battle. Three pieces:
+
+**The planet screen** (`PlanetMapWidget`) fetches one frame and draws it as a
+grid — terrain, biomass, swarm density, holder — with a cell inspector. Built
+like `RadarWidget`: one BGRA sheet per fetch drawn as a single scaled sprite,
+because ten thousand `FillRect` calls would be a draw call per cell every frame
+for a picture that changes once a second. Two departures from `RadarWidget`: no
+pointers, since the engine assembly sets `AllowUnsafeBlocks` and this one does
+not; and the fetch runs off the UI thread, so a simulation that is not running
+gives a message instead of a frozen menu.
+
+**`BattleRequestBuilder`** turns a cell into a `battle-request-v1`, and is shared
+by the screen and by `--battle-from-planet`. Two builders would drift, and a
+request that differs by which button made it cannot be reproduced from the
+campaign it came from.
+
+**`fight-cell.sh`** runs the match and applies the stakes. It takes
+`--request <path>` and **replays** the document rather than rebuilding it — the
+campaign advances while you look at it, so asking for the same cell a minute
+later gives a different seed, map and army values. The request is the battle.
+
+The match is a separate process because it has to be: `Launch.Simulation` is
+read once by `PanelLoadScreen` at startup, so a battle cannot begin inside a
+process that is already running. That is why the in-game button writes a request
+instead of pretending to start one.
+
+### What running it corrected
+
+- **Longitude was −180..180.** The schema wants 0..360, which is what
+  `events.py` normalises to, so a district lookup on either side lands on the
+  same place. The schema was right.
+- **The map decided how many sides fought.** `PanelLoadScreen` fills every open
+  slot, cycling the bot list, so two participants on a four-spawn map became a
+  2v2 and the result reported four players the campaign never committed.
+  `coldrage`, the harness default everywhere else, has four spawns.
+- **Two spawn points did not mean a fight.** All twenty-two two-spawn maps were
+  run at aggressor vs fortress, seed 12345, 30000 ticks. `river-fight` and
+  `nowheres-land` ended 0 kills and 0 earned — both sides built armies and in
+  ten minutes of game time reached neither each other nor any resources. The
+  surviving twenty ran from 16,900 kills to 289,500.
+
+## Still owed
+
+1. **`armyValue` is carried and not applied.** The request commits a military
+   value; no `Launch` argument accepts one, so the match ignores it.
+2. **Ground is not chosen by biome.** All sixty-nine maps declare
+   `Tileset: PLANET` and there is no generator, so a steppe cell cannot yet be
+   fought on steppe. The `environment` block already carries the physics, so a
+   generator can honour it without the contract changing.
+3. **Outcomes do not return to the campaign.** `fight-cell.sh` reports who took
+   the cell; nothing writes it back into the planet.
 
 ## Related pages
 
