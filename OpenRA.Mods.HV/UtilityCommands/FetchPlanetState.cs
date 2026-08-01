@@ -47,10 +47,10 @@ namespace OpenRA.Mods.HV.UtilityCommands
 			"ice", "tundra", "barrens", "steppe", "growth", "deep-growth", "scorched"
 		];
 
-		[Desc("[URL]", "Fetch a planet frame from the campaign simulation (default http://localhost:8765/api/planet).")]
+		[Desc("[URL]", "Fetch a planet frame from the campaign simulation (default http://localhost:8791/api/planet).")]
 		void IUtilityCommand.Run(Utility utility, string[] args)
 		{
-			var url = args.Length == 2 ? args[1] : "http://localhost:8765/api/planet";
+			var url = args.Length == 2 ? args[1] : "http://localhost:8791/api/planet";
 
 			string body;
 			try

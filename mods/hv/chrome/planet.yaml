@@ -1,0 +1,82 @@
+Background@PLANET_PANEL:
+	Logic: PlanetLogic
+	X: (WINDOW_WIDTH - WIDTH) / 2
+	Y: (WINDOW_HEIGHT - HEIGHT) / 2
+	Width: 760
+	Height: 500
+	Children:
+		Label@PLANET_TITLE:
+			Y: 12
+			Width: PARENT_WIDTH
+			Height: 25
+			Align: Center
+			Font: Bold
+		Label@PLANET_STATUS:
+			Y: 34
+			Width: PARENT_WIDTH
+			Height: 18
+			Align: Center
+			Font: TinyBold
+		PlanetMap@PLANET_MAP:
+			X: 20
+			Y: 58
+			Width: 520
+			Height: 300
+		Container@OVERLAY_BUTTONS:
+			X: 20
+			Y: 366
+			Width: 520
+			Height: 26
+			Children:
+				Button@BIOME_BUTTON:
+					Width: 124
+					Height: 24
+					Text: Terrain
+					Font: TinyBold
+				Button@BIOMASS_BUTTON:
+					X: 132
+					Width: 124
+					Height: 24
+					Text: Biomass
+					Font: TinyBold
+				Button@POPULATION_BUTTON:
+					X: 264
+					Width: 124
+					Height: 24
+					Text: Swarm
+					Font: TinyBold
+				Button@FACTION_BUTTON:
+					X: 396
+					Width: 124
+					Height: 24
+					Text: Holder
+					Font: TinyBold
+		Background@CELL_PANEL:
+			X: 556
+			Y: 58
+			Width: 184
+			Height: 334
+			Background: scrollpanel-bg
+			Children:
+				Label@CELL_INFO:
+					X: 10
+					Y: 8
+					Width: PARENT_WIDTH - 20
+					Height: PARENT_HEIGHT - 16
+					Font: TinyBold
+					VAlign: Top
+		Button@REFRESH_BUTTON:
+			X: 20
+			Y: PARENT_HEIGHT - 46
+			Width: 140
+			Height: 30
+			Text: Refresh
+			Font: Bold
+		Button@BACK_BUTTON:
+			X: PARENT_WIDTH - 160
+			Y: PARENT_HEIGHT - 46
+			Width: 140
+			Height: 30
+			Key: escape
+			Text: button-back
+			Font: Bold

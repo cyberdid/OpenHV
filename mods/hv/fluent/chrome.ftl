@@ -93,6 +93,7 @@ button-server-lobby-globalchat-tab = Global
 ## main-menu.yaml
 label-main-menu-title = OpenHV
 button-main-menu-encyclopedia = Encyclopedia
+button-main-menu-planet = Planet
 dropdownbutton-news-bg-button = Subspace Transmissions
 label-update-notice-a = You are running an outdated version of OpenHV.
 label-update-notice-b = Download the latest version from www.openhv.net

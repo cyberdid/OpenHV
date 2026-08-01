@@ -80,6 +80,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			mainMenu.Get<ButtonWidget>("EXTRAS_BUTTON").OnClick = () => SwitchMenu(MenuType.Extras);
 
 			mainMenu.Get<ButtonWidget>("ENCYCLOPEDIA_BUTTON").OnClick = OpenEncyclopediaPanel;
+			mainMenu.Get<ButtonWidget>("PLANET_BUTTON").OnClick = OpenPlanetPanel;
 
 			mainMenu.Get<ButtonWidget>("QUIT_BUTTON").OnClick = Game.Exit;
 
@@ -366,6 +367,15 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		{
 			SwitchMenu(MenuType.None);
 			Game.OpenWindow("ENCYCLOPEDIA_PANEL", new WidgetArgs
+			{
+				{ "onExit", () => SwitchMenu(MenuType.Main) }
+			});
+		}
+
+		void OpenPlanetPanel()
+		{
+			SwitchMenu(MenuType.None);
+			Game.OpenWindow("PLANET_PANEL", new WidgetArgs
 			{
 				{ "onExit", () => SwitchMenu(MenuType.Main) }
 			});
