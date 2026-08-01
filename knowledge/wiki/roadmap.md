@@ -1,10 +1,11 @@
 ---
 title: Roadmap
 status: current
-updated: 2026-07-29
+updated: 2026-08-01
 sources:
   - overview.md
   - architecture.md
+  - ../../run-universe.sh
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-headless-runtime.md
   - experiments/2026-07-29-headless-performance-fix.md
@@ -28,6 +29,16 @@ This page is the compact priority view. See the
 dependency gates, metrics, experiment design, and delivery estimates.
 
 ## Completed foundation
+
+### P0 — One-engine autonomous product runtime
+
+`run-universe.sh` is now the canonical visual entry point. It launches one
+OpenHV spectator process containing four autonomous civilizations and all
+economic, civil, diplomatic, research, production, and combat systems. It has
+no Web battle selection and no experiment watchdog. Natural victory or total
+civil collapse begins the next deterministic epoch; manually closing the
+window stops the launcher. The older Web→per-cell battle bridge remains a
+compatibility experiment, not the product loop.
 
 Simulation contract v1 and its deterministic graphical lifecycle are complete:
 

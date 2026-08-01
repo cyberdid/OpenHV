@@ -1,8 +1,9 @@
 ---
 title: Simulation Architecture
 status: current
-updated: 2026-07-29
+updated: 2026-08-01
 sources:
+  - ../../run-universe.sh
   - ../../OpenRA.Mods.HV/LoadScreens/PanelLoadScreen.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationConfig.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationEndReason.cs
@@ -45,6 +46,22 @@ tags:
 ---
 
 # Simulation Architecture
+
+## Product runtime boundary
+
+`run-universe.sh` is the canonical visual runtime. It configures a graphical
+`living-world` match with four Civilization AI profiles, trade enabled,
+ordinary visual speed, a disabled wall-clock watchdog, and an effectively
+unbounded synchronized horizon. `PanelLoadScreen` creates the local server,
+places every bot, switches the local client to spectator, and starts the world
+without any faction, cell, or battle selection.
+
+Civil settlements, population, needs, research, trade, diplomacy, production,
+units, and combat therefore advance in the same synchronized OpenHV `World`.
+The Python/Web planet and `fight-cell.sh` are observer/bridge tools, not parts
+of the canonical product runtime. If OpenHV reports a natural victory or total
+civil collapse, the wrapper starts a new deterministic epoch; closing the
+window produces no result and stops the wrapper.
 
 ## Runtime flow
 

@@ -1,9 +1,10 @@
 ---
 title: Project Overview
 status: current
-updated: 2026-07-29
+updated: 2026-08-01
 sources:
   - ../../README.md
+  - ../../run-universe.sh
   - ../../run-simulation.sh
   - experiments/2026-07-29-baseline-tournament.md
   - experiments/2026-07-29-simulation-contract-v1.md
@@ -33,13 +34,18 @@ crises, and may scout, defend, or wage war without human players.
 
 The StarCraft-like RTS layer provides visible geography, logistics,
 construction, units, and combat. A civilization layer adds long-term societal
-motives and consequences. The immediate product is a simulation laboratory
-rather than a conventional player-controlled game.
+motives and consequences. The immediate product is an autonomous observable
+world rather than a conventional player-controlled game. The canonical runtime
+is one OpenHV process; the Web/Python planet is an optional scientific observer
+and mechanics prototype, not a second game engine.
 
 ## Current state
 
 - OpenHV/OpenRA provides the engine, maps, economy, production, combat, replay,
   and modular-bot systems.
+- `run-universe.sh` starts the canonical hands-off world: four AI
+  civilizations on one persistent rendered map, normal speed, trade enabled,
+  no wall-clock watchdog, and no cell or battle selection.
 - A local observer can automatically start a free-for-all match with no human
   participant.
 - Five AI profiles are selectable: aggressor, economist, technologist,

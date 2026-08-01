@@ -20,6 +20,12 @@ tags:
 
 How the planet simulation and the battle engine become one game.
 
+> **Product status (2026-08-01): compatibility experiment.** The user-facing
+> autonomous world now runs wholly inside OpenHV through `run-universe.sh`.
+> This bridge remains useful for scientific planet data and contract research,
+> but its Web cell selection and separate tactical process are not the
+> canonical game loop.
+
 ## The wall
 
 They cannot be one process, and the reason is not taste.

@@ -613,3 +613,23 @@ existing 102 content warnings remain), and passed all 23 simulation tests in
 8.905 seconds. CoruscantSim's `python3 run_all_tests.py` passed 14/14 suites in
 123 seconds, including the campaign bridge suite (subsequently expanded to 15
 assertions for the live-discovered request-ID race).
+
+## [2026-08-01] change | Make OpenHV the single autonomous world engine
+
+The per-cell Web battle flow was demoted from product architecture to a
+compatibility experiment. `run-universe.sh` now launches the actual product as
+one graphical OpenHV `living-world`: four Civilization AI profiles share the
+same synchronized map and independently build, produce, research, trade,
+negotiate, mobilize, and fight while the local client only observes. Product
+defaults use normal speed, no wall-clock watchdog, an effectively unbounded
+tick/horizon ceiling, and automatic deterministic epoch succession after
+natural victory or total collapse. Closing the native window stops rather than
+restarting the world.
+
+A bounded headless smoke overrode only execution controls: `coldrage`, seed 42,
+four profiles, 500 ticks, 60-second safety watchdog, and auto-restart disabled.
+It reached the exact living-world observation horizon at tick 500 in 4.6
+seconds, contained all four requested profiles, and wrote synchronized hash
+`44D8C4B5`. A second run after unique session-ID handling produced the same
+hash. `sh -n run-universe.sh` passed, and `make test-simulation` passed all
+23 tests in 8.693 seconds.

@@ -10,6 +10,30 @@ To launch the project from the development environment you must first compile th
 
 ## Autonomous Simulation
 
+### One-engine living world
+
+The canonical playable/observable Universe is one persistent OpenHV process.
+There is no campaign-cell selection and no separate tactical window: four AI
+civilizations build settlements, gather resources, research, trade, negotiate,
+mobilize, and fight on the same map while the local client remains a spectator.
+
+```sh
+./run-universe.sh
+```
+
+The default living world uses `coldrage`, normal visual speed, the aggressor,
+economist, technologist, and fortress personalities, trade enabled, no
+wall-clock watchdog, and an effectively unbounded observation horizon. Closing
+the OpenHV window stops it. A natural victory or total civil collapse starts a
+new autonomous epoch with the next deterministic seed.
+
+The Python/Web planet remains useful as a scientific observer and mechanics
+prototype, but it is not the canonical game runtime. `fight-cell.sh` remains a
+bridge experiment; the one-engine mode does not wait for a Web click or launch
+per-cell matches.
+
+### Finite research runs
+
 The local development fork can launch a hands-off AI match with the local client acting only as an observer:
 
 ```sh
