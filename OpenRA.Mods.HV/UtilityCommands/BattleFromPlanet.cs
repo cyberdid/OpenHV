@@ -91,7 +91,12 @@ namespace OpenRA.Mods.HV.UtilityCommands
 			var biome = Read(cells, "biome", index);
 			var biomass = Read(cells, "biomass", index);
 			var population = Read(cells, "population", index);
-			var holder = Read(cells, "faction", index);
+			var holders = cells.GetProperty("faction").EnumerateArray()
+				.Select(value => value.GetInt32()).ToArray();
+			if (holders.Length != latitudeCells * longitudeCells)
+				throw new InvalidOperationException(
+					$"cells.faction has {holders.Length} entries, expected {latitudeCells * longitudeCells}.");
+			var holder = holders[index];
 
 			var step = root.GetProperty("step").GetInt32();
 			var planetId = root.GetProperty("planetId").GetString();
@@ -102,6 +107,14 @@ namespace OpenRA.Mods.HV.UtilityCommands
 
 			var holderName = holder >= 0 && factionNames.TryGetValue(holder, out var hn)
 				? hn : "Unclaimed";
+			var defender = BattleRequestBuilder.SelectDefender(
+				holders, longitudeCells, latitudeCells, x, y);
+			if (!defender.HasValue || !factionNames.TryGetValue(defender.Value, out var defenderName))
+			{
+				Console.WriteLine($"Cell ({x},{y}) is not on a contested faction border.");
+				Environment.Exit(1);
+				return;
+			}
 
 			// temperatureK is optional in planet-state-v1. Falling back to 288 K
 			// keeps the request valid rather than refusing to build one when the
@@ -110,7 +123,8 @@ namespace OpenRA.Mods.HV.UtilityCommands
 
 			var request = BattleRequestBuilder.Build(
 				planetId, step, x, y, latitudeCells, longitudeCells,
-				biome, biomass, population, holder, holderName, temperature);
+				biome, biomass, population,
+				holder, holderName, defender.Value, defenderName, temperature);
 
 			var json = request.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
 

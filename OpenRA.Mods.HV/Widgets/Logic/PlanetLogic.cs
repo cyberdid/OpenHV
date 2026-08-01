@@ -90,7 +90,8 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			if (fight != null)
 			{
 				fight.OnClick = WriteBattleRequest;
-				fight.IsDisabled = () => map.Biome == null || !map.SelectedCell.HasValue;
+				fight.IsDisabled = () => map.Biome == null || !map.SelectedCell.HasValue ||
+					!SelectedDefender().HasValue;
 			}
 
 			var back = widget.GetOrNull<ButtonWidget>("BACK_BUTTON");
@@ -114,8 +115,13 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			var cell = map.SelectedCell.Value;
 			var i = (cell.Y * map.LongitudeCells) + cell.X;
 			var holder = map.Faction[i];
-			var holderName = holder >= 0 && holder < map.Factions.Count
-				? map.Factions[holder].Name : "Unclaimed";
+			var holderName = FactionName(holder);
+			var defender = SelectedDefender();
+			if (!defender.HasValue)
+			{
+				lastAction = "This cell is not on a contested faction border.";
+				return;
+			}
 
 			var temperature = map.TemperatureK != null ? map.TemperatureK[i] : 288.0;
 
@@ -123,13 +129,14 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				map.PlanetId, map.Step, cell.X, cell.Y,
 				map.LatitudeCells, map.LongitudeCells,
 				map.Biome[i], map.Biomass[i], map.PopulationDensity[i],
-				holder, holderName, temperature);
+				holder, holderName, defender.Value, FactionName(defender.Value), temperature);
 
 			try
 			{
 				var directory = Path.Combine(Platform.SupportDir, "battles");
 				Directory.CreateDirectory(directory);
-				var path = Path.Combine(directory, $"request-{cell.X}-{cell.Y}.json");
+				var requestId = request["requestId"].GetValue<string>();
+				var path = Path.Combine(directory, $"request-{requestId}.json");
 				File.WriteAllText(path, request.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
 
 				var mapName = request["map"]["name"].GetValue<string>();
@@ -150,6 +157,23 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 		}
 
 		string lastAction;
+
+		int? SelectedDefender()
+		{
+			if (!map.SelectedCell.HasValue || map.Faction == null)
+				return null;
+			var cell = map.SelectedCell.Value;
+			return BattleRequestBuilder.SelectDefender(
+				map.Faction, map.LongitudeCells, map.LatitudeCells, cell.X, cell.Y);
+		}
+
+		string FactionName(int index)
+		{
+			foreach (var faction in map.Factions)
+				if (faction.Index == index)
+					return faction.Name;
+			return index < 0 ? "Unclaimed" : $"faction {index}";
+		}
 
 		string DescribeSelectionOrAction()
 		{
@@ -178,8 +202,12 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				lines.Add("holder     unclaimed");
 			else
 			{
-				var name = faction < map.Factions.Count ? map.Factions[faction].Name : $"faction {faction}";
+				var name = FactionName(faction);
 				lines.Add($"holder     {name}");
+				var defender = SelectedDefender();
+				lines.Add(defender.HasValue
+					? $"opponent   {FactionName(defender.Value)}"
+					: "battle     no contested border");
 			}
 
 			return string.Join("\n", lines);

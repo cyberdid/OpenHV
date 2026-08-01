@@ -184,9 +184,10 @@ namespace OpenRA.Mods.HV.Widgets
 				case PlanetOverlay.Faction:
 				{
 					var f = Faction[i];
-					if (f < 0 || f >= Factions.Count)
-						return Color.FromArgb(255, 24, 24, 28);
-					return Factions[f].Colour;
+					foreach (var faction in Factions)
+						if (faction.Index == f)
+							return faction.Colour;
+					return Color.FromArgb(255, 24, 24, 28);
 				}
 
 				default:

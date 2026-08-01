@@ -1,12 +1,15 @@
 ---
 title: The Campaign Bridge
 status: current
-updated: 2026-07-31
+updated: 2026-08-01
 sources:
   - ../../schemas/planet-state-v1.schema.json
   - ../../schemas/battle-request-v1.schema.json
   - ../../schemas/simulation-result-v1.schema.json
   - ../../OpenRA.Mods.HV/UtilityCommands/FetchPlanetState.cs
+  - ../../OpenRA.Mods.HV/Campaign/BattleRequestBuilder.cs
+  - ../../OpenRA.Mods.HV/UtilityCommands/BattleFromPlanet.cs
+  - ../../fight-cell.sh
   - ../raw/coruscantsim-analysis-2026-07-31.md
 tags:
   - architecture
@@ -44,13 +47,14 @@ never needs to be inside the battle loop, and the battle never needs to be
 inside the day loop. What they need is a contract at each boundary.
 
 ```
-      Python — the simulation server            OpenRA — the one client
+      Python — authoritative campaign          Web + OpenRA tactical client
    physics, biosphere, emergence,          planet view: 144 x 72 tiles
    civilization, fleets, economy           battle: an ordinary map
               │
-              │  planet-state-v1  ──── HTTP, polled ────>
+              │  state + planet-state-v1 ─ HTTP, polled ──>
               │
-              <──── battle-request-v1 ──── on contact ────
+              │  <──── battle coordinates ─── web command ─
+              │  ──── battle-request-v1 ───────→ OpenRA
               │
               │  <──── simulation-result-v1 ──── on resolution
 ```
@@ -166,11 +170,32 @@ campaign it came from.
 `--request <path>` and **replays** the document rather than rebuilding it — the
 campaign advances while you look at it, so asking for the same cell a minute
 later gives a different seed, map and army values. The request is the battle.
+With `CAMPAIGN_RESULT_URL` set, it POSTs the request and result back to the
+campaign after reporting the tactical outcome.
 
 The match is a separate process because it has to be: `Launch.Simulation` is
 read once by `PanelLoadScreen` at startup, so a battle cannot begin inside a
 process that is already running. That is why the in-game button writes a request
 instead of pretending to start one.
+
+**The Web command map** (`CoruscantSim/web_viewer/city.html`) is now the global
+shell. It enables combat only for a cell whose stable N/E/S/W neighbour belongs
+to another campaign faction, calls `POST /api/battle`, then polls the job. The
+Python `BattleManager` launches one visible `fight-cell.sh --visual` process,
+finds the workspace-local `.dotnet` automatically, and accepts the callback.
+
+The campaign IDs and names are preserved in `participants`; `sw` and `yi` are
+only the OpenHV tactical sides. On callback the campaign maps the natural
+winner by `(faction, botType)`, changes holder influence, adds bounded local
+radicalisation/unrest from loss pressure, and emits a `tactical_battle` event.
+Callbacks are idempotent by request ID. The actual request ID is authoritative:
+the campaign can advance while OpenHV fetches the frame, so the provisional UI
+ID may be one step behind and is replaced on resolution.
+
+The grid contract is **north-first**. CoruscantSim's internal arrays remain
+south-first, but every flattened `planet-state-v1` channel is flipped during
+export. This keeps Web `(x,y)`, the schema, and `PlanetMapWidget` on the same
+cell instead of silently mirroring battles across the equator.
 
 ### What running it corrected
 
@@ -187,6 +212,15 @@ instead of pretending to start one.
   ten minutes of game time reached neither each other nor any resources. The
   surviving twenty ran from 16,900 kills to 289,500.
 
+### Live round-trip validation, 2026-08-01
+
+The Web map launched Thanatex versus Sporophant for cell `(31,9)`. OpenHV ran
+the visible `silverman` match, wrote a synchronized result at tick 7,081 with
+hash `FBFD3A09`, and POSTed it to the campaign. The 180-second watchdog ended
+the match without a natural winner, so the campaign correctly kept holder 4
+rather than awarding the cell to the score leader. The UI moved through
+ready → running → resolved and displayed the authoritative request ID.
+
 ## Still owed
 
 1. **`armyValue` is carried and not applied.** The request commits a military
@@ -195,8 +229,10 @@ instead of pretending to start one.
    `Tileset: PLANET` and there is no generator, so a steppe cell cannot yet be
    fought on steppe. The `environment` block already carries the physics, so a
    generator can honour it without the contract changing.
-3. **Outcomes do not return to the campaign.** `fight-cell.sh` reports who took
-   the cell; nothing writes it back into the planet.
+3. **Visible battles need a shorter resolution cadence.** The validated match
+   reached the 180-second watchdog without contact. Map selection, starting
+   forces, or a visual-specific schedule needs tuning so the tactical window
+   produces a natural result on a player-friendly timescale.
 
 ## Related pages
 

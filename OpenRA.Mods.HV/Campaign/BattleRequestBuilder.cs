@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Nodes;
 
 namespace OpenRA.Mods.HV.Campaign
@@ -72,11 +73,42 @@ namespace OpenRA.Mods.HV.Campaign
 			return code >= 0 && code < BiomeNames.Length ? BiomeNames[code] : $"class-{code}";
 		}
 
+		/// <summary>Pick a real campaign opponent on the selected cell's border.
+		/// North/east/south/west order is stable so the same frame and cell always
+		/// name the same two sides.</summary>
+		public static int? SelectDefender(int[] holders, int longitudeCells, int latitudeCells, int x, int y)
+		{
+			if (x < 0 || y < 0 || x >= longitudeCells || y >= latitudeCells ||
+				holders == null || holders.Length != longitudeCells * latitudeCells)
+				return null;
+
+			var attacker = holders[y * longitudeCells + x];
+			if (attacker < 0)
+				return null;
+
+			var neighbours = new List<(int X, int Y)>
+			{
+				(x, y - 1), ((x + 1) % longitudeCells, y),
+				(x, y + 1), ((x - 1 + longitudeCells) % longitudeCells, y)
+			};
+			foreach (var cell in neighbours)
+			{
+				if (cell.Y < 0 || cell.Y >= latitudeCells)
+					continue;
+				var candidate = holders[cell.Y * longitudeCells + cell.X];
+				if (candidate >= 0 && candidate != attacker)
+					return candidate;
+			}
+
+			return null;
+		}
+
 		public static JsonObject Build(
 			string planetId, int step,
 			int x, int y, int latitudeCells, int longitudeCells,
 			int biome, int biomass, int population,
-			int holderIndex, string holderName,
+			int attackerIndex, string attackerName,
+			int defenderIndex, string defenderName,
 			double surfaceTemperatureK)
 		{
 			// Latitude runs north to south, matching the row-major order the cell
@@ -86,6 +118,8 @@ namespace OpenRA.Mods.HV.Campaign
 			var latitude = 90.0 - 180.0 * (y + 0.5) / latitudeCells;
 			var longitude = 360.0 * (x + 0.5) / longitudeCells;
 			var seed = SeedFor(step, x, y);
+			if (attackerIndex < 0 || defenderIndex < 0 || attackerIndex == defenderIndex)
+				throw new ArgumentException("A campaign battle requires two different faction holders.");
 
 			return new JsonObject
 			{
@@ -117,8 +151,8 @@ namespace OpenRA.Mods.HV.Campaign
 				{
 					new JsonObject
 					{
-						["factionId"] = Math.Max(holderIndex, 0),
-						["name"] = holderName,
+						["factionId"] = attackerIndex,
+						["name"] = attackerName,
 						["botType"] = "aggressor",
 						["faction"] = "sw",
 						["role"] = "attacker",
@@ -128,8 +162,8 @@ namespace OpenRA.Mods.HV.Campaign
 					},
 					new JsonObject
 					{
-						["factionId"] = 900,
-						["name"] = "Yuruki",
+						["factionId"] = defenderIndex,
+						["name"] = defenderName,
 						["botType"] = "fortress",
 						["faction"] = "yi",
 						["role"] = "defender",

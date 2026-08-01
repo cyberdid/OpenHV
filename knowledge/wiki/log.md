@@ -593,3 +593,23 @@ Not "matches do not end" but "the last two factions have no mechanism for
 finishing each other". The shape that would fix it is a term that grows as the
 field narrows, which nothing in the pressure model has. See
 [Long-Match Baseline 112](experiments/2026-07-31-long-match-baseline.md).
+
+## [2026-08-01] change | Close the Web–OpenHV campaign round trip
+
+The global Web command map now launches one visible OpenHV battle for a real
+contested campaign cell, and `fight-cell.sh` returns the unchanged request plus
+`simulation-result-v1` to the Python campaign. Campaign faction identities are
+preserved independently of the two tactical OpenHV sides; natural winners
+change holder influence, losses feed bounded local radicalisation and unrest,
+and callbacks are idempotent. A north/south contract error in every flattened
+planet channel was fixed so Web and .NET resolve the same cell. The live
+Thanatex–Sporophant validation reached OpenHV, returned hash `FBFD3A09`, and
+resolved correctly without a control change because the watchdog result had no
+natural winner. The remaining product problem is match cadence: that visible
+validation used the full 180-second watchdog and still produced no contact.
+Verification: `make test test-simulation` completed both Release builds with
+zero compiler warnings/errors, passed manifest/sprite/MiniYAML checks (the
+existing 102 content warnings remain), and passed all 23 simulation tests in
+8.905 seconds. CoruscantSim's `python3 run_all_tests.py` passed 14/14 suites in
+123 seconds, including the campaign bridge suite (subsequently expanded to 15
+assertions for the live-discovered request-ID race).

@@ -1,7 +1,7 @@
 ---
 title: Universe RTS Project Wiki
 status: current
-updated: 2026-07-29
+updated: 2026-08-01
 sources:
   - ../raw/karpathy-llm-wiki-2026-07-29.md
 tags:

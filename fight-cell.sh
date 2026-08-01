@@ -2,7 +2,7 @@
 #
 # Fight over one cell of the campaign planet.
 #
-#   ./fight-cell.sh <x> <y> [planet-url]
+#   ./fight-cell.sh [--visual] <x> <y> [planet-url]
 #
 # Builds a battle-request-v1 document from the live campaign, runs the match it
 # describes, and reports who took the cell. This is the whole loop: the planet
@@ -21,10 +21,16 @@ SUPPORT_DIR="${OPENHV_SUPPORT_DIR:-${PROJECT_DIR}/../.openhv-support}"
 REQUEST_DIR="${SUPPORT_DIR}/battles"
 
 usage() {
-	echo "usage: fight-cell.sh <x> <y> [planet-url]" >&2
-	echo "       fight-cell.sh --request <path>" >&2
+	echo "usage: fight-cell.sh [--visual] <x> <y> [planet-url]" >&2
+	echo "       fight-cell.sh [--visual] --request <path>" >&2
 	exit 1
 }
+
+if [ "${1:-}" = "--visual" ]; then
+	SIMULATION_HEADLESS=false
+	export SIMULATION_HEADLESS
+	shift
+fi
 
 # Replaying a document rather than rebuilding one is not a convenience. The
 # campaign advances while you look at it, so asking for cell (34,18) a minute
@@ -34,8 +40,8 @@ usage() {
 if [ "$1" = "--request" ]; then
 	REQUEST="${2:?--request needs a path}"
 	[ -f "${REQUEST}" ] || { echo "No request at ${REQUEST}" >&2; exit 1; }
-	CELL_X=$(python3 -c "import json;print(json.load(open('${REQUEST}'))['cell']['longitudeIndex'])")
-	CELL_Y=$(python3 -c "import json;print(json.load(open('${REQUEST}'))['cell']['latitudeIndex'])")
+	CELL_X=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['cell']['longitudeIndex'])" "${REQUEST}")
+	CELL_Y=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['cell']['latitudeIndex'])" "${REQUEST}")
 	mkdir -p "${REQUEST_DIR}"
 	echo "Replaying ${REQUEST}"
 else
@@ -43,19 +49,17 @@ else
 	CELL_X="$1"
 	CELL_Y="$2"
 	PLANET_URL="${3:-http://localhost:8791/api/planet}"
-	REQUEST="${REQUEST_DIR}/request-${CELL_X}-${CELL_Y}.json"
+	REQUEST="${REQUEST_DIR}/request-pending-${CELL_X}-${CELL_Y}-$$.json"
 	mkdir -p "${REQUEST_DIR}"
 	echo "Asking the campaign for cell (${CELL_X},${CELL_Y})..."
 	"${PROJECT_DIR}/utility.sh" --battle-from-planet "${CELL_X}" "${CELL_Y}" "${PLANET_URL}" "${REQUEST}"
 fi
 
-RESULT="${REQUEST_DIR}/result-${CELL_X}-${CELL_Y}.json"
-
 # Read the request back rather than keeping the values in shell variables: the
 # document on disk is what the run is defined by, so if the two ever disagree
 # the document wins.
 read_field() {
-	python3 -c "import json,sys; d=json.load(open('${REQUEST}')); print(${1})"
+	python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(${1})" "${REQUEST}"
 }
 
 MAP=$(read_field "d['map']['name']")
@@ -66,6 +70,13 @@ WATCHDOG=$(read_field "d['determinism'].get('watchdogSeconds',180)")
 BOTS=$(read_field "','.join(p['botType'] for p in d['participants'])")
 FACTIONS=$(read_field "','.join(p.get('faction','') for p in d['participants'])")
 MATCH_ID=$(read_field "d['requestId']")
+SAFE_MATCH_ID=$(printf '%s' "${MATCH_ID}" | tr -c 'A-Za-z0-9._-' '_')
+if [ "${REQUEST}" = "${REQUEST_DIR}/request-pending-${CELL_X}-${CELL_Y}-$$.json" ]; then
+	FINAL_REQUEST="${REQUEST_DIR}/request-${SAFE_MATCH_ID}.json"
+	mv "${REQUEST}" "${FINAL_REQUEST}"
+	REQUEST="${FINAL_REQUEST}"
+fi
+RESULT="${REQUEST_DIR}/result-${SAFE_MATCH_ID}.json"
 BIOME=$(read_field "d['environment']['biome']")
 TEMP=$(read_field "d['environment']['surfaceTemperatureK']")
 
@@ -88,6 +99,8 @@ echo
 if [ -f "${RESULT}" ]; then
 	python3 - "${REQUEST}" "${RESULT}" <<'PY'
 import json, sys
+import os
+import urllib.request
 
 request = json.load(open(sys.argv[1]))
 result = json.load(open(sys.argv[2]))
@@ -142,6 +155,25 @@ if request.get("stakes", {}).get("cellControl"):
             print(f"  cell control -> unchanged, no natural winner (ahead on score: {name})")
         else:
             print("  cell control -> unchanged, no natural winner")
+
+# The tactical result is already simulation-result-v1. Post it with its request
+# as a transport envelope; the campaign validates correlation and applies it
+# idempotently, so a retry cannot change the same cell twice.
+url = os.environ.get("CAMPAIGN_RESULT_URL")
+if url:
+    payload = json.dumps({"request": request, "result": result}).encode("utf-8")
+    req = urllib.request.Request(
+        url, data=payload, method="POST",
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            reply = json.load(response)
+        resolution = reply.get("resolution", {})
+        print(f"  campaign    applied ({resolution.get('oldHolder')} -> "
+              f"{resolution.get('newHolder')})")
+    except Exception as exc:
+        print(f"  WARNING     campaign writeback failed: {exc}")
 PY
 else
 	echo "No result document at ${RESULT}." >&2
