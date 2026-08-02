@@ -54,6 +54,34 @@ namespace OpenRA.Mods.HV
 		public bool Active { get; init; }
 		public string LifecycleStage { get; init; }
 		public string NativeRaceId { get; init; }
+		public SimulationPlanetPhysicsResult Physics { get; init; }
+	}
+
+	public sealed class SimulationPlanetPhysicsResult
+	{
+		public long GeologicalAgeYears { get; init; }
+		public int MassEarthMillionths { get; init; }
+		public int RadiusKilometers { get; init; }
+		public int SurfaceGravityMilliMetersPerSecondSquared { get; init; }
+		public int RotationPeriodMinutes { get; init; }
+		public int OrbitalDistanceMillionKilometers { get; init; }
+		public int OrbitalPeriodDays { get; init; }
+		public int AxialTiltMilliDegrees { get; init; }
+		public int OrbitalEccentricityMillionths { get; init; }
+		public int StellarFluxWattsPerSquareMeter { get; init; }
+		public int BondAlbedoPerMille { get; init; }
+		public int AbsorbedSolarWattsPerSquareMeter { get; init; }
+		public int RadiativeEquilibriumMilliKelvin { get; init; }
+		public int MeanSurfaceTemperatureMilliKelvin { get; init; }
+		public int EnergyImbalanceMilliWattsPerSquareMeter { get; init; }
+		public int AtmospherePressurePascals { get; init; }
+		public int CarbonDioxidePartsPerMillion { get; init; }
+		public int AtmosphericWaterPartsPerMillion { get; init; }
+		public long SurfaceWaterCubicKilometers { get; init; }
+		public int OceanCoveragePerMille { get; init; }
+		public int TectonicPlateCount { get; init; }
+		public int TectonicActivityPerMille { get; init; }
+		public int ClimatePulseSequence { get; init; }
 	}
 
 	public sealed class SimulationBuildMetadata

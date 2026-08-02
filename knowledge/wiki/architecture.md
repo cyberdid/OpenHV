@@ -194,6 +194,29 @@ Both streams are line-flushed so a process failure retains complete prior
 records. A retry or resume moves an existing stream to an attempt-qualified
 artifact before the canonical path is recreated.
 
+## Planetary physical state
+
+Every `PlanetState` owns a `PlanetPhysicalState` registered in stable Universe
+hash order. Immutable definitions provide mass, radius, orbit, rotation, axial
+tilt, eccentricity, stellar flux, and plate count for all three planet slots.
+Mutable fixed-point fields track geological age, radiative equilibrium,
+temperature, energy imbalance, atmosphere pressure/composition, condensed
+surface water, ocean coverage, albedo, tectonic activity, and climate-pulse
+sequence. There are no floating-point values in authoritative evolution.
+
+During the lifeless accelerated timescale, one macro day represents one million
+geological years. The active planet autonomously cools toward its integer
+radiative equilibrium; orbital phase perturbs stellar flux; water vapor
+condenses below the boiling threshold; ocean coverage changes albedo; wet
+weathering removes CO₂; and tectonics outgas atmosphere and decay slowly. The
+two reserved planets already have different physical seeds but do not advance
+until activated. Result, telemetry, checkpoint manifest, full sync hash, and
+native save data all expose or preserve the same state.
+
+This is the UNI-003 global foundation, not the finished Phase 2 model. Spatial
+atmosphere, wind, hydrology, terrain plates, large 2:1 chunked surface, golden
+calibration, and native overlays remain required.
+
 ## Universe checkpoints
 
 `Launch.SimulationCheckpointWorldTick` requests a save only when

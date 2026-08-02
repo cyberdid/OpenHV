@@ -25,10 +25,10 @@ runtime retirement.
 
 | ID | Capability and source | C# destination | Gate | Status |
 |---|---|---|---|---|
-| PHY-01 | Canonical planet configuration and calibration (`config.py`) | `Universe/Planet/PlanetDefinition` | config snapshot + validation | reference |
-| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicsState/System` | temperature range + energy residual golden suite | reference |
+| PHY-01 | Canonical planet configuration and calibration (`config.py`) | `Universe/Planet/PlanetDefinition` | config snapshot + validation | native foundation: three immutable physical seeds exported under a closed contract |
+| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicalState/System` | temperature range + energy residual golden suite | partial: synchronized fixed-point global energy pulse; spatial fields/golden calibration pending |
 | PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | reference |
-| PHY-04 | Evaporation, clouds, condensation, precipitation, water fixer | `HydrologySystem` | water conservation + precipitation parity | reference |
+| PHY-04 | Evaporation, clouds, condensation, precipitation, water fixer | `HydrologySystem` | water conservation + precipitation parity | partial: global vapor condensation and ocean stock native; spatial cycle pending |
 | PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | reference |
 | BIO-01 | Habitability, biomass, complexity (`biosphere.py`) | `BiosphereState/System` | barren/no-life + growth/carrying-capacity tests | reference |
 | BIO-02 | Food web, species competition, mutation, migration | `EcosystemState/System` | deterministic diversity and extinction invariants | new |
@@ -72,7 +72,7 @@ runtime retirement.
 | SPC-02 | Ships, freighters, frigates, carriers, flotillas | actors + `FleetState/System` | construction, fuel, cargo, damage, command | partial assets/RTS |
 | SPC-03 | Orbital/interplanetary routes and travel time | `OrbitalNetwork` | mass/cargo conservation + deterministic arrival | new |
 | SPC-04 | Discovery, colonization, interplanetary trade/diplomacy/war | `InterplanetaryRelations` | observable autonomous first contact | new |
-| MUL-01 | Three planet states and native races | `StarSystemState.Planets[3]` | isolated evolution + distinct emergent traits | partial: stable slots/clock native; planet state/races pending |
+| MUL-01 | Three planet states and native races | `StarSystemState.Planets[3]` | isolated evolution + distinct emergent traits | partial: stable slots, clock, and distinct physical seeds native; activation/races pending |
 | INV-01 | Late Tyranid fleet, landing, biomass consumption, adaptation | invasion scenario systems + swarm actors | autonomous trigger through planetary consequences | partial assets/lore |
 
 ## Parity closure rule

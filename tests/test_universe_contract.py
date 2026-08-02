@@ -27,13 +27,41 @@ def read_json(path: Path):
         return json.load(stream)
 
 
+def planet_physics(*, active: bool, mass: int, radius: int):
+    return {
+        "geologicalAgeYears": 2_000_000 if active else 0,
+        "massEarthMillionths": mass,
+        "radiusKilometers": radius,
+        "surfaceGravityMilliMetersPerSecondSquared": 9810,
+        "rotationPeriodMinutes": 1020,
+        "orbitalDistanceMillionKilometers": 151_000,
+        "orbitalPeriodDays": 380,
+        "axialTiltMilliDegrees": 23_500,
+        "orbitalEccentricityMillionths": 18_000,
+        "stellarFluxWattsPerSquareMeter": 1340,
+        "bondAlbedoPerMille": 380,
+        "absorbedSolarWattsPerSquareMeter": 204,
+        "radiativeEquilibriumMilliKelvin": 395_000,
+        "meanSurfaceTemperatureMilliKelvin": 414_000,
+        "energyImbalanceMilliWattsPerSquareMeter": -76_000,
+        "atmospherePressurePascals": 420_018,
+        "carbonDioxidePartsPerMillion": 120_000,
+        "atmosphericWaterPartsPerMillion": 650_000,
+        "surfaceWaterCubicKilometers": 0,
+        "oceanCoveragePerMille": 0,
+        "tectonicPlateCount": 12,
+        "tectonicActivityPerMille": 920,
+        "climatePulseSequence": 2 if active else 0,
+    }
+
+
 def universe_snapshot():
     return {
         "universeId": "universe-0001",
         "starSystemId": "tyranthos-system",
         "macroDay": 2,
         "macroTickRemainder": 0,
-        "macroEventSequence": 2,
+        "macroEventSequence": 4,
         "ticksPerMacroDay": 250,
         "planets": [
             {
@@ -43,6 +71,7 @@ def universe_snapshot():
                 "active": True,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
+                "physics": planet_physics(active=True, mass=1_020_000, radius=6450),
             },
             {
                 "planetId": "planet-0002",
@@ -51,6 +80,7 @@ def universe_snapshot():
                 "active": False,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
+                "physics": planet_physics(active=False, mass=800_000, radius=5800),
             },
             {
                 "planetId": "planet-0003",
@@ -59,6 +89,7 @@ def universe_snapshot():
                 "active": False,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
+                "physics": planet_physics(active=False, mass=1_300_000, radius=7200),
             },
         ],
     }
@@ -85,6 +116,14 @@ class UniverseContractTests(unittest.TestCase):
         snapshot = universe_snapshot()
         snapshot["planets"] = snapshot["planets"][:2]
         self.assertFalse(self.universe_validator.is_valid(snapshot))
+
+    def test_active_planet_advances_physics_without_life(self) -> None:
+        snapshot = universe_snapshot()
+        active = snapshot["planets"][0]
+        self.assertEqual(active["lifecycleStage"], "lifeless")
+        self.assertEqual(active["physics"]["geologicalAgeYears"], 2_000_000)
+        self.assertEqual(active["physics"]["climatePulseSequence"], 2)
+        self.assertGreater(active["physics"]["atmospherePressurePascals"], 0)
 
     def test_only_one_planet_is_active_in_the_initial_contract(self) -> None:
         snapshot = universe_snapshot()

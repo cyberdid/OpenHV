@@ -749,3 +749,23 @@ tests passed in 9.096 seconds; two ordinary deterministic runs and the
 graphical/headless pair matched at tick 500 with hash `3A94CA09`; MiniYAML
 validation completed with the existing 102 content warnings. The generated
 engine patch reverse-applies cleanly to the current engine checkout.
+
+## [2026-08-02] change | Begin lifeless planetary physics (UNI-003A)
+
+Added one authoritative fixed-point `PlanetPhysicalState` per planet slot in
+the .NET/OpenHV Universe hierarchy. All three planets now have distinct
+mass/radius/gravity, rotation, orbit, axial tilt, eccentricity, stellar flux,
+and tectonic definitions. The active lifeless Tyranthos advances one million
+geological years per macro pulse while radiation, greenhouse composition,
+temperature, energy imbalance, atmosphere, water condensation, ocean stock,
+albedo, weathering, outgassing, and tectonic activity evolve without user
+input. Inactive planet slots retain their physical seeds without advancing.
+
+The state is registered in stable sync-hash order, exported through the shared
+result/telemetry/checkpoint Universe schema, and persisted by backward-aware
+Universe trait-save schema 2. At tick 500 Tyranthos remained lifeless at two
+million geological years, cooled from 420 K to 413.288 K, and produced two
+climate pulses. Two ordinary runs matched at hash `CEEC1FB8`; a seed-112
+checkpoint fork matched continuous/resumed branches at full hash `467F279A`
+and BotRandom count `578`. Release compilation completed with zero warnings or
+errors, and all 30 simulation tests passed in 9.264 seconds.

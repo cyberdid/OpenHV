@@ -28,7 +28,47 @@ namespace OpenRA.Mods.HV.Traits
 
 	public enum UniverseMacroEventType
 	{
-		MacroDayAdvanced = 1
+		MacroDayAdvanced = 1,
+		PlanetClimatePulse = 2
+	}
+
+	public sealed class PlanetPhysicsDefinition
+	{
+		public int MassEarthMillionths { get; }
+		public int RadiusKilometers { get; }
+		public int RotationPeriodMinutes { get; }
+		public int OrbitalDistanceMillionKilometers { get; }
+		public int OrbitalPeriodDays { get; }
+		public int AxialTiltMilliDegrees { get; }
+		public int OrbitalEccentricityMillionths { get; }
+		public int StellarFluxWattsPerSquareMeter { get; }
+		public int TectonicPlateCount { get; }
+		public int InitialTemperatureMilliKelvin { get; }
+		public int InitialAtmospherePressurePascals { get; }
+		public int InitialCarbonDioxidePartsPerMillion { get; }
+		public int InitialAtmosphericWaterPartsPerMillion { get; }
+		public int InitialTectonicActivityPerMille { get; }
+
+		public PlanetPhysicsDefinition(
+			int mass, int radius, int rotation, int orbitalDistance, int orbitalPeriod,
+			int axialTilt, int eccentricity, int stellarFlux, int plateCount,
+			int temperature, int pressure, int carbonDioxide, int atmosphericWater, int tectonicActivity)
+		{
+			MassEarthMillionths = mass;
+			RadiusKilometers = radius;
+			RotationPeriodMinutes = rotation;
+			OrbitalDistanceMillionKilometers = orbitalDistance;
+			OrbitalPeriodDays = orbitalPeriod;
+			AxialTiltMilliDegrees = axialTilt;
+			OrbitalEccentricityMillionths = eccentricity;
+			StellarFluxWattsPerSquareMeter = stellarFlux;
+			TectonicPlateCount = plateCount;
+			InitialTemperatureMilliKelvin = temperature;
+			InitialAtmospherePressurePascals = pressure;
+			InitialCarbonDioxidePartsPerMillion = carbonDioxide;
+			InitialAtmosphericWaterPartsPerMillion = atmosphericWater;
+			InitialTectonicActivityPerMille = tectonicActivity;
+		}
 	}
 
 	public sealed class PlanetDefinition
@@ -36,12 +76,14 @@ namespace OpenRA.Mods.HV.Traits
 		public int Index { get; }
 		public string PlanetId { get; }
 		public string Name { get; }
+		public PlanetPhysicsDefinition Physics { get; }
 
-		public PlanetDefinition(int index, string planetId, string name)
+		public PlanetDefinition(int index, string planetId, string name, PlanetPhysicsDefinition physics)
 		{
 			Index = index;
 			PlanetId = planetId;
 			Name = name;
+			Physics = physics;
 		}
 	}
 
@@ -68,7 +110,185 @@ namespace OpenRA.Mods.HV.Traits
 		}
 	}
 
-	/// <summary>A synchronized planet node. Physical fields are added here in Phase 2.</summary>
+	public sealed class PlanetPhysicsSaveData
+	{
+		[FieldLoader.Require] public long GeologicalAgeYears;
+		[FieldLoader.Require] public int RotationPeriodMinutes;
+		[FieldLoader.Require] public int BondAlbedoPerMille;
+		[FieldLoader.Require] public int AbsorbedSolarWattsPerSquareMeter;
+		[FieldLoader.Require] public int RadiativeEquilibriumMilliKelvin;
+		[FieldLoader.Require] public int MeanSurfaceTemperatureMilliKelvin;
+		[FieldLoader.Require] public int EnergyImbalanceMilliWattsPerSquareMeter;
+		[FieldLoader.Require] public int AtmospherePressurePascals;
+		[FieldLoader.Require] public int CarbonDioxidePartsPerMillion;
+		[FieldLoader.Require] public int AtmosphericWaterPartsPerMillion;
+		[FieldLoader.Require] public long SurfaceWaterCubicKilometers;
+		[FieldLoader.Require] public int OceanCoveragePerMille;
+		[FieldLoader.Require] public int TectonicActivityPerMille;
+		[FieldLoader.Require] public int ClimatePulseSequence;
+	}
+
+	/// <summary>Deterministic fixed-point global physics for one planet.</summary>
+	public sealed class PlanetPhysicalState : IEffect, ISync
+	{
+		const long TargetOceanVolume = 1_400_000_000;
+		[VerifySync] int geologicalAgeMillionYears;
+		[VerifySync] int rotationPeriodMinutes;
+		[VerifySync] int bondAlbedoPerMille = 380;
+		[VerifySync] int absorbedSolarWattsPerSquareMeter;
+		[VerifySync] int radiativeEquilibriumMilliKelvin;
+		[VerifySync] int meanSurfaceTemperatureMilliKelvin;
+		[VerifySync] int energyImbalanceMilliWattsPerSquareMeter;
+		[VerifySync] int atmospherePressurePascals;
+		[VerifySync] int carbonDioxidePartsPerMillion;
+		[VerifySync] int atmosphericWaterPartsPerMillion;
+		[VerifySync] int surfaceWaterCubicKilometers;
+		[VerifySync] int oceanCoveragePerMille;
+		[VerifySync] int tectonicActivityPerMille;
+		[VerifySync] int climatePulseSequence;
+
+		readonly PlanetPhysicsDefinition definition;
+
+		public long GeologicalAgeYears => geologicalAgeMillionYears * 1_000_000L;
+		public int MassEarthMillionths => definition.MassEarthMillionths;
+		public int RadiusKilometers => definition.RadiusKilometers;
+		public int SurfaceGravityMilliMetersPerSecondSquared { get; }
+		public int RotationPeriodMinutes => rotationPeriodMinutes;
+		public int OrbitalDistanceMillionKilometers => definition.OrbitalDistanceMillionKilometers;
+		public int OrbitalPeriodDays => definition.OrbitalPeriodDays;
+		public int AxialTiltMilliDegrees => definition.AxialTiltMilliDegrees;
+		public int OrbitalEccentricityMillionths => definition.OrbitalEccentricityMillionths;
+		public int StellarFluxWattsPerSquareMeter => definition.StellarFluxWattsPerSquareMeter;
+		public int BondAlbedoPerMille => bondAlbedoPerMille;
+		public int AbsorbedSolarWattsPerSquareMeter => absorbedSolarWattsPerSquareMeter;
+		public int RadiativeEquilibriumMilliKelvin => radiativeEquilibriumMilliKelvin;
+		public int MeanSurfaceTemperatureMilliKelvin => meanSurfaceTemperatureMilliKelvin;
+		public int EnergyImbalanceMilliWattsPerSquareMeter => energyImbalanceMilliWattsPerSquareMeter;
+		public int AtmospherePressurePascals => atmospherePressurePascals;
+		public int CarbonDioxidePartsPerMillion => carbonDioxidePartsPerMillion;
+		public int AtmosphericWaterPartsPerMillion => atmosphericWaterPartsPerMillion;
+		public long SurfaceWaterCubicKilometers => surfaceWaterCubicKilometers;
+		public int OceanCoveragePerMille => oceanCoveragePerMille;
+		public int TectonicPlateCount => definition.TectonicPlateCount;
+		public int TectonicActivityPerMille => tectonicActivityPerMille;
+		public int ClimatePulseSequence => climatePulseSequence;
+
+		public PlanetPhysicalState(PlanetPhysicsDefinition definition)
+		{
+			this.definition = definition;
+			rotationPeriodMinutes = definition.RotationPeriodMinutes;
+			meanSurfaceTemperatureMilliKelvin = definition.InitialTemperatureMilliKelvin;
+			atmospherePressurePascals = definition.InitialAtmospherePressurePascals;
+			carbonDioxidePartsPerMillion = definition.InitialCarbonDioxidePartsPerMillion;
+			atmosphericWaterPartsPerMillion = definition.InitialAtmosphericWaterPartsPerMillion;
+			tectonicActivityPerMille = definition.InitialTectonicActivityPerMille;
+			var numerator = 9810L * definition.MassEarthMillionths * 6371 * 6371;
+			var denominator = 1_000_000L * definition.RadiusKilometers * definition.RadiusKilometers;
+			SurfaceGravityMilliMetersPerSecondSquared = checked((int)(numerator / denominator));
+			UpdateEnergyState(0);
+		}
+
+		internal void AdvanceClimate(int macroDay)
+		{
+			climatePulseSequence++;
+			geologicalAgeMillionYears++;
+			if (climatePulseSequence % 100 == 0)
+				rotationPeriodMinutes++;
+			if (climatePulseSequence % 50 == 0 && tectonicActivityPerMille > 100)
+				tectonicActivityPerMille--;
+
+			UpdateEnergyState(macroDay);
+			meanSurfaceTemperatureMilliKelvin = Math.Max(100_000,
+				meanSurfaceTemperatureMilliKelvin +
+				(radiativeEquilibriumMilliKelvin - meanSurfaceTemperatureMilliKelvin) / 8);
+
+			if (meanSurfaceTemperatureMilliKelvin < 373_150 && atmosphericWaterPartsPerMillion > 10_000)
+			{
+				var condensation = Math.Min(atmosphericWaterPartsPerMillion - 10_000,
+					20_000 + (373_150 - meanSurfaceTemperatureMilliKelvin) / 4);
+				atmosphericWaterPartsPerMillion -= condensation;
+				surfaceWaterCubicKilometers = checked((int)Math.Min(TargetOceanVolume,
+					surfaceWaterCubicKilometers + condensation * 2000L));
+				atmospherePressurePascals = Math.Max(1000,
+					atmospherePressurePascals - atmospherePressurePascals * condensation / 1_000_000);
+			}
+
+			oceanCoveragePerMille = checked((int)Math.Min(710,
+				surfaceWaterCubicKilometers * 710 / TargetOceanVolume));
+			bondAlbedoPerMille = 380 - oceanCoveragePerMille * 120 / 710;
+			if (oceanCoveragePerMille > 0)
+				carbonDioxidePartsPerMillion = Math.Max(280,
+					carbonDioxidePartsPerMillion - Math.Max(1, oceanCoveragePerMille / 20));
+			atmospherePressurePascals += Math.Max(0, tectonicActivityPerMille / 100);
+			UpdateEnergyState(macroDay);
+		}
+
+		internal PlanetPhysicsSaveData CreateSaveData() => new()
+		{
+			GeologicalAgeYears = GeologicalAgeYears,
+			RotationPeriodMinutes = rotationPeriodMinutes,
+			BondAlbedoPerMille = bondAlbedoPerMille,
+			AbsorbedSolarWattsPerSquareMeter = absorbedSolarWattsPerSquareMeter,
+			RadiativeEquilibriumMilliKelvin = radiativeEquilibriumMilliKelvin,
+			MeanSurfaceTemperatureMilliKelvin = meanSurfaceTemperatureMilliKelvin,
+			EnergyImbalanceMilliWattsPerSquareMeter = energyImbalanceMilliWattsPerSquareMeter,
+			AtmospherePressurePascals = atmospherePressurePascals,
+			CarbonDioxidePartsPerMillion = carbonDioxidePartsPerMillion,
+			AtmosphericWaterPartsPerMillion = atmosphericWaterPartsPerMillion,
+			SurfaceWaterCubicKilometers = surfaceWaterCubicKilometers,
+			OceanCoveragePerMille = oceanCoveragePerMille,
+			TectonicActivityPerMille = tectonicActivityPerMille,
+			ClimatePulseSequence = climatePulseSequence
+		};
+
+		internal void Restore(PlanetPhysicsSaveData data)
+		{
+			if (data.GeologicalAgeYears % 1_000_000 != 0)
+				throw new InvalidOperationException("Saved geological age is not aligned to one million years.");
+
+			geologicalAgeMillionYears = checked((int)(data.GeologicalAgeYears / 1_000_000));
+			rotationPeriodMinutes = data.RotationPeriodMinutes;
+			bondAlbedoPerMille = data.BondAlbedoPerMille;
+			absorbedSolarWattsPerSquareMeter = data.AbsorbedSolarWattsPerSquareMeter;
+			radiativeEquilibriumMilliKelvin = data.RadiativeEquilibriumMilliKelvin;
+			meanSurfaceTemperatureMilliKelvin = data.MeanSurfaceTemperatureMilliKelvin;
+			energyImbalanceMilliWattsPerSquareMeter = data.EnergyImbalanceMilliWattsPerSquareMeter;
+			atmospherePressurePascals = data.AtmospherePressurePascals;
+			carbonDioxidePartsPerMillion = data.CarbonDioxidePartsPerMillion;
+			atmosphericWaterPartsPerMillion = data.AtmosphericWaterPartsPerMillion;
+			surfaceWaterCubicKilometers = checked((int)data.SurfaceWaterCubicKilometers);
+			oceanCoveragePerMille = data.OceanCoveragePerMille;
+			tectonicActivityPerMille = data.TectonicActivityPerMille;
+			climatePulseSequence = data.ClimatePulseSequence;
+		}
+
+		void UpdateEnergyState(int macroDay)
+		{
+			var orbit = Math.Max(1, definition.OrbitalPeriodDays);
+			var orbitalDay = Math.Abs(macroDay % orbit);
+			var half = Math.Max(1, orbit / 2);
+			var triangle = orbitalDay <= half ? orbitalDay * 2000 / half - 1000 :
+				1000 - (orbitalDay - half) * 2000 / Math.Max(1, orbit - half);
+			var seasonalFlux = definition.StellarFluxWattsPerSquareMeter *
+				definition.OrbitalEccentricityMillionths * triangle / 1_000_000_000L;
+			var incidentFlux = definition.StellarFluxWattsPerSquareMeter + (int)seasonalFlux;
+			absorbedSolarWattsPerSquareMeter = incidentFlux * (1000 - bondAlbedoPerMille) / 4000;
+			var greenhouse = 20_000 + carbonDioxidePartsPerMillion / 2 +
+				atmosphericWaterPartsPerMillion / 10;
+			radiativeEquilibriumMilliKelvin = Math.Clamp(
+				255_000 + (absorbedSolarWattsPerSquareMeter - 239) * 270 + greenhouse,
+				100_000, 900_000);
+			energyImbalanceMilliWattsPerSquareMeter = Math.Clamp(
+				(radiativeEquilibriumMilliKelvin - meanSurfaceTemperatureMilliKelvin) * 4,
+				-2_000_000, 2_000_000);
+		}
+
+		void IEffect.Tick(World world) { }
+
+		IEnumerable<IRenderable> IEffect.Render(WorldRenderer renderer) { return []; }
+	}
+
+	/// <summary>A synchronized planet node with its authoritative physical state.</summary>
 	public sealed class PlanetState : IEffect, ISync
 	{
 		[VerifySync]
@@ -78,13 +298,21 @@ namespace OpenRA.Mods.HV.Traits
 		int lifecycleStage = (int)PlanetLifecycleStage.Lifeless;
 
 		public PlanetDefinition Definition { get; }
+		public PlanetPhysicalState Physics { get; }
 		public bool Active => active;
 		public PlanetLifecycleStage LifecycleStage => (PlanetLifecycleStage)lifecycleStage;
 
 		public PlanetState(PlanetDefinition definition, bool active)
 		{
 			Definition = definition;
+			Physics = new PlanetPhysicalState(definition.Physics);
 			this.active = active;
+		}
+
+		internal void AdvanceClimate(int macroDay)
+		{
+			if (active)
+				Physics.AdvanceClimate(macroDay);
 		}
 
 		internal void Restore(bool restoredActive, PlanetLifecycleStage restoredLifecycleStage)
@@ -142,14 +370,21 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
+		const int TraitSaveSchemaVersion = 2;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
 		static readonly PlanetDefinition[] PlanetDefinitions =
 		[
-			new(0, "planet-0001", "Tyranthos"),
-			new(1, "planet-0002", "Planet II"),
-			new(2, "planet-0003", "Planet III")
+			new(0, "planet-0001", "Tyranthos", new(
+				1_020_000, 6450, 1020, 151_000, 380, 23_500, 18_000,
+				1340, 12, 420_000, 420_000, 120_000, 650_000, 920)),
+			new(1, "planet-0002", "Planet II", new(
+				800_000, 5800, 1800, 210_000, 590, 12_000, 40_000,
+				750, 8, 310_000, 90_000, 20_000, 80_000, 500)),
+			new(2, "planet-0003", "Planet III", new(
+				1_300_000, 7200, 780, 100_000, 210, 5000, 10_000,
+				2300, 15, 700_000, 1_500_000, 450_000, 300_000, 800))
 		];
 
 		readonly UniverseStateInfo info;
@@ -195,7 +430,10 @@ namespace OpenRA.Mods.HV.Traits
 			// Register in stable hierarchy order so each node contributes to World.SyncHash.
 			world.Add(StarSystem);
 			foreach (var planet in StarSystem.Planets)
+			{
 				world.Add(planet);
+				world.Add(planet.Physics);
+			}
 		}
 
 		void INotifyGameLoaded.GameLoaded(World world)
@@ -230,6 +468,14 @@ namespace OpenRA.Mods.HV.Traits
 			{
 				macroDay++;
 				AppendEvent(UniverseMacroEventType.MacroDayAdvanced, macroDay, 0);
+				foreach (var planet in StarSystem.Planets)
+				{
+					if (!planet.Active)
+						continue;
+
+					planet.AdvanceClimate(macroDay);
+					AppendEvent(UniverseMacroEventType.PlanetClimatePulse, macroDay, planet.Definition.Index);
+				}
 			}
 		}
 
@@ -251,7 +497,7 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			var data = new List<MiniYamlNode>
 			{
-				new("SchemaVersion", FieldSaver.FormatValue(CheckpointSchemaVersion)),
+				new("SchemaVersion", FieldSaver.FormatValue(TraitSaveSchemaVersion)),
 				new("UniverseId", UniverseId),
 				new("StarSystemId", StarSystemId),
 				new("WorldTick", FieldSaver.FormatValue(self.World.WorldTick)),
@@ -273,6 +519,7 @@ namespace OpenRA.Mods.HV.Traits
 				data.Add(new MiniYamlNode(
 					$"{prefix}LifecycleStage",
 					FieldSaver.FormatValue((int)planet.LifecycleStage)));
+				data.Add(new MiniYamlNode($"{prefix}Physics", FieldSaver.Save(planet.Physics.CreateSaveData())));
 			}
 
 			return data;
@@ -284,9 +531,9 @@ namespace OpenRA.Mods.HV.Traits
 				return;
 
 			var schemaVersion = ReadInt(data, "SchemaVersion");
-			if (schemaVersion != CheckpointSchemaVersion)
+			if (schemaVersion is not 1 and not TraitSaveSchemaVersion)
 				throw new InvalidOperationException(
-					$"Universe checkpoint schema {schemaVersion} is not supported; expected {CheckpointSchemaVersion}.");
+					$"Universe trait save schema {schemaVersion} is not supported; expected 1 or {TraitSaveSchemaVersion}.");
 
 			RequireIdentity(data, "UniverseId", UniverseId);
 			RequireIdentity(data, "StarSystemId", StarSystemId);
@@ -307,6 +554,9 @@ namespace OpenRA.Mods.HV.Traits
 				planet.Restore(
 					ReadBool(data, $"{prefix}Active"),
 					(PlanetLifecycleStage)ReadInt(data, $"{prefix}LifecycleStage"));
+				if (schemaVersion >= 2)
+					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
+						RequiredNode(data, $"{prefix}Physics").Value));
 			}
 
 			events.Clear();

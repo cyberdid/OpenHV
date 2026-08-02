@@ -121,7 +121,8 @@
         "name",
         "index",
         "active",
-        "lifecycleStage"
+        "lifecycleStage",
+        "physics"
       ],
       "properties": {
         "planetId": { "type": "string", "minLength": 1 },
@@ -139,7 +140,49 @@
         },
         "nativeRaceId": {
           "type": ["string", "null"]
-        }
+        },
+        "physics": { "$ref": "#/$defs/planetPhysics" }
+      }
+    },
+    "planetPhysics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "geologicalAgeYears", "massEarthMillionths", "radiusKilometers",
+        "surfaceGravityMilliMetersPerSecondSquared", "rotationPeriodMinutes",
+        "orbitalDistanceMillionKilometers", "orbitalPeriodDays", "axialTiltMilliDegrees",
+        "orbitalEccentricityMillionths", "stellarFluxWattsPerSquareMeter",
+        "bondAlbedoPerMille", "absorbedSolarWattsPerSquareMeter",
+        "radiativeEquilibriumMilliKelvin", "meanSurfaceTemperatureMilliKelvin",
+        "energyImbalanceMilliWattsPerSquareMeter", "atmospherePressurePascals",
+        "carbonDioxidePartsPerMillion", "atmosphericWaterPartsPerMillion",
+        "surfaceWaterCubicKilometers", "oceanCoveragePerMille", "tectonicPlateCount",
+        "tectonicActivityPerMille", "climatePulseSequence"
+      ],
+      "properties": {
+        "geologicalAgeYears": { "type": "integer", "minimum": 0 },
+        "massEarthMillionths": { "type": "integer", "minimum": 1 },
+        "radiusKilometers": { "type": "integer", "minimum": 1 },
+        "surfaceGravityMilliMetersPerSecondSquared": { "type": "integer", "minimum": 1 },
+        "rotationPeriodMinutes": { "type": "integer", "minimum": 1 },
+        "orbitalDistanceMillionKilometers": { "type": "integer", "minimum": 1 },
+        "orbitalPeriodDays": { "type": "integer", "minimum": 1 },
+        "axialTiltMilliDegrees": { "type": "integer", "minimum": 0, "maximum": 180000 },
+        "orbitalEccentricityMillionths": { "type": "integer", "minimum": 0, "maximum": 999999 },
+        "stellarFluxWattsPerSquareMeter": { "type": "integer", "minimum": 0 },
+        "bondAlbedoPerMille": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "absorbedSolarWattsPerSquareMeter": { "type": "integer", "minimum": 0 },
+        "radiativeEquilibriumMilliKelvin": { "type": "integer", "minimum": 0 },
+        "meanSurfaceTemperatureMilliKelvin": { "type": "integer", "minimum": 0 },
+        "energyImbalanceMilliWattsPerSquareMeter": { "type": "integer" },
+        "atmospherePressurePascals": { "type": "integer", "minimum": 0 },
+        "carbonDioxidePartsPerMillion": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "atmosphericWaterPartsPerMillion": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "surfaceWaterCubicKilometers": { "type": "integer", "minimum": 0 },
+        "oceanCoveragePerMille": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "tectonicPlateCount": { "type": "integer", "minimum": 0 },
+        "tectonicActivityPerMille": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "climatePulseSequence": { "type": "integer", "minimum": 0 }
       }
     },
     "build": {

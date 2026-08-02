@@ -40,9 +40,40 @@ namespace OpenRA.Mods.HV
 						Index = planet.Definition.Index,
 						Active = planet.Active,
 						LifecycleStage = LifecycleIdentifier(planet.LifecycleStage),
-						NativeRaceId = null
+						NativeRaceId = null,
+						Physics = PhysicsSnapshot(planet.Physics)
 					})
 					.ToArray()
+			};
+		}
+
+		static SimulationPlanetPhysicsResult PhysicsSnapshot(PlanetPhysicalState physics)
+		{
+			return new SimulationPlanetPhysicsResult
+			{
+				GeologicalAgeYears = physics.GeologicalAgeYears,
+				MassEarthMillionths = physics.MassEarthMillionths,
+				RadiusKilometers = physics.RadiusKilometers,
+				SurfaceGravityMilliMetersPerSecondSquared = physics.SurfaceGravityMilliMetersPerSecondSquared,
+				RotationPeriodMinutes = physics.RotationPeriodMinutes,
+				OrbitalDistanceMillionKilometers = physics.OrbitalDistanceMillionKilometers,
+				OrbitalPeriodDays = physics.OrbitalPeriodDays,
+				AxialTiltMilliDegrees = physics.AxialTiltMilliDegrees,
+				OrbitalEccentricityMillionths = physics.OrbitalEccentricityMillionths,
+				StellarFluxWattsPerSquareMeter = physics.StellarFluxWattsPerSquareMeter,
+				BondAlbedoPerMille = physics.BondAlbedoPerMille,
+				AbsorbedSolarWattsPerSquareMeter = physics.AbsorbedSolarWattsPerSquareMeter,
+				RadiativeEquilibriumMilliKelvin = physics.RadiativeEquilibriumMilliKelvin,
+				MeanSurfaceTemperatureMilliKelvin = physics.MeanSurfaceTemperatureMilliKelvin,
+				EnergyImbalanceMilliWattsPerSquareMeter = physics.EnergyImbalanceMilliWattsPerSquareMeter,
+				AtmospherePressurePascals = physics.AtmospherePressurePascals,
+				CarbonDioxidePartsPerMillion = physics.CarbonDioxidePartsPerMillion,
+				AtmosphericWaterPartsPerMillion = physics.AtmosphericWaterPartsPerMillion,
+				SurfaceWaterCubicKilometers = physics.SurfaceWaterCubicKilometers,
+				OceanCoveragePerMille = physics.OceanCoveragePerMille,
+				TectonicPlateCount = physics.TectonicPlateCount,
+				TectonicActivityPerMille = physics.TectonicActivityPerMille,
+				ClimatePulseSequence = physics.ClimatePulseSequence
 			};
 		}
 
