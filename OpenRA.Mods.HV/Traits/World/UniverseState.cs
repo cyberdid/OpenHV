@@ -112,40 +112,94 @@ namespace OpenRA.Mods.HV.Traits
 
 	public sealed class PlanetPhysicsSaveData
 	{
-		[FieldLoader.Require] public long GeologicalAgeYears;
-		[FieldLoader.Require] public int RotationPeriodMinutes;
-		[FieldLoader.Require] public int BondAlbedoPerMille;
-		[FieldLoader.Require] public int AbsorbedSolarWattsPerSquareMeter;
-		[FieldLoader.Require] public int RadiativeEquilibriumMilliKelvin;
-		[FieldLoader.Require] public int MeanSurfaceTemperatureMilliKelvin;
-		[FieldLoader.Require] public int EnergyImbalanceMilliWattsPerSquareMeter;
-		[FieldLoader.Require] public int AtmospherePressurePascals;
-		[FieldLoader.Require] public int CarbonDioxidePartsPerMillion;
-		[FieldLoader.Require] public int AtmosphericWaterPartsPerMillion;
-		[FieldLoader.Require] public long SurfaceWaterCubicKilometers;
-		[FieldLoader.Require] public int OceanCoveragePerMille;
-		[FieldLoader.Require] public int TectonicActivityPerMille;
-		[FieldLoader.Require] public int ClimatePulseSequence;
+		[FieldLoader.Require]
+		public long GeologicalAgeYears;
+
+		[FieldLoader.Require]
+		public int RotationPeriodMinutes;
+
+		[FieldLoader.Require]
+		public int BondAlbedoPerMille;
+
+		[FieldLoader.Require]
+		public int AbsorbedSolarWattsPerSquareMeter;
+
+		[FieldLoader.Require]
+		public int RadiativeEquilibriumMilliKelvin;
+
+		[FieldLoader.Require]
+		public int MeanSurfaceTemperatureMilliKelvin;
+
+		[FieldLoader.Require]
+		public int EnergyImbalanceMilliWattsPerSquareMeter;
+
+		[FieldLoader.Require]
+		public int AtmospherePressurePascals;
+
+		[FieldLoader.Require]
+		public int CarbonDioxidePartsPerMillion;
+
+		[FieldLoader.Require]
+		public int AtmosphericWaterPartsPerMillion;
+
+		[FieldLoader.Require]
+		public long SurfaceWaterCubicKilometers;
+
+		[FieldLoader.Require]
+		public int OceanCoveragePerMille;
+
+		[FieldLoader.Require]
+		public int TectonicActivityPerMille;
+
+		[FieldLoader.Require]
+		public int ClimatePulseSequence;
 	}
 
 	/// <summary>Deterministic fixed-point global physics for one planet.</summary>
 	public sealed class PlanetPhysicalState : IEffect, ISync
 	{
 		const long TargetOceanVolume = 1_400_000_000;
-		[VerifySync] int geologicalAgeMillionYears;
-		[VerifySync] int rotationPeriodMinutes;
-		[VerifySync] int bondAlbedoPerMille = 380;
-		[VerifySync] int absorbedSolarWattsPerSquareMeter;
-		[VerifySync] int radiativeEquilibriumMilliKelvin;
-		[VerifySync] int meanSurfaceTemperatureMilliKelvin;
-		[VerifySync] int energyImbalanceMilliWattsPerSquareMeter;
-		[VerifySync] int atmospherePressurePascals;
-		[VerifySync] int carbonDioxidePartsPerMillion;
-		[VerifySync] int atmosphericWaterPartsPerMillion;
-		[VerifySync] int surfaceWaterCubicKilometers;
-		[VerifySync] int oceanCoveragePerMille;
-		[VerifySync] int tectonicActivityPerMille;
-		[VerifySync] int climatePulseSequence;
+		[VerifySync]
+		int geologicalAgeMillionYears;
+
+		[VerifySync]
+		int rotationPeriodMinutes;
+
+		[VerifySync]
+		int bondAlbedoPerMille = 380;
+
+		[VerifySync]
+		int absorbedSolarWattsPerSquareMeter;
+
+		[VerifySync]
+		int radiativeEquilibriumMilliKelvin;
+
+		[VerifySync]
+		int meanSurfaceTemperatureMilliKelvin;
+
+		[VerifySync]
+		int energyImbalanceMilliWattsPerSquareMeter;
+
+		[VerifySync]
+		int atmospherePressurePascals;
+
+		[VerifySync]
+		int carbonDioxidePartsPerMillion;
+
+		[VerifySync]
+		int atmosphericWaterPartsPerMillion;
+
+		[VerifySync]
+		int surfaceWaterCubicKilometers;
+
+		[VerifySync]
+		int oceanCoveragePerMille;
+
+		[VerifySync]
+		int tectonicActivityPerMille;
+
+		[VerifySync]
+		int climatePulseSequence;
 
 		readonly PlanetPhysicsDefinition definition;
 
@@ -299,6 +353,7 @@ namespace OpenRA.Mods.HV.Traits
 
 		public PlanetDefinition Definition { get; }
 		public PlanetPhysicalState Physics { get; }
+		public PlanetSurfaceState Surface { get; }
 		public bool Active => active;
 		public PlanetLifecycleStage LifecycleStage => (PlanetLifecycleStage)lifecycleStage;
 
@@ -306,6 +361,7 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			Definition = definition;
 			Physics = new PlanetPhysicalState(definition.Physics);
+			Surface = new PlanetSurfaceState(definition);
 			this.active = active;
 		}
 
@@ -370,7 +426,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 2;
+		const int TraitSaveSchemaVersion = 3;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -433,6 +489,7 @@ namespace OpenRA.Mods.HV.Traits
 			{
 				world.Add(planet);
 				world.Add(planet.Physics);
+				world.Add(planet.Surface);
 			}
 		}
 
@@ -458,8 +515,7 @@ namespace OpenRA.Mods.HV.Traits
 
 		void AdvanceTicks(int ticks)
 		{
-			if (ticks < 0)
-				throw new ArgumentOutOfRangeException(nameof(ticks));
+			ArgumentOutOfRangeException.ThrowIfNegative(ticks);
 
 			var totalTicks = (long)macroTickRemainder + ticks;
 			var advancedDays = checked((int)(totalTicks / TicksPerMacroDay));
@@ -520,6 +576,7 @@ namespace OpenRA.Mods.HV.Traits
 					$"{prefix}LifecycleStage",
 					FieldSaver.FormatValue((int)planet.LifecycleStage)));
 				data.Add(new MiniYamlNode($"{prefix}Physics", FieldSaver.Save(planet.Physics.CreateSaveData())));
+				data.Add(new MiniYamlNode($"{prefix}Surface", FieldSaver.Save(planet.Surface.CreateSaveData())));
 			}
 
 			return data;
@@ -531,9 +588,9 @@ namespace OpenRA.Mods.HV.Traits
 				return;
 
 			var schemaVersion = ReadInt(data, "SchemaVersion");
-			if (schemaVersion is not 1 and not TraitSaveSchemaVersion)
+			if (schemaVersion < 1 || schemaVersion > TraitSaveSchemaVersion)
 				throw new InvalidOperationException(
-					$"Universe trait save schema {schemaVersion} is not supported; expected 1 or {TraitSaveSchemaVersion}.");
+					$"Universe trait save schema {schemaVersion} is not supported; expected 1–{TraitSaveSchemaVersion}.");
 
 			RequireIdentity(data, "UniverseId", UniverseId);
 			RequireIdentity(data, "StarSystemId", StarSystemId);
@@ -557,6 +614,9 @@ namespace OpenRA.Mods.HV.Traits
 				if (schemaVersion >= 2)
 					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
 						RequiredNode(data, $"{prefix}Physics").Value));
+				if (schemaVersion >= 3)
+					planet.Surface.Restore(FieldLoader.Load<PlanetSurfaceSaveData>(
+						RequiredNode(data, $"{prefix}Surface").Value));
 			}
 
 			events.Clear();

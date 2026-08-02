@@ -122,7 +122,8 @@
         "index",
         "active",
         "lifecycleStage",
-        "physics"
+        "physics",
+        "surface"
       ],
       "properties": {
         "planetId": { "type": "string", "minLength": 1 },
@@ -141,7 +142,40 @@
         "nativeRaceId": {
           "type": ["string", "null"]
         },
-        "physics": { "$ref": "#/$defs/planetPhysics" }
+        "physics": { "$ref": "#/$defs/planetPhysics" },
+        "surface": { "$ref": "#/$defs/planetSurface" }
+      }
+    },
+    "planetSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latitudeCells", "longitudeCells", "cellCount",
+        "chunkLatitudeCells", "chunkLongitudeCells", "chunkRows", "chunkColumns",
+        "chunkCount", "generation", "topologyHash", "hydrologyHash",
+        "minimumElevationMeters", "maximumElevationMeters", "landCellCount",
+        "basinCellCount", "firstCellId", "lastCellId", "firstChunkId", "lastChunkId"
+      ],
+      "properties": {
+        "latitudeCells": { "type": "integer", "minimum": 1 },
+        "longitudeCells": { "type": "integer", "minimum": 1 },
+        "cellCount": { "type": "integer", "minimum": 1 },
+        "chunkLatitudeCells": { "type": "integer", "minimum": 1 },
+        "chunkLongitudeCells": { "type": "integer", "minimum": 1 },
+        "chunkRows": { "type": "integer", "minimum": 1 },
+        "chunkColumns": { "type": "integer", "minimum": 1 },
+        "chunkCount": { "type": "integer", "minimum": 1 },
+        "generation": { "type": "integer", "minimum": 1 },
+        "topologyHash": { "type": "string", "pattern": "^[0-9A-F]{8}$" },
+        "hydrologyHash": { "type": "string", "pattern": "^[0-9A-F]{8}$" },
+        "minimumElevationMeters": { "type": "integer" },
+        "maximumElevationMeters": { "type": "integer" },
+        "landCellCount": { "type": "integer", "minimum": 0 },
+        "basinCellCount": { "type": "integer", "minimum": 0 },
+        "firstCellId": { "type": "string", "minLength": 1 },
+        "lastCellId": { "type": "string", "minLength": 1 },
+        "firstChunkId": { "type": "string", "minLength": 1 },
+        "lastChunkId": { "type": "string", "minLength": 1 }
       }
     },
     "planetPhysics": {

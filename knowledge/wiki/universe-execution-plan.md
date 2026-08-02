@@ -206,17 +206,24 @@ an equilibrium temperature, temperature approaches it through a bounded
 energy imbalance, water vapor can condense into a conserved ocean stock,
 ocean coverage changes albedo and weathering, and tectonics drive bounded
 outgassing. Every field is exported in result/telemetry, participates in the
-full sync hash, and is restored by Universe trait-save schema 2.
+full sync hash, and is restored by Universe trait-save schema 3.
+
+The second slice adds a 180×360 native surface to every planet: 64,800 stable
+cells grouped into 450 chunks. Deterministic generation creates distinct plate
+maps, crust, elevations, ocean basins, terrain classes, volcanic boundaries,
+and mineral richness for all three physical seeds. Surface summaries and
+digests are part of result/telemetry/checkpoint contracts. Immutable topology
+regenerates from the seed during load; mutable hydrology uses compressed binary
+save data. Continuous/resumed branches match after restoring all three grids.
 
 Remaining UNI-003 work:
 
-1. introduce the large 2:1 chunked planetary surface and stable cell IDs;
-2. generate elevation, crust, terrain plates, ocean basins, and materials from
-   the planet seed;
-3. port deterministic spatial radiation, atmosphere, pressure, wind, and CFL
+1. port deterministic spatial radiation, atmosphere, pressure, wind, and CFL
    stepping from the Python oracle;
-4. port evaporation, clouds, condensation, precipitation, runoff, and strict
+2. port evaporation, clouds, condensation, precipitation, runoff, and strict
    water conservation;
-5. add native whole-planet physical/climate overlays and diagnostics;
-6. validate golden forcing scenarios, conservation, deterministic/checkpoint
+3. connect tectonic activity to evolving uplift, erosion, volcanism, and local
+   material transport instead of generation-time terrain only;
+4. add native whole-planet physical/climate overlays and diagnostics;
+5. validate golden forcing scenarios, conservation, deterministic/checkpoint
    equality, and the grid's time/memory budget before beginning biosphere work.

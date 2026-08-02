@@ -55,6 +55,30 @@ namespace OpenRA.Mods.HV
 		public string LifecycleStage { get; init; }
 		public string NativeRaceId { get; init; }
 		public SimulationPlanetPhysicsResult Physics { get; init; }
+		public SimulationPlanetSurfaceResult Surface { get; init; }
+	}
+
+	public sealed class SimulationPlanetSurfaceResult
+	{
+		public int LatitudeCells { get; init; }
+		public int LongitudeCells { get; init; }
+		public int CellCount { get; init; }
+		public int ChunkLatitudeCells { get; init; }
+		public int ChunkLongitudeCells { get; init; }
+		public int ChunkRows { get; init; }
+		public int ChunkColumns { get; init; }
+		public int ChunkCount { get; init; }
+		public int Generation { get; init; }
+		public string TopologyHash { get; init; }
+		public string HydrologyHash { get; init; }
+		public int MinimumElevationMeters { get; init; }
+		public int MaximumElevationMeters { get; init; }
+		public int LandCellCount { get; init; }
+		public int BasinCellCount { get; init; }
+		public string FirstCellId { get; init; }
+		public string LastCellId { get; init; }
+		public string FirstChunkId { get; init; }
+		public string LastChunkId { get; init; }
 	}
 
 	public sealed class SimulationPlanetPhysicsResult

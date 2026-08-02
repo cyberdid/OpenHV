@@ -769,3 +769,27 @@ climate pulses. Two ordinary runs matched at hash `CEEC1FB8`; a seed-112
 checkpoint fork matched continuous/resumed branches at full hash `467F279A`
 and BotRandom count `578`. Release compilation completed with zero warnings or
 errors, and all 30 simulation tests passed in 9.264 seconds.
+
+## [2026-08-02] change | Add the large native planetary surface (UNI-003B)
+
+Added `PlanetSurfaceState` to every synchronized planet. Each surface is a
+180×360 equirectangular grid—64,800 stable cells—with 12×12 chunks, 450 chunks
+per planet, longitude wrapping, bounded latitude, and coordinate-derived cell
+and chunk IDs. Deterministic integer generation now produces distinct plate
+ownership, oceanic/continental/boundary crust, elevation, basins, shelves,
+lowlands, highlands, mountains, volcanic boundaries, and mineral richness for
+all three physical seeds. Tyranthos' topology hash is `4EFA647D`; the reserved
+worlds are `E3E824C2` and `18E26992`.
+
+The first save attempt deliberately exercised the full arrays and exposed
+OpenRA's 128 KiB trait-string ceiling: the payload was 728 KiB. The final
+contract regenerates immutable geology from the seed and verifies its digest,
+while mutable water depth is Deflate-compressed and verified separately. The
+native checkpoint is now 23 KiB. Universe trait-save schema 3 restores all
+three surfaces; continuous and resumed seed-112 branches matched at tick 500,
+full hash `12C56135`, and BotRandom count `578`.
+
+Release builds completed with zero warnings and errors. All 32 simulation tests
+passed in 9.344 seconds. Two ordinary runs and the graphical/headless pair
+matched at tick 500 with full hash `4EFA6210`. Result, telemetry, and checkpoint
+schemas expose the same closed surface summary contract.

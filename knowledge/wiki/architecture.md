@@ -213,9 +213,24 @@ two reserved planets already have different physical seeds but do not advance
 until activated. Result, telemetry, checkpoint manifest, full sync hash, and
 native save data all expose or preserve the same state.
 
-This is the UNI-003 global foundation, not the finished Phase 2 model. Spatial
-atmosphere, wind, hydrology, terrain plates, large 2:1 chunked surface, golden
-calibration, and native overlays remain required.
+Each planet also owns a native `PlanetSurfaceState`: a 180×360 equirectangular
+surface with 64,800 stable cells, partitioned into 450 independent 12×12
+chunks. Coordinate-derived IDs survive renderer changes and reloads. Seeded
+integer generation assigns tectonic plates, oceanic/continental/boundary crust,
+elevation, basin/shelf/lowland/highland/mountain/volcanic terrain, and mineral
+richness. Longitude wraps; latitude remains bounded.
+
+The large cell arrays are not traversed by the normal 50 Hz RTS sync hash.
+Instead, every mutation closes by recomputing a synchronized domain digest.
+Immutable geology is regenerated from its seed during load and must match the
+saved topology digest. Mutable water depth is Deflate-compressed in the native
+save and must match its saved hydrology digest. This reduced the experimental
+728 KiB textual payload that exceeded OpenRA's limit to a complete 23 KiB
+`.orasav` while preserving exact branch parity.
+
+This is still not the finished Phase 2 model. Spatial atmosphere, wind,
+hydrology, golden calibration, native overlays, and measured chunk LOD budgets
+remain required.
 
 ## Universe checkpoints
 
@@ -231,6 +246,8 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
+Universe trait-save schema 3 additionally persists physical state and compressed
+mutable surface layers while validating regenerated geology by digest.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 
@@ -238,8 +255,9 @@ commits the native save and manifest on one macro boundary.
 checkpoint: one continues in-process and one reloads in a new process. It
 requires identical normalized result JSON, full `World.SyncHash`, BotRandom
 count, faction metrics, and Universe snapshot, then validates all three JSON
-artifacts. The seed-112 four-bot acceptance run passed at tick 500 with hash
-`B077801F` and BotRandom count `578`.
+artifacts. The current seed-112 four-bot acceptance run, including global
+physics and all three 64,800-cell surfaces, passed at tick 500 with hash
+`12C56135` and BotRandom count `578`.
 
 The current composite score is:
 

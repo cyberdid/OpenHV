@@ -55,6 +55,32 @@ def planet_physics(*, active: bool, mass: int, radius: int):
     }
 
 
+def planet_surface(
+    planet_id: str, topology_hash: str, land_cells: int, basin_cells: int
+):
+    return {
+        "latitudeCells": 180,
+        "longitudeCells": 360,
+        "cellCount": 64_800,
+        "chunkLatitudeCells": 12,
+        "chunkLongitudeCells": 12,
+        "chunkRows": 15,
+        "chunkColumns": 30,
+        "chunkCount": 450,
+        "generation": 1,
+        "topologyHash": topology_hash,
+        "hydrologyHash": "5EBF32C5",
+        "minimumElevationMeters": -5700,
+        "maximumElevationMeters": 3700,
+        "landCellCount": land_cells,
+        "basinCellCount": basin_cells,
+        "firstCellId": f"{planet_id}:cell:000:000",
+        "lastCellId": f"{planet_id}:cell:179:359",
+        "firstChunkId": f"{planet_id}:chunk:00:00",
+        "lastChunkId": f"{planet_id}:chunk:14:29",
+    }
+
+
 def universe_snapshot():
     return {
         "universeId": "universe-0001",
@@ -72,6 +98,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(active=True, mass=1_020_000, radius=6450),
+                "surface": planet_surface("planet-0001", "4EFA647D", 30137, 34663),
             },
             {
                 "planetId": "planet-0002",
@@ -81,6 +108,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(active=False, mass=800_000, radius=5800),
+                "surface": planet_surface("planet-0002", "E3E824C2", 26424, 38376),
             },
             {
                 "planetId": "planet-0003",
@@ -90,6 +118,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(active=False, mass=1_300_000, radius=7200),
+                "surface": planet_surface("planet-0003", "18E26992", 39087, 25713),
             },
         ],
     }
@@ -124,6 +153,25 @@ class UniverseContractTests(unittest.TestCase):
         self.assertEqual(active["physics"]["geologicalAgeYears"], 2_000_000)
         self.assertEqual(active["physics"]["climatePulseSequence"], 2)
         self.assertGreater(active["physics"]["atmospherePressurePascals"], 0)
+
+    def test_planet_surface_is_large_chunked_and_has_stable_ids(self) -> None:
+        surface = universe_snapshot()["planets"][0]["surface"]
+        self.assertEqual(surface["longitudeCells"], 2 * surface["latitudeCells"])
+        self.assertEqual(surface["cellCount"], 180 * 360)
+        self.assertEqual(surface["chunkCount"], 15 * 30)
+        self.assertEqual(surface["firstCellId"], "planet-0001:cell:000:000")
+        self.assertEqual(surface["lastChunkId"], "planet-0001:chunk:14:29")
+        self.assertEqual(
+            surface["landCellCount"] + surface["basinCellCount"],
+            surface["cellCount"],
+        )
+
+    def test_three_planet_seeds_generate_distinct_topologies(self) -> None:
+        hashes = {
+            planet["surface"]["topologyHash"]
+            for planet in universe_snapshot()["planets"]
+        }
+        self.assertEqual(len(hashes), 3)
 
     def test_only_one_planet_is_active_in_the_initial_contract(self) -> None:
         snapshot = universe_snapshot()

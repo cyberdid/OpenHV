@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Linq;
 using OpenRA.Mods.HV.Traits;
 
@@ -41,9 +42,36 @@ namespace OpenRA.Mods.HV
 						Active = planet.Active,
 						LifecycleStage = LifecycleIdentifier(planet.LifecycleStage),
 						NativeRaceId = null,
-						Physics = PhysicsSnapshot(planet.Physics)
+						Physics = PhysicsSnapshot(planet.Physics),
+						Surface = SurfaceSnapshot(planet.Surface)
 					})
 					.ToArray()
+			};
+		}
+
+		static SimulationPlanetSurfaceResult SurfaceSnapshot(PlanetSurfaceState surface)
+		{
+			return new SimulationPlanetSurfaceResult
+			{
+				LatitudeCells = surface.LatitudeCells,
+				LongitudeCells = surface.LongitudeCells,
+				CellCount = surface.CellCount,
+				ChunkLatitudeCells = surface.ChunkLatitudeCells,
+				ChunkLongitudeCells = surface.ChunkLongitudeCells,
+				ChunkRows = surface.ChunkRows,
+				ChunkColumns = surface.ChunkColumns,
+				ChunkCount = surface.ChunkCount,
+				Generation = surface.Generation,
+				TopologyHash = unchecked((uint)surface.TopologyHash).ToString("X8", CultureInfo.InvariantCulture),
+				HydrologyHash = unchecked((uint)surface.HydrologyHash).ToString("X8", CultureInfo.InvariantCulture),
+				MinimumElevationMeters = surface.MinimumElevationMeters,
+				MaximumElevationMeters = surface.MaximumElevationMeters,
+				LandCellCount = surface.LandCellCount,
+				BasinCellCount = surface.BasinCellCount,
+				FirstCellId = surface.CellId(0, 0),
+				LastCellId = surface.CellId(surface.LatitudeCells - 1, surface.LongitudeCells - 1),
+				FirstChunkId = surface.ChunkId(0, 0),
+				LastChunkId = surface.ChunkId(surface.ChunkRows - 1, surface.ChunkColumns - 1)
 			};
 		}
 

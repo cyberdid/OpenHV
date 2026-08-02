@@ -30,6 +30,7 @@ runtime retirement.
 | PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | reference |
 | PHY-04 | Evaporation, clouds, condensation, precipitation, water fixer | `HydrologySystem` | water conservation + precipitation parity | partial: global vapor condensation and ocean stock native; spatial cycle pending |
 | PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | reference |
+| PHY-06 | Large 2:1 surface, topology, stable cells/chunks | `PlanetSurfaceState` | deterministic topology + save/hash/LOD budget | partial: 180×360 native geology and 450 chunks verified; evolving spatial fields/LOD pending |
 | BIO-01 | Habitability, biomass, complexity (`biosphere.py`) | `BiosphereState/System` | barren/no-life + growth/carrying-capacity tests | reference |
 | BIO-02 | Food web, species competition, mutation, migration | `EcosystemState/System` | deterministic diversity and extinction invariants | new |
 | EMR-01 | Race emergence and inherited traits (`emergence.py`) | `SapienceEmergenceSystem` | different planets produce different traits | reference |
