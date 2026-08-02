@@ -264,16 +264,39 @@ namespace OpenRA.Mods.HV.Traits
 				surfaceWaterCubicKilometers = checked((int)Math.Min(TargetOceanVolume,
 					surfaceWaterCubicKilometers + condensation * 2000L));
 				atmospherePressurePascals = Math.Max(1000,
-					atmospherePressurePascals - atmospherePressurePascals * condensation / 1_000_000);
+					checked((int)(atmospherePressurePascals -
+						(long)atmospherePressurePascals * condensation / 1_000_000)));
 			}
 
 			oceanCoveragePerMille = checked((int)Math.Min(710,
-				surfaceWaterCubicKilometers * 710 / TargetOceanVolume));
+				surfaceWaterCubicKilometers * 710L / TargetOceanVolume));
 			bondAlbedoPerMille = 380 - oceanCoveragePerMille * 120 / 710;
 			if (oceanCoveragePerMille > 0)
 				carbonDioxidePartsPerMillion = Math.Max(280,
 					carbonDioxidePartsPerMillion - Math.Max(1, oceanCoveragePerMille / 20));
 			atmospherePressurePascals += Math.Max(0, tectonicActivityPerMille / 100);
+			UpdateEnergyState(macroDay);
+		}
+
+		internal void ApplySpatialHydrology(
+			int spatialAtmosphericWaterPartsPerMillion,
+			long spatialSurfaceWaterCubicKilometers,
+			int macroDay)
+		{
+			var previousAtmosphericWater = atmosphericWaterPartsPerMillion;
+			atmosphericWaterPartsPerMillion = Math.Clamp(
+				spatialAtmosphericWaterPartsPerMillion, 0, 1_000_000);
+			surfaceWaterCubicKilometers = checked((int)Math.Clamp(
+				spatialSurfaceWaterCubicKilometers, 0, TargetOceanVolume));
+
+			// Keep a dry-atmosphere floor while allowing phase changes to alter
+			// the vapor contribution to total surface pressure.
+			atmospherePressurePascals = Math.Max(1000, checked((int)(
+				(long)atmospherePressurePascals * (1_000_000 + atmosphericWaterPartsPerMillion) /
+				(1_000_000 + previousAtmosphericWater))));
+			oceanCoveragePerMille = checked((int)Math.Min(710,
+				surfaceWaterCubicKilometers * 710L / TargetOceanVolume));
+			bondAlbedoPerMille = 380 - oceanCoveragePerMille * 120 / 710;
 			UpdateEnergyState(macroDay);
 		}
 
@@ -429,7 +452,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 4;
+		const int TraitSaveSchemaVersion = 5;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -617,7 +640,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (schemaVersion >= 2)
 					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
 						RequiredNode(data, $"{prefix}Physics").Value));
-				if (schemaVersion >= 4)
+				if (schemaVersion >= 5)
 					planet.Surface.Restore(
 						FieldLoader.Load<PlanetSurfaceSaveData>(RequiredNode(data, $"{prefix}Surface").Value),
 						planet.Physics,

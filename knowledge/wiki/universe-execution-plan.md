@@ -206,7 +206,7 @@ an equilibrium temperature, temperature approaches it through a bounded
 energy imbalance, water vapor can condense into a conserved ocean stock,
 ocean coverage changes albedo and weathering, and tectonics drive bounded
 outgassing. Every field is exported in result/telemetry, participates in the
-full sync hash, and is restored by Universe trait-save schema 4.
+full sync hash, and is restored by Universe trait-save schema 5.
 
 The second slice adds a 180×360 native surface to every planet: 64,800 stable
 cells grouped into 450 chunks. Deterministic generation creates distinct plate
@@ -224,14 +224,21 @@ day-zero orbital climate. Domain summaries/digests share the result,
 telemetry, checkpoint, and native-save boundary. Evolved temperature is
 delta+Brotli compressed and restores exactly.
 
+The fourth slice adds a conservative lower atmosphere and water cycle on the
+same 64,800 cells. Smoothed dynamic-pressure gradients and a signed Coriolis
+term drive bounded east/north wind; a polar filter and 45% directional limiter
+permit adaptive 900–21,600 second CFL substeps. Vapor and cloud water advect,
+condense, precipitate, evaporate, and run downhill into lower terrain and
+basins. Global and spatial water stocks reconcile after each pulse, while an
+exact fixed-point invariant aborts on any created or destroyed water. Schema 5
+persists all evolved wind and water fields; continuous/resumed branches match.
+
 Remaining UNI-003 work:
 
-1. port deterministic Coriolis, wind, and CFL-stable atmosphere stepping from
-   the Python oracle;
-2. port evaporation, clouds, condensation, precipitation, runoff, advection,
-   and strict water conservation;
-3. connect tectonic activity to evolving uplift, erosion, volcanism, and local
+1. port vertical atmosphere, shear/jet diagnostics, and latent-energy closure
+   from the Python oracle;
+2. connect tectonic activity to evolving uplift, erosion, volcanism, and local
    material transport instead of generation-time terrain only;
-4. add native whole-planet physical/climate overlays and diagnostics;
-5. validate golden forcing scenarios, conservation, deterministic/checkpoint
+3. add native whole-planet physical/climate overlays and diagnostics;
+4. validate golden forcing scenarios, conservation, deterministic/checkpoint
    equality, and the grid's time/memory budget before beginning biosphere work.

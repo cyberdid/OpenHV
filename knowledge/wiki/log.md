@@ -815,3 +815,35 @@ global orbital-eccentricity forcing. Two ordinary runs and the
 graphical/headless pair matched at tick 500 with full hash `571F0C00`.
 Release builds completed with zero warnings and errors; all 33 simulation
 tests passed in 9.502 seconds.
+
+## [2026-08-02] change | Add conservative planetary atmosphere and water cycle (UNI-003D)
+
+Added one authoritative near-surface atmosphere and hydrosphere to every
+180×360 native planet grid. Temperature and hydrostatic-pressure anomalies
+now generate a smoothed dynamic-pressure field; signed Coriolis response,
+rotation period, polar damping, and neighbouring momentum produce bounded
+east/north wind. Atmospheric transport advances through adaptive 900–21,600
+second CFL substeps with a 45% directional flux limiter, preserving stable
+real-time execution even during the early hot-planet storms.
+
+Vapor, cloud, precipitation, and surface water now share an exact fixed-point
+mass budget. The simulation advects both atmospheric reservoirs, condenses
+supersaturated vapor, precipitates clouds, evaporates wet cells with wind
+assistance, and runs surface water downhill through the generated terrain.
+Every pulse reconciles the spatial reservoirs with the coarse planetary
+physics state and aborts if even one water unit is created or destroyed.
+Universe trait-save schema 5 delta-encodes and Brotli-compresses wind and water
+fields, restores them through the native OpenRA checkpoint, and verifies
+atmosphere, hydrology, and total-water digests. The seed-112 checkpoint fork
+matched continuous and resumed branches at tick 500 with full hash
+`A62F8667`, BotRandom count `578`, and a 916 KiB native save.
+
+All 35 simulation tests passed in 9.418 seconds. Two ordinary headless runs
+and the graphical/headless pair matched at tick 500 with full hash
+`F4500A35`. A 2,500-tick, ten-climate-pulse soak reached ten million
+geological years with 57.29 m/s mean wind, 141.57 m/s maximum wind, 382.3
+mm/day mean precipitation during the still-hot transient, 5,110,411 km³ of
+surface water, and exactly `650000000000` total fixed-point water units with
+zero balance error. Vertical atmosphere, latent-energy closure, evolving
+geology, and native whole-planet overlays remain explicitly assigned to
+UNI-003E.

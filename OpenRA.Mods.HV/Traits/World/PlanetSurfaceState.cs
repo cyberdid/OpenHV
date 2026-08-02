@@ -60,6 +60,36 @@ namespace OpenRA.Mods.HV.Traits
 
 		[FieldLoader.Require]
 		public string TemperatureBrotliBase64;
+
+		[FieldLoader.Require]
+		public int AtmosphereHash;
+
+		[FieldLoader.Require]
+		public long TotalWaterMassUnits;
+
+		[FieldLoader.Require]
+		public int AtmosphereSubsteps;
+
+		[FieldLoader.Require]
+		public int AtmosphereStepSeconds;
+
+		[FieldLoader.Require]
+		public string EastWindBrotliBase64;
+
+		[FieldLoader.Require]
+		public string NorthWindBrotliBase64;
+
+		[FieldLoader.Require]
+		public string VaporWaterBrotliBase64;
+
+		[FieldLoader.Require]
+		public string CloudWaterBrotliBase64;
+
+		[FieldLoader.Require]
+		public string SurfaceWaterBrotliBase64;
+
+		[FieldLoader.Require]
+		public string PrecipitationBrotliBase64;
 	}
 
 	/// <summary>
@@ -68,9 +98,9 @@ namespace OpenRA.Mods.HV.Traits
 	/// normal 50 Hz RTS hash does not re-read every geological cell each tick.
 	/// Any mutation must update its domain digest before returning.
 	/// </summary>
-	public sealed class PlanetSurfaceState : IEffect, ISync
+	public sealed partial class PlanetSurfaceState : IEffect, ISync
 	{
-		const int SaveSchemaVersion = 2;
+		const int SaveSchemaVersion = 3;
 		const int LatitudeCount = 180;
 		const int LongitudeCount = 360;
 		const int ChunkLatitudeCount = 12;
@@ -143,6 +173,7 @@ namespace OpenRA.Mods.HV.Traits
 			absorbedSolarWattsPerSquareMeter = new ushort[CellCount];
 			Generate();
 			InitializeClimate(physics);
+			InitializeAtmosphereAndHydrology(physics);
 		}
 
 		public string CellId(int latitudeIndex, int longitudeIndex)
@@ -211,7 +242,18 @@ namespace OpenRA.Mods.HV.Traits
 			ClimatePulseSequence = climatePulseSequence,
 			ClimateHash = climateHash,
 			TemperatureBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
-				CompressDeltaUShorts(temperatureDeciKelvin)
+				CompressDeltaUShorts(temperatureDeciKelvin),
+			AtmosphereHash = atmosphereHash,
+			TotalWaterMassUnits = this.TotalWaterMassUnits,
+			AtmosphereSubsteps = atmosphereSubsteps,
+			AtmosphereStepSeconds = atmosphereStepSeconds,
+			EastWindBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressShorts(eastWindCentimetersPerSecond),
+			NorthWindBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressShorts(northWindCentimetersPerSecond),
+			VaporWaterBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressDeltaUInts(vaporWaterMassUnits),
+			CloudWaterBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressDeltaUInts(cloudWaterMassUnits),
+			SurfaceWaterBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressDeltaUInts(surfaceWaterMassUnits),
+			PrecipitationBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(precipitationTenthsMillimetersPerDay)
 		};
 
 		internal void Restore(PlanetSurfaceSaveData data, PlanetPhysicalState physics, int macroDay)
@@ -228,7 +270,10 @@ namespace OpenRA.Mods.HV.Traits
 			RestoreUShorts(data.WaterDepthDeflateBase64, waterDepthMeters, "hydrology");
 			climatePulseSequence = data.ClimatePulseSequence;
 			if (climatePulseSequence > 0)
+			{
 				RestoreDeltaUShorts(data.TemperatureBrotliBase64, temperatureDeciKelvin, "temperature");
+				RestoreAtmosphereAndHydrology(data);
+			}
 
 			RecalculateClimateDerivedState(physics, climatePulseSequence == 0 ? 0 : macroDay);
 			RecalculateDerivedState();
@@ -237,6 +282,12 @@ namespace OpenRA.Mods.HV.Traits
 			if (climateHash != data.ClimateHash)
 				throw new InvalidOperationException(
 					$"Planet surface climate digest {unchecked((uint)climateHash):X8} does not match saved {unchecked((uint)data.ClimateHash):X8}.");
+			if (atmosphereHash != data.AtmosphereHash)
+				throw new InvalidOperationException(
+					$"Planet atmosphere digest {unchecked((uint)atmosphereHash):X8} does not match saved {unchecked((uint)data.AtmosphereHash):X8}.");
+			if (TotalWaterMassUnits != data.TotalWaterMassUnits)
+				throw new InvalidOperationException(
+					$"Planet water mass {TotalWaterMassUnits} does not match saved {data.TotalWaterMassUnits}.");
 		}
 
 		void Generate()
@@ -381,6 +432,8 @@ namespace OpenRA.Mods.HV.Traits
 
 			Array.Copy(nextTemperatureDeciKelvin, temperatureDeciKelvin, CellCount);
 			RecalculateClimateDerivedState(physics, macroDay);
+			AdvanceAtmosphereAndHydrology(physics, macroDay);
+			RecalculateClimateDerivedState(physics, macroDay);
 		}
 
 		void RecalculateClimateDerivedState(PlanetPhysicalState physics, int macroDay)
@@ -461,7 +514,6 @@ namespace OpenRA.Mods.HV.Traits
 			LandCellCount = 0;
 			BasinCellCount = 0;
 			var topology = 2166136261u;
-			var hydrology = 2166136261u;
 			for (var i = 0; i < CellCount; i++)
 			{
 				var elevation = elevationMeters[i];
@@ -477,11 +529,10 @@ namespace OpenRA.Mods.HV.Traits
 				topology = Mix(topology, plate[i]);
 				topology = Mix(topology, terrain[i]);
 				topology = Mix(topology, materialRichness[i]);
-				hydrology = Mix(hydrology, waterDepthMeters[i]);
 			}
 
 			topologyHash = unchecked((int)topology);
-			hydrologyHash = unchecked((int)hydrology);
+			RecalculateHydrologyAndAtmosphereSummary();
 		}
 
 		static int CellIndex(int latitudeIndex, int longitudeIndex)

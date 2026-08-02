@@ -21,6 +21,7 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
   - ../../OpenRA.Mods.HV/Traits/World/UniverseState.cs
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceState.cs
+  - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceAtmosphereState.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTradeSnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
@@ -134,6 +135,7 @@ window produces no result and stops the wrapper.
 | `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
 | `UniverseState.cs` | Owns synchronized Universe/system identity, three planet slots, lifecycle stage, activation, and macro time |
 | `PlanetSurfaceState.cs` | Owns the 180×360 geology, hydrology, spatial radiation, temperature, and pressure fields for each planet |
+| `PlanetSurfaceAtmosphereState.cs` | Advances fixed-point wind, vapor, cloud, precipitation, surface water, and runoff on the same cells |
 | `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
 | `SimulationCheckpointManifestWriter.cs` | Atomically writes the versioned JSON companion for native OpenRA game saves |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
@@ -233,20 +235,42 @@ cell update can influence a later cell in the same pulse. Result and telemetry
 publish field digests plus min/mean/max diagnostics instead of transferring
 all 194,400 planet cells to observers.
 
+The near-surface atmosphere and water cycle are prognostic on that same grid.
+A sea-level-reduced dynamic-pressure field is conservatively smoothed before
+pressure gradients are converted to east/north wind under a signed Coriolis
+term and polar damping. Each representative day is split into 900–21,600
+second adaptive substeps; the integer transport limiter caps each directional
+flux at 45% of its source reservoir, so the configured 96-step floor remains
+stable even in small polar cells. Wind and all water transfers use complete
+next-state/delta buffers rather than in-place scan-order feedback.
+
+Water exists in three spatial reservoirs—vapor, cloud, and surface—with one
+canonical fixed-point mass scale. Conservative advection moves vapor/cloud;
+saturation condenses vapor; cloud excess precipitates; wind-assisted
+evaporation returns surface water to vapor; and four downhill runoff passes
+move excess land water toward lower cells and basins. The global physical
+summary is reconciled from those reservoirs after every pulse. A synchronized
+mass invariant requires `vapor + cloud + surface` to equal the planet's
+initial total exactly; any non-zero error terminates the simulation instead of
+silently applying a water fixer. Area-weighted wind, cloud, precipitation,
+water-stock, CFL-step, and independent atmosphere/hydrology digests are
+published in result, telemetry, and checkpoint snapshots.
+
 The large cell arrays are not traversed by the normal 50 Hz RTS sync hash.
 Instead, every mutation closes by recomputing a synchronized domain digest.
 Immutable geology is regenerated from its seed during load and must match the
 saved topology digest. Mutable water depth is Deflate-compressed; evolved
-temperature is delta-encoded and Brotli-compressed; both are checked against
-their domain digests after restore. Inactive initial fields are regenerated
-from the same day-zero orbital state and require no temperature payload. The
-native `.orasav` is currently 135 KiB. A dedicated 16 MiB local trait-data read
-ceiling accommodates future compressed planet domains without changing
-OpenRA's 128 KiB network-order ceiling.
+temperature, two wind components, vapor, cloud, surface water, and
+precipitation are delta-encoded and Brotli-compressed; every restored domain
+must match its saved digest and total-water invariant. Inactive initial fields
+are regenerated from the same day-zero orbital state and need no array
+payload. The native `.orasav` is currently 916 KiB. A dedicated 16 MiB local
+trait-data read ceiling accommodates future compressed planet domains without
+changing OpenRA's 128 KiB network-order ceiling.
 
-This is still not the finished Phase 2 model. Wind/Coriolis/CFL stepping,
-spatial hydrology, golden calibration, native overlays, and measured chunk LOD
-budgets remain required.
+This is still not the finished Phase 2 model. Vertical atmosphere/latent-energy
+closure, evolving geology, golden forcing calibration, native overlays, and
+measured chunk LOD budgets remain required.
 
 ## Universe checkpoints
 
@@ -262,9 +286,9 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
-Universe trait-save schema 4 additionally persists physical state and compressed
-mutable surface/climate layers while validating regenerated geology and every
-restored domain by digest.
+Universe trait-save schema 5 additionally persists physical state and compressed
+mutable surface/climate/atmosphere/hydrology layers while validating
+regenerated geology, every restored domain digest, and exact water mass.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 
@@ -274,7 +298,7 @@ requires identical normalized result JSON, full `World.SyncHash`, BotRandom
 count, faction metrics, and Universe snapshot, then validates all three JSON
 artifacts. The current seed-112 four-bot acceptance run, including global
 physics and all three 64,800-cell surfaces, passed at tick 500 with hash
-`BB079066` and BotRandom count `578`.
+`A62F8667` and BotRandom count `578`.
 
 The current composite score is:
 

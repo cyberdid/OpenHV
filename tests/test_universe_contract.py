@@ -27,7 +27,14 @@ def read_json(path: Path):
         return json.load(stream)
 
 
-def planet_physics(*, active: bool, mass: int, radius: int):
+def planet_physics(
+    *,
+    active: bool,
+    mass: int,
+    radius: int,
+    atmospheric_water: int,
+    surface_water: int,
+):
     return {
         "geologicalAgeYears": 2_000_000 if active else 0,
         "massEarthMillionths": mass,
@@ -46,8 +53,8 @@ def planet_physics(*, active: bool, mass: int, radius: int):
         "energyImbalanceMilliWattsPerSquareMeter": -76_000,
         "atmospherePressurePascals": 420_018,
         "carbonDioxidePartsPerMillion": 120_000,
-        "atmosphericWaterPartsPerMillion": 650_000,
-        "surfaceWaterCubicKilometers": 0,
+        "atmosphericWaterPartsPerMillion": atmospheric_water,
+        "surfaceWaterCubicKilometers": surface_water,
         "oceanCoveragePerMille": 0,
         "tectonicPlateCount": 12,
         "tectonicActivityPerMille": 920,
@@ -60,8 +67,8 @@ def planet_surface(
 ):
     climate = {
         "planet-0001": (
-            2, "E8F85B93", 361_500, 480_600, 422_493,
-            249_490, 682_949, 472_214, 203,
+            2, "09922C25", 361_500, 480_600, 422_493,
+            249_485, 682_936, 472_205, 203,
         ),
         "planet-0002": (
             0, "1F2D5FAF", 269_300, 362_000, 319_357,
@@ -70,6 +77,20 @@ def planet_surface(
         "planet-0003": (
             0, "57FCD0FB", 623_300, 788_700, 701_943,
             891_000, 2_440_500, 1_557_526, 350,
+        ),
+    }[planet_id]
+    hydrology = {
+        "planet-0001": (
+            "715054AC", "7F6CBBF7", 96, 900, 5523, 14_175,
+            649_972, 19, 762, 54_441, 650_000_000_000,
+        ),
+        "planet-0002": (
+            "CD6E19D0", "B169A632", 0, 0, 3468, 8238,
+            80_000, 0, 0, 0, 80_000_000_000,
+        ),
+        "planet-0003": (
+            "5FF2509B", "3F8018AF", 0, 0, 6348, 8238,
+            300_000, 0, 0, 0, 300_000_000_000,
         ),
     }[planet_id]
     return {
@@ -83,9 +104,10 @@ def planet_surface(
         "chunkCount": 450,
         "generation": 1,
         "topologyHash": topology_hash,
-        "hydrologyHash": "5EBF32C5",
+        "hydrologyHash": hydrology[0],
         "climatePulseSequence": climate[0],
         "climateHash": climate[1],
+        "atmosphereHash": hydrology[1],
         "minimumElevationMeters": -5700,
         "maximumElevationMeters": 3700,
         "landCellCount": land_cells,
@@ -97,6 +119,16 @@ def planet_surface(
         "maximumPressurePascals": climate[6],
         "meanPressurePascals": climate[7],
         "meanAbsorbedSolarWattsPerSquareMeter": climate[8],
+        "atmosphereSubsteps": hydrology[2],
+        "atmosphereStepSeconds": hydrology[3],
+        "meanWindCentimetersPerSecond": hydrology[4],
+        "maximumWindCentimetersPerSecond": hydrology[5],
+        "meanAtmosphericWaterPartsPerMillion": hydrology[6],
+        "meanCloudCoverPerMille": hydrology[7],
+        "meanPrecipitationTenthsMillimetersPerDay": hydrology[8],
+        "spatialSurfaceWaterCubicKilometers": hydrology[9],
+        "totalWaterMassUnits": hydrology[10],
+        "waterBalanceErrorUnits": 0,
         "firstCellId": f"{planet_id}:cell:000:000",
         "lastCellId": f"{planet_id}:cell:179:359",
         "firstChunkId": f"{planet_id}:chunk:00:00",
@@ -120,7 +152,13 @@ def universe_snapshot():
                 "active": True,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
-                "physics": planet_physics(active=True, mass=1_020_000, radius=6450),
+                "physics": planet_physics(
+                    active=True,
+                    mass=1_020_000,
+                    radius=6450,
+                    atmospheric_water=649_972,
+                    surface_water=54_441,
+                ),
                 "surface": planet_surface("planet-0001", "4EFA647D", 30137, 34663),
             },
             {
@@ -130,7 +168,13 @@ def universe_snapshot():
                 "active": False,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
-                "physics": planet_physics(active=False, mass=800_000, radius=5800),
+                "physics": planet_physics(
+                    active=False,
+                    mass=800_000,
+                    radius=5800,
+                    atmospheric_water=80_000,
+                    surface_water=0,
+                ),
                 "surface": planet_surface("planet-0002", "E3E824C2", 26424, 38376),
             },
             {
@@ -140,7 +184,13 @@ def universe_snapshot():
                 "active": False,
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
-                "physics": planet_physics(active=False, mass=1_300_000, radius=7200),
+                "physics": planet_physics(
+                    active=False,
+                    mass=1_300_000,
+                    radius=7200,
+                    atmospheric_water=300_000,
+                    surface_water=0,
+                ),
                 "surface": planet_surface("planet-0003", "18E26992", 39087, 25713),
             },
         ],
@@ -213,6 +263,32 @@ class UniverseContractTests(unittest.TestCase):
                 surface["meanTemperatureMilliKelvin"],
                 surface["maximumTemperatureMilliKelvin"],
             )
+
+    def test_active_atmosphere_advances_with_cfl_bounded_substeps(self) -> None:
+        planets = universe_snapshot()["planets"]
+        active_surface = planets[0]["surface"]
+        self.assertGreater(active_surface["atmosphereSubsteps"], 0)
+        self.assertGreaterEqual(active_surface["atmosphereStepSeconds"], 900)
+        self.assertLessEqual(active_surface["atmosphereStepSeconds"], 21_600)
+        self.assertLess(active_surface["meanWindCentimetersPerSecond"], 10_000)
+        self.assertEqual(
+            [planet["surface"]["atmosphereSubsteps"] for planet in planets[1:]],
+            [0, 0],
+        )
+
+    def test_spatial_hydrology_conserves_and_reconciles_all_water(self) -> None:
+        active = universe_snapshot()["planets"][0]
+        surface = active["surface"]
+        self.assertEqual(surface["waterBalanceErrorUnits"], 0)
+        self.assertEqual(surface["totalWaterMassUnits"], 650_000_000_000)
+        self.assertEqual(
+            surface["meanAtmosphericWaterPartsPerMillion"],
+            active["physics"]["atmosphericWaterPartsPerMillion"],
+        )
+        self.assertEqual(
+            surface["spatialSurfaceWaterCubicKilometers"],
+            active["physics"]["surfaceWaterCubicKilometers"],
+        )
 
     def test_only_one_planet_is_active_in_the_initial_contract(self) -> None:
         snapshot = universe_snapshot()

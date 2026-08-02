@@ -73,6 +73,7 @@ namespace OpenRA.Mods.HV
 		public string HydrologyHash { get; init; }
 		public int ClimatePulseSequence { get; init; }
 		public string ClimateHash { get; init; }
+		public string AtmosphereHash { get; init; }
 		public int MinimumElevationMeters { get; init; }
 		public int MaximumElevationMeters { get; init; }
 		public int LandCellCount { get; init; }
@@ -84,6 +85,16 @@ namespace OpenRA.Mods.HV
 		public int MaximumPressurePascals { get; init; }
 		public int MeanPressurePascals { get; init; }
 		public int MeanAbsorbedSolarWattsPerSquareMeter { get; init; }
+		public int AtmosphereSubsteps { get; init; }
+		public int AtmosphereStepSeconds { get; init; }
+		public int MeanWindCentimetersPerSecond { get; init; }
+		public int MaximumWindCentimetersPerSecond { get; init; }
+		public int MeanAtmosphericWaterPartsPerMillion { get; init; }
+		public int MeanCloudCoverPerMille { get; init; }
+		public int MeanPrecipitationTenthsMillimetersPerDay { get; init; }
+		public long SpatialSurfaceWaterCubicKilometers { get; init; }
+		public long TotalWaterMassUnits { get; init; }
+		public long WaterBalanceErrorUnits { get; init; }
 		public string FirstCellId { get; init; }
 		public string LastCellId { get; init; }
 		public string FirstChunkId { get; init; }
