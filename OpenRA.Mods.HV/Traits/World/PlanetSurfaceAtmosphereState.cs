@@ -382,6 +382,14 @@ namespace OpenRA.Mods.HV.Traits
 			if (destination == source)
 				return;
 
+			var sourceAvailable = field[source] + Math.Min(0, transportDelta[source]);
+			var destinationCapacity = uint.MaxValue - field[destination] -
+				Math.Max(0, transportDelta[destination]);
+			amount = Math.Min(amount, Math.Max(0, sourceAvailable));
+			amount = Math.Min(amount, Math.Max(0, destinationCapacity));
+			if (amount == 0)
+				return;
+
 			transportDelta[source] -= amount;
 			transportDelta[destination] += amount;
 		}

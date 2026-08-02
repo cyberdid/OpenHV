@@ -100,6 +100,7 @@ label-update-notice-b = Download the latest version from www.openhv.net
 
 ## planet.yaml
 button-planet-terrain = Terrain
+button-planet-geology = Geology
 button-planet-temperature = Temp
 button-planet-pressure = Pressure
 button-planet-wind = Wind

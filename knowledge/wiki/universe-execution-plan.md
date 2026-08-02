@@ -196,7 +196,7 @@ Immediate work package `UNI-003` begins Phase 2 with synchronized planetary
 mass, radius, rotation, orbit, energy balance, atmosphere, hydrosphere, terrain
 plates, and a deterministic climate pulse for the active lifeless planet.
 
-## In-progress work package: UNI-003
+## Completed work package: UNI-003
 
 The first global physical slice is executable. All three slots now carry
 distinct immutable mass/radius/orbit/rotation/tilt/eccentricity/stellar-flux
@@ -206,7 +206,7 @@ an equilibrium temperature, temperature approaches it through a bounded
 energy imbalance, water vapor can condense into a conserved ocean stock,
 ocean coverage changes albedo and weathering, and tectonics drive bounded
 outgassing. Every field is exported in result/telemetry, participates in the
-full sync hash, and is restored by Universe trait-save schema 6.
+full sync hash, and is restored by Universe trait-save schema 7.
 
 The second slice adds a 180×360 native surface to every planet: 64,800 stable
 cells grouped into 450 chunks. Deterministic generation creates distinct plate
@@ -238,17 +238,31 @@ the 64,800 cells. Temperature, humidity, east/north flow, convective mixing,
 thermal-wind jets, stability, and vertical motion now evolve in the same fixed-
 point state as the surface. Evaporation and condensation feed an exact latent-
 energy ledger, the global temperature is reconciled from the spatial grid, and
-schema 6 restores the compressed column with digest verification. The normal
+schema 7 restores the compressed column with digest verification. The normal
 graphical OpenHV world now advances this same `UniverseState`; an auto-opened
 passive planet panel renders terrain, temperature, pressure, wind,
 precipitation, and vertical motion directly from C# state while the RTS world
 continues behind it. No faction, cell, battle, or planet choice is required.
 
-Remaining UNI-003 work:
+The sixth slice makes geology evolve on the same grid. Plate-boundary stress
+causes uplift/subduction, vents add crust and mantle minerals, and wet/slope-
+driven erosion transfers equal elevation and material into the lowest
+neighbour. Exact elevation-column and material ledgers join the existing water and latent
+ledgers; schema 7 restores evolved elevation, material, and last-pulse change.
+The native observer adds a geology layer and per-cell elevation/material
+inspection.
 
-1. connect tectonic activity to evolving uplift, erosion, volcanism, and local
-   material transport instead of generation-time terrain only;
-2. validate golden forcing scenarios and the grid's long-horizon time/memory
-   and LOD budgets before beginning biosphere work;
-3. remove the remaining localhost compatibility fallback after biosphere,
-   faction, chronicle, and strata layers have native state/renderers.
+UNI-003 closes with five isolated full-grid C# golden cases. High greenhouse
+and high stellar flux warm relative to baseline, a thin atmosphere lowers
+pressure, and faster rotation lowers Rossby, matching the Python oracle's
+directions. Every forcing case closes all four physical ledgers. The reusable
+2,500-tick performance gate measured 10.197 seconds, 538.2 MiB maximum RSS, and
+a 5.00 MiB nine-pulse checkpoint against 30-second, 1536-MiB, and 16-MiB
+budgets. Deterministic and graphical/headless branches matched at hash
+`4BCE5F55`; seed-112 continuous/resumed branches matched at `D581ABD2` with
+BotRandom count `578`.
+
+The remaining localhost compatibility fallback belongs to Phase 5 migration:
+it can be removed only after biosphere, faction, chronicle, and strata layers
+have native state/renderers. Immediate work package `UNI-004` now begins the
+native biosphere and abiogenesis pipeline on this completed physical substrate.

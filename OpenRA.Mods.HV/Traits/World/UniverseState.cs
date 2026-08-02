@@ -466,7 +466,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 6;
+		const int TraitSaveSchemaVersion = 7;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -651,7 +651,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (schemaVersion >= 2)
 					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
 						RequiredNode(data, $"{prefix}Physics").Value));
-				if (schemaVersion >= 6)
+				if (schemaVersion >= 7)
 					planet.Surface.Restore(
 						FieldLoader.Load<PlanetSurfaceSaveData>(RequiredNode(data, $"{prefix}Surface").Value),
 						planet.Physics,

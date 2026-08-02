@@ -87,6 +87,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			foreach (var (button, overlay) in new (string, PlanetOverlay)[]
 			{
 				("TERRAIN_BUTTON", PlanetOverlay.Terrain),
+				("GEOLOGY_BUTTON", PlanetOverlay.Geology),
 				("TEMPERATURE_BUTTON", PlanetOverlay.Temperature),
 				("PRESSURE_BUTTON", PlanetOverlay.Pressure),
 				("WIND_BUTTON", PlanetOverlay.Wind),
@@ -214,6 +215,8 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				[
 					$"cell ({cell.X}, {cell.Y})",
 					$"terrain    {(PlanetTerrainKind)map.Biome[i]}",
+					$"elevation  {map.ElevationMeters[i]} m · Δ {map.LastGeologyChangeMeters[i]:+0;-0;0} m",
+					$"material   {map.SurfaceMaterialUnits[i]} units",
 					$"temperature {map.TemperatureK[i]} K",
 					$"pressure   {map.PressurePascals[i] / 1000f:0.0} kPa",
 					$"wind       {wind / 100f:0.0} m/s",

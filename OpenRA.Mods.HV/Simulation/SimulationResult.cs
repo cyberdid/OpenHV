@@ -70,6 +70,17 @@ namespace OpenRA.Mods.HV
 		public int ChunkCount { get; init; }
 		public int Generation { get; init; }
 		public string TopologyHash { get; init; }
+		public int GeologyPulseSequence { get; init; }
+		public string GeologyHash { get; init; }
+		public int MeanElevationMeters { get; init; }
+		public int MeanAbsoluteGeologyChangeMilliMeters { get; init; }
+		public int ActiveVolcanicCellCount { get; init; }
+		public long TotalSurfaceMaterialUnits { get; init; }
+		public long CumulativeErodedMaterialUnits { get; init; }
+		public long CumulativeMantleMaterialInputUnits { get; init; }
+		public long CumulativeTectonicElevationChangeMeters { get; init; }
+		public long ElevationBalanceErrorMeters { get; init; }
+		public long MaterialBalanceErrorUnits { get; init; }
 		public string HydrologyHash { get; init; }
 		public int ClimatePulseSequence { get; init; }
 		public string ClimateHash { get; init; }

@@ -85,7 +85,7 @@ def planet_surface(
 ):
     climate = {
         "planet-0001": (
-            2, "8483713A", 361_000, 480_600, 422_479,
+            2, "31583E59", 361_000, 480_600, 422_479,
             249_485, 682_936, 472_205, 203,
         ),
         "planet-0002": (
@@ -99,8 +99,8 @@ def planet_surface(
     }[planet_id]
     hydrology = {
         "planet-0001": (
-            "715054AC", "7F6CBBF7", 96, 900, 5523, 14_175,
-            649_972, 19, 762, 54_441, 650_000_000_000,
+            "A094A659", "1FEF2C7A", 96, 900, 5523, 14_175,
+            649_972, 19, 762, 54_426, 650_000_000_000,
         ),
         "planet-0002": (
             "CD6E19D0", "B169A632", 0, 0, 3468, 8238,
@@ -113,8 +113,8 @@ def planet_surface(
     }[planet_id]
     column = {
         "planet-0001": (
-            "12366216", 432_832, 391_607, 645, 58, 11_941,
-            6521, 22_315, 246, 437_555, 23_000, 206_245, 58,
+            "DE588D81", 432_832, 391_607, 645, 58, 11_939,
+            6521, 22_315, 246, 437_749, 23_000, 206_246, 58,
         ),
         "planet-0002": (
             "2F4B3EB3", 321_656, 283_856, 192, 16, 2480,
@@ -123,6 +123,20 @@ def planet_surface(
         "planet-0003": (
             "86A5D4D8", 714_470, 676_670, 331, 29, 4537,
             7617, 9885, 285, 322_897, 43_600, 0, 0,
+        ),
+    }[planet_id]
+    geology = {
+        "planet-0001": (
+            2, "E04AD283", -1130, 25, 128, 691_731_050,
+            12_060, 13_550, 800,
+        ),
+        "planet-0002": (
+            0, "E1EA635A", -1468, 0, 0, 686_935_600,
+            0, 0, 0,
+        ),
+        "planet-0003": (
+            0, "ECAF3ECE", -347, 0, 0, 689_733_900,
+            0, 0, 0,
         ),
     }[planet_id]
     return {
@@ -136,6 +150,17 @@ def planet_surface(
         "chunkCount": 450,
         "generation": 1,
         "topologyHash": topology_hash,
+        "geologyPulseSequence": geology[0],
+        "geologyHash": geology[1],
+        "meanElevationMeters": geology[2],
+        "meanAbsoluteGeologyChangeMilliMeters": geology[3],
+        "activeVolcanicCellCount": geology[4],
+        "totalSurfaceMaterialUnits": geology[5],
+        "cumulativeErodedMaterialUnits": geology[6],
+        "cumulativeMantleMaterialInputUnits": geology[7],
+        "cumulativeTectonicElevationChangeMeters": geology[8],
+        "elevationBalanceErrorMeters": 0,
+        "materialBalanceErrorUnits": 0,
         "hydrologyHash": hydrology[0],
         "climatePulseSequence": climate[0],
         "climateHash": climate[1],
@@ -205,9 +230,9 @@ def universe_snapshot():
                     mass=1_020_000,
                     radius=6450,
                     atmospheric_water=649_972,
-                    surface_water=54_441,
+                    surface_water=54_426,
                 ),
-                "surface": planet_surface("planet-0001", "4EFA647D", 30137, 34663),
+                "surface": planet_surface("planet-0001", "72DD4BA0", 30137, 34663),
             },
             {
                 "planetId": "planet-0002",
@@ -224,7 +249,7 @@ def universe_snapshot():
                     atmospheric_water=80_000,
                     surface_water=0,
                 ),
-                "surface": planet_surface("planet-0002", "E3E824C2", 26424, 38376),
+                "surface": planet_surface("planet-0002", "027DAEF1", 26424, 38376),
             },
             {
                 "planetId": "planet-0003",
@@ -241,7 +266,7 @@ def universe_snapshot():
                     atmospheric_water=300_000,
                     surface_water=0,
                 ),
-                "surface": planet_surface("planet-0003", "18E26992", 39087, 25713),
+                "surface": planet_surface("planet-0003", "BDEA3634", 39087, 25713),
             },
         ],
     }
@@ -295,6 +320,28 @@ class UniverseContractTests(unittest.TestCase):
             for planet in universe_snapshot()["planets"]
         }
         self.assertEqual(len(hashes), 3)
+
+    def test_geology_evolves_only_on_active_planet_and_closes_both_ledgers(self) -> None:
+        planets = universe_snapshot()["planets"]
+        active = planets[0]["surface"]
+        self.assertEqual(active["geologyPulseSequence"], 2)
+        self.assertGreater(active["meanAbsoluteGeologyChangeMilliMeters"], 0)
+        self.assertGreater(active["activeVolcanicCellCount"], 0)
+        self.assertGreater(active["cumulativeErodedMaterialUnits"], 0)
+        self.assertGreater(active["cumulativeMantleMaterialInputUnits"], 0)
+        self.assertEqual(active["elevationBalanceErrorMeters"], 0)
+        self.assertEqual(active["materialBalanceErrorUnits"], 0)
+        self.assertEqual(
+            [planet["surface"]["geologyPulseSequence"] for planet in planets[1:]],
+            [0, 0],
+        )
+
+    def test_geology_and_climate_share_the_same_surface_clock(self) -> None:
+        surface = universe_snapshot()["planets"][0]["surface"]
+        self.assertEqual(
+            surface["geologyPulseSequence"],
+            surface["climatePulseSequence"],
+        )
 
     def test_spatial_climate_advances_only_on_the_active_planet(self) -> None:
         planets = universe_snapshot()["planets"]

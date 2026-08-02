@@ -23,6 +23,8 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceState.cs
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceAtmosphereState.cs
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceColumnState.cs
+  - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceGeologyState.cs
+  - ../../OpenRA.Mods.HV/UtilityCommands/PlanetPhysicsGolden.cs
   - ../../OpenRA.Mods.HV/Widgets/PlanetMapWidget.cs
   - ../../OpenRA.Mods.HV/Widgets/Logic/PlanetLogic.cs
   - ../../OpenRA.Mods.HV/Widgets/Logic/CustomMainMenuLogic.cs
@@ -33,12 +35,15 @@ sources:
   - ../../schemas/simulation-telemetry-v1.schema.json
   - ../../schemas/simulation-event-v1.schema.json
   - ../../schemas/universe-checkpoint-v1.schema.json
+  - ../../schemas/planet-physics-golden-v1.schema.json
   - ../../apply-engine-patches.sh
   - ../../engine-patches/openra-headless.patch
   - ../../engine-patches/openra-ai-combat.patch
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
   - ../../check-headless-equivalence.sh
   - ../../check-universe-checkpoint-equivalence.sh
+  - ../../check-planet-physics-golden.sh
+  - ../../check-planet-performance.py
   - ../../run-batch.py
   - ../../generate-baseline-manifest.py
   - ../../analyze-baseline.py
@@ -148,7 +153,8 @@ result and stops the wrapper.
 | `PlanetSurfaceState.cs` | Owns the 180×360 geology, hydrology, spatial radiation, temperature, and pressure fields for each planet |
 | `PlanetSurfaceAtmosphereState.cs` | Advances fixed-point wind, vapor, cloud, precipitation, surface water, and runoff on the same cells |
 | `PlanetSurfaceColumnState.cs` | Advances the eight-level temperature, humidity, wind, stability, vertical-motion, and latent-energy column on every cell |
-| `PlanetMapWidget.cs` / `PlanetLogic.cs` | Renders and inspects native terrain, temperature, pressure, wind, precipitation, and vertical-motion overlays from the authoritative planet state |
+| `PlanetSurfaceGeologyState.cs` | Advances uplift/subduction, volcanism, erosion, deposition, and conservative local surface-material transport |
+| `PlanetMapWidget.cs` / `PlanetLogic.cs` | Renders and inspects native terrain, geology, temperature, pressure, wind, precipitation, and vertical-motion overlays from the authoritative planet state |
 | `CustomMainMenuLogic.cs` | Opens the passive native planet observer automatically while the RTS world continues underneath |
 | `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
 | `SimulationCheckpointManifestWriter.cs` | Atomically writes the versioned JSON companion for native OpenRA game saves |
@@ -172,6 +178,8 @@ result and stops the wrapper.
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
 | `check-headless-equivalence.sh` | Compares graphical/headless artifacts and proves that device backends were bypassed |
 | `check-universe-checkpoint-equivalence.sh` | Forks one checkpoint into continued/resumed branches and requires identical full state |
+| `PlanetPhysicsGolden.cs` / `check-planet-physics-golden.sh` | Runs five isolated 180×360 C# forcing scenarios and verifies directional response plus every physical ledger |
+| `check-planet-performance.py` | Enforces long-run wall-time, resident-memory, compressed-save, cell/chunk, and conservation budgets |
 
 `CivilizationState.MilitaryArmyValue` is the canonical civil/strategic measure
 of armed power. It excludes explicit worker and support actor value and is used
@@ -286,28 +294,49 @@ that must remain zero. The area-weighted spatial surface temperature is then
 the global `PlanetPhysicalState` temperature, so the coarse energy summary can
 no longer diverge from the grid that biology and rendering will consume.
 
+Geology is prognostic on those same cells. Plate-boundary stress converts the
+planet's decaying tectonic activity into deterministic uplift or subduction;
+separate vents raise terrain and inject new mantle material. Precipitation,
+standing water, and local slope erode high cells and deposit the exact removed
+height and material in their lowest neighbour. Terrain class and mineral
+richness are re-derived from the evolved elevation and surface-material stock.
+Two independent ledgers require the summed elevation-column change to equal
+explicit tectonic input and material change to equal mantle input;
+erosion/deposition is internal transport and therefore sums to zero. The
+material ledger is the mass-like conservation claim; the elevation ledger is
+deliberately named as geometry because latitude cells have unequal area.
+
 The large cell arrays are not traversed by the normal 50 Hz RTS sync hash.
 Instead, every mutation closes by recomputing a synchronized domain digest.
-Immutable geology is regenerated from its seed during load and must match the
-saved topology digest. Mutable water depth is Deflate-compressed; evolved
-temperature, two near-surface wind components, vapor, cloud, surface water,
-precipitation, and all vertical-column fields are delta-encoded and
-Brotli-compressed; every restored domain must match its saved digest and the
-water/latent invariants. Inactive initial fields are regenerated from the same
-day-zero orbital state and need no array payload. The native `.orasav` is
-currently about 4.3 MiB. A dedicated 16 MiB local trait-data read ceiling
-accommodates future compressed planet domains without changing OpenRA's
-128 KiB network-order ceiling.
+Immutable plate/crust ownership is regenerated from its seed during load and
+must match the saved topology digest. Evolved elevation, surface material,
+last geology change, temperature, two near-surface wind components, vapor,
+cloud, surface water, precipitation, and all vertical-column fields are
+delta/Brotli-compressed; mutable water depth remains Deflate-compressed. Every
+restored domain must match its saved digest and all four water, latent, elevation,
+and material invariants. Inactive initial fields are regenerated from the same
+day-zero state and need no array payload. The measured nine-pulse checkpoint
+is 5.00 MiB. A dedicated 16 MiB local trait-data read ceiling accommodates
+future compressed planet domains without changing OpenRA's 128 KiB
+network-order ceiling.
 
 The normal graphical world advances `UniverseState` under the same tick path
 as headless execution. Its auto-opened planet observer reads cell arrays
-directly and exposes six passive layers: terrain, temperature, pressure, wind,
-precipitation, and vertical motion. The old local HTTP endpoint remains only a
+directly and exposes seven passive layers: terrain, geology, temperature,
+pressure, wind, precipitation, and vertical motion. The geology inspector
+shows evolved elevation, last-pulse change, and material stock. The old local
+HTTP endpoint remains only a
 compatibility source for not-yet-native biosphere/faction overlays; it is not a
 second physics engine and is not required for the native physical view.
 
-This is still not the finished Phase 2 model. Evolving geology, golden forcing
-calibration, and measured chunk LOD/time/memory budgets remain required.
+Five isolated full-grid C# golden cases hold all inputs except one fixed while
+testing high greenhouse, thin atmosphere, fast rotation, and high stellar
+flux. Their directions match the Python oracle: greenhouse/stellar forcing
+warms, a thinner atmosphere lowers pressure, and faster rotation lowers
+Rossby. The ten-pulse suite closes every conservation ledger. The 2,500-tick
+performance gate measured 10.197 s wall time, 538.2 MiB maximum RSS, and a
+5.00 MiB checkpoint against explicit 30 s, 1536 MiB, and 16 MiB budgets for
+the 64,800-cell/450-chunk planet.
 
 ## Universe checkpoints
 
@@ -323,10 +352,10 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
-Universe trait-save schema 6 additionally persists physical state and compressed
-mutable surface/climate/atmosphere/hydrology/vertical-column layers while
-validating regenerated geology, every restored domain digest, exact water
-mass, and latent-energy closure.
+Universe trait-save schema 7 additionally persists physical state and compressed
+mutable geology/surface/climate/atmosphere/hydrology/vertical-column layers
+while validating regenerated plate topology, every restored domain digest,
+and exact water, latent-energy, elevation, and material closure.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 
@@ -336,7 +365,7 @@ requires identical normalized result JSON, full `World.SyncHash`, BotRandom
 count, faction metrics, and Universe snapshot, then validates all three JSON
 artifacts. The current seed-112 four-bot acceptance run, including global
 physics and all three 64,800-cell surfaces, passed at tick 500 with hash
-`63547996` and BotRandom count `578`.
+`D581ABD2` and BotRandom count `578`.
 
 The current composite score is:
 

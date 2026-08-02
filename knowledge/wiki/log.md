@@ -886,3 +886,44 @@ simulation tests passed, release compilation completed with zero warnings and
 errors, MiniYAML validation retained only its 96 pre-existing unused-attribute
 warnings, and a live graphical smoke test visibly advanced the native panel
 from climate step 0 to step 2 without leaving the running RTS world.
+
+## [2026-08-02] change | Complete evolving geology and physical gates (UNI-003F)
+
+Added prognostic geology to every native planet cell. Deterministic
+plate-boundary stress now produces uplift and subduction; volcanic vents raise
+terrain and inject new mantle material; precipitation, standing water, and
+slope erode a source and deposit the exact removed height and material in its
+lowest neighbour. Terrain class and mineral richness follow the evolved
+stocks. Independent elevation-column and material ledgers abort on any unaccounted change
+and join the existing exact water and latent-energy ledgers.
+
+The result/telemetry contract now exports geology sequence/digest, mean and
+last-pulse elevation change, active vents, total/moved/mantle material, net
+tectonic elevation change, and both zero residuals. Universe trait-save schema 7
+compresses and restores evolved elevation, material, and last-pulse change,
+then verifies immutable plate topology and the mutable geology digest. The
+native planet panel gained a seventh `Geology` layer; cell inspection exposes
+elevation, change, and material while the same RTS world remains live.
+
+Added the `--planet-physics-golden` .NET utility plus a closed-schema acceptance
+script. Five complete 180×360 cases isolate high greenhouse, thin atmosphere,
+fast rotation, and high stellar flux from a baseline. Warming, pressure, and
+Rossby directions match the Python oracle, whose 40-day suite still passed at
+291.699 K baseline, 295.178 K greenhouse case, and Rossby 0.141924. The
+ten-pulse native sweep closed all four ledgers. It also exposed concentration
+overflow in the thin-atmosphere case; the conservative transport limiter now
+reserves already-planned source mass and destination capacity before adding a
+flux.
+
+The reusable 2,500-tick performance gate passed in 10.197 seconds with 538.2
+MiB maximum RSS and a 5.00 MiB checkpoint against 30-second, 1536-MiB, and
+16-MiB budgets. At tick 500 the active planet had geology hash `E04AD283`, 128
+active vents, 12,060 cumulatively eroded material units, 13,550 mantle-input
+units, 800 net metres of tectonic/volcanic elevation change, and zero elevation/material
+residuals. Paired determinism and graphical/headless runs matched hash
+`4BCE5F55`; the seed-112 checkpoint fork matched `D581ABD2` with BotRandom
+count `578`. All 39 simulation tests passed, and a graphical smoke test showed
+the new Geology control in the auto-opened native observer over the live RTS
+shellmap. Release compilation completed with zero warnings/errors; MiniYAML
+kept only its 96 pre-existing unused-attribute warnings, and the stricter Debug
+style build reported no warning in a file changed by UNI-003F.

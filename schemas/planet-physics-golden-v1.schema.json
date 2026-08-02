@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openhv.example/schemas/planet-physics-golden-v1.schema.json",
+  "title": "OpenHV deterministic planet physics forcing sweep",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "pulses", "grid", "scenarios"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "pulses": { "type": "integer", "minimum": 2, "maximum": 200 },
+    "grid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latitudeCells", "longitudeCells"],
+      "properties": {
+        "latitudeCells": { "const": 180 },
+        "longitudeCells": { "const": 360 }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/scenario" }
+    }
+  },
+  "$defs": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name", "meanSurfaceTemperatureMilliKelvin", "radiativeEquilibriumMilliKelvin",
+        "absorbedSolarWattsPerSquareMeter", "atmospherePressurePascals", "rotationPeriodMinutes",
+        "meanPressurePascals", "meanWindCentimetersPerSecond", "rossbyMillionths",
+        "meanLatentFluxMilliWattsPerSquareMeter", "meanVerticalVelocityMillimetersPerSecond",
+        "waterBalanceErrorUnits", "latentEnergyResidualMilliWattsPerSquareMeter",
+        "elevationBalanceErrorMeters", "materialBalanceErrorUnits", "climateHash", "geologyHash"
+      ],
+      "properties": {
+        "name": {
+          "enum": ["baseline", "high-greenhouse", "thin-atmosphere", "fast-rotation", "high-stellar-flux"]
+        },
+        "meanSurfaceTemperatureMilliKelvin": { "type": "integer", "minimum": 100000, "maximum": 900000 },
+        "radiativeEquilibriumMilliKelvin": { "type": "integer", "minimum": 100000, "maximum": 900000 },
+        "absorbedSolarWattsPerSquareMeter": { "type": "integer", "minimum": 0 },
+        "atmospherePressurePascals": { "type": "integer", "minimum": 1000 },
+        "rotationPeriodMinutes": { "type": "integer", "minimum": 1 },
+        "meanPressurePascals": { "type": "integer", "minimum": 1 },
+        "meanWindCentimetersPerSecond": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "rossbyMillionths": { "type": "integer", "minimum": 0 },
+        "meanLatentFluxMilliWattsPerSquareMeter": { "type": "integer", "minimum": -1500000, "maximum": 1500000 },
+        "meanVerticalVelocityMillimetersPerSecond": { "type": "integer", "minimum": 0, "maximum": 900 },
+        "waterBalanceErrorUnits": { "const": 0 },
+        "latentEnergyResidualMilliWattsPerSquareMeter": { "const": 0 },
+        "elevationBalanceErrorMeters": { "const": 0 },
+        "materialBalanceErrorUnits": { "const": 0 },
+        "climateHash": { "type": "integer" },
+        "geologyHash": { "type": "integer" }
+      }
+    }
+  }
+}

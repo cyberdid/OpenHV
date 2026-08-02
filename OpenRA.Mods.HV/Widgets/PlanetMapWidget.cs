@@ -26,6 +26,7 @@ namespace OpenRA.Mods.HV.Widgets
 	public enum PlanetOverlay
 	{
 		Terrain,
+		Geology,
 		Temperature,
 		Pressure,
 		Wind,
@@ -88,6 +89,9 @@ namespace OpenRA.Mods.HV.Widgets
 		public int[] PopulationDensity { get; private set; }
 		public int[] Faction { get; private set; }
 		public int[] TemperatureK { get; private set; }
+		public int[] ElevationMeters { get; private set; }
+		public long[] SurfaceMaterialUnits { get; private set; }
+		public int[] LastGeologyChangeMeters { get; private set; }
 		public int[] PressurePascals { get; private set; }
 		public int[] EastWindCentimetersPerSecond { get; private set; }
 		public int[] NorthWindCentimetersPerSecond { get; private set; }
@@ -216,6 +220,9 @@ namespace OpenRA.Mods.HV.Widgets
 			PopulationDensity = new int[count];
 			Faction = new int[count];
 			TemperatureK = new int[count];
+			ElevationMeters = new int[count];
+			SurfaceMaterialUnits = new long[count];
+			LastGeologyChangeMeters = new int[count];
 			PressurePascals = new int[count];
 			EastWindCentimetersPerSecond = new int[count];
 			NorthWindCentimetersPerSecond = new int[count];
@@ -228,6 +235,9 @@ namespace OpenRA.Mods.HV.Widgets
 					Biome[index] = (int)surface.TerrainAt(latitude, longitude);
 					Faction[index] = -1;
 					TemperatureK[index] = surface.TemperatureMilliKelvinAt(latitude, longitude) / 1000;
+					ElevationMeters[index] = surface.ElevationAt(latitude, longitude);
+					SurfaceMaterialUnits[index] = surface.SurfaceMaterialUnitsAt(latitude, longitude);
+					LastGeologyChangeMeters[index] = surface.LastGeologyChangeMetersAt(latitude, longitude);
 					PressurePascals[index] = surface.PressurePascalsAt(latitude, longitude);
 					EastWindCentimetersPerSecond[index] =
 						surface.EastWindCentimetersPerSecondAt(latitude, longitude);
@@ -248,6 +258,26 @@ namespace OpenRA.Mods.HV.Widgets
 		{
 			switch (Overlay)
 			{
+				case PlanetOverlay.Geology:
+				{
+					if (LastGeologyChangeMeters == null || SurfaceMaterialUnits == null)
+					{
+						var biome = Biome[i];
+						return biome >= 0 && biome < BiomeColors.Length ?
+							BiomeColors[biome] : Color.FromArgb(255, 255, 0, 255);
+					}
+
+					var change = LastGeologyChangeMeters[i];
+					var strength = Math.Clamp(Math.Abs(change) / 5f, 0f, 1f);
+					if (change > 0)
+						return Color.FromArgb(255, (int)(90 + 165 * strength), (int)(42 + 120 * strength), 24);
+					if (change < 0)
+						return Color.FromArgb(255, 20, (int)(60 + 100 * strength), (int)(95 + 160 * strength));
+
+					var material = Math.Clamp(SurfaceMaterialUnits[i] / 25_500f, 0f, 1f);
+					return Color.FromArgb(255, (int)(30 + 130 * material), (int)(32 + 95 * material), 38);
+				}
+
 				case PlanetOverlay.Temperature:
 				{
 					var v = Math.Clamp((TemperatureK[i] - 140) / 760f, 0f, 1f);

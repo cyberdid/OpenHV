@@ -47,6 +47,39 @@ namespace OpenRA.Mods.HV.Traits
 		public int TopologyHash;
 
 		[FieldLoader.Require]
+		public int GeologyPulseSequence;
+
+		[FieldLoader.Require]
+		public int GeologyHash;
+
+		[FieldLoader.Require]
+		public long ElevationBalanceErrorMeters;
+
+		[FieldLoader.Require]
+		public long MaterialBalanceErrorUnits;
+
+		[FieldLoader.Require]
+		public long CumulativeErodedMaterialUnits;
+
+		[FieldLoader.Require]
+		public long CumulativeMantleMaterialInputUnits;
+
+		[FieldLoader.Require]
+		public long CumulativeTectonicElevationChangeMeters;
+
+		[FieldLoader.Require]
+		public int ActiveVolcanicCellCount;
+
+		[FieldLoader.Require]
+		public string ElevationBrotliBase64;
+
+		[FieldLoader.Require]
+		public string SurfaceMaterialBrotliBase64;
+
+		[FieldLoader.Require]
+		public string LastGeologyChangeBrotliBase64;
+
+		[FieldLoader.Require]
 		public int HydrologyHash;
 
 		[FieldLoader.Require]
@@ -127,7 +160,7 @@ namespace OpenRA.Mods.HV.Traits
 	/// </summary>
 	public sealed partial class PlanetSurfaceState : IEffect, ISync
 	{
-		const int SaveSchemaVersion = 4;
+		const int SaveSchemaVersion = 5;
 		const int LatitudeCount = 180;
 		const int LongitudeCount = 360;
 		const int ChunkLatitudeCount = 12;
@@ -199,6 +232,7 @@ namespace OpenRA.Mods.HV.Traits
 			pressurePascals = new int[CellCount];
 			absorbedSolarWattsPerSquareMeter = new ushort[CellCount];
 			Generate();
+			InitializeGeology();
 			InitializeClimate(physics);
 			InitializeAtmosphereAndHydrology(physics);
 			InitializeVerticalAtmosphere();
@@ -265,6 +299,19 @@ namespace OpenRA.Mods.HV.Traits
 			SchemaVersion = SaveSchemaVersion,
 			Generation = generation,
 			TopologyHash = topologyHash,
+			GeologyPulseSequence = geologyPulseSequence,
+			GeologyHash = geologyHash,
+			ElevationBalanceErrorMeters = ElevationBalanceErrorMeters,
+			MaterialBalanceErrorUnits = MaterialBalanceErrorUnits,
+			CumulativeErodedMaterialUnits = CumulativeErodedMaterialUnits,
+			CumulativeMantleMaterialInputUnits = CumulativeMantleMaterialInputUnits,
+			CumulativeTectonicElevationChangeMeters = CumulativeTectonicElevationChangeMeters,
+			ActiveVolcanicCellCount = ActiveVolcanicCellCount,
+			ElevationBrotliBase64 = geologyPulseSequence == 0 ? string.Empty : CompressShorts(elevationMeters),
+			SurfaceMaterialBrotliBase64 = geologyPulseSequence == 0 ? string.Empty :
+				CompressDeltaUInts(surfaceMaterialUnits),
+			LastGeologyChangeBrotliBase64 = geologyPulseSequence == 0 ? string.Empty :
+				CompressShorts(lastGeologyChangeMeters),
 			HydrologyHash = hydrologyHash,
 			WaterDepthDeflateBase64 = CompressUShorts(waterDepthMeters),
 			ClimatePulseSequence = climatePulseSequence,
@@ -309,6 +356,9 @@ namespace OpenRA.Mods.HV.Traits
 				throw new InvalidOperationException(
 					"Planet surface seed generated a different topology than the saved runtime.");
 
+			if (data.GeologyPulseSequence > 0)
+				RestoreGeology(data, physics);
+
 			RestoreUShorts(data.WaterDepthDeflateBase64, waterDepthMeters, "hydrology");
 			climatePulseSequence = data.ClimatePulseSequence;
 			if (climatePulseSequence > 0)
@@ -320,6 +370,9 @@ namespace OpenRA.Mods.HV.Traits
 
 			RecalculateClimateDerivedState(physics, climatePulseSequence == 0 ? 0 : macroDay);
 			RecalculateDerivedState();
+			if (geologyHash != data.GeologyHash)
+				throw new InvalidOperationException(
+					$"Planet geology digest {unchecked((uint)geologyHash):X8} does not match saved {unchecked((uint)data.GeologyHash):X8}.");
 			if (hydrologyHash != data.HydrologyHash)
 				throw new InvalidOperationException("Planet surface save payload failed its deterministic digest check.");
 			if (climateHash != data.ClimateHash)
@@ -439,6 +492,7 @@ namespace OpenRA.Mods.HV.Traits
 
 		internal void AdvanceClimate(PlanetPhysicalState physics, int macroDay)
 		{
+			AdvanceGeology(physics);
 			climatePulseSequence++;
 			var orbit = Math.Max(1, physics.OrbitalPeriodDays);
 			var orbitalDay = Math.Abs(macroDay % orbit);
@@ -570,14 +624,12 @@ namespace OpenRA.Mods.HV.Traits
 				else
 					BasinCellCount++;
 
-				topology = Mix(topology, unchecked((ushort)elevation));
 				topology = Mix(topology, crust[i]);
 				topology = Mix(topology, plate[i]);
-				topology = Mix(topology, terrain[i]);
-				topology = Mix(topology, materialRichness[i]);
 			}
 
 			topologyHash = unchecked((int)topology);
+			RecalculateGeologySummaryAndHash();
 			RecalculateHydrologyAndAtmosphereSummary();
 			RecalculateVerticalAtmosphereSummary();
 		}
