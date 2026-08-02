@@ -164,7 +164,7 @@ clock reached macro day 2 with zero remainder. Two identical headless runs and
 the graphical/headless pair all produced hash `3A94C592`; result JSON and
 periodic JSONL telemetry contained the same three-slot Universe snapshot.
 
-## Immediate work package: UNI-002
+## In-progress work package: UNI-002
 
 Complete the remaining Phase 1 kernel before physical simulation begins:
 
@@ -175,3 +175,22 @@ Complete the remaining Phase 1 kernel before physical simulation begins:
 4. save only on a macro-tick boundary and reload into the same IDs/state;
 5. prove uninterrupted and save/reload runs end with identical normalized
    Universe state and synchronized hash.
+
+`UNI-002A` has delivered items 1–4 and the Universe half of item 5. The runtime
+now writes an atomic native `.orasav` plus a versioned JSON manifest at a macro
+boundary, restores the hierarchy and event sequence, resumes a headless
+observer automatically, and reaches the same normalized Universe snapshot as
+an uninterrupted run. The full `World.SyncHash` gate remains open: legacy bot
+modules contain mutable planning/timer state that OpenRA's original game-save
+contract does not serialize. `BotRandom`, BaseBuilder timers, queue rotation,
+and queue waits are now restored, substantially narrowing the divergence, but
+the remaining AI state must be inventoried and serialized before UNI-002 is
+complete.
+
+Immediate `UNI-002B` work:
+
+1. inventory every mutable field in active stock/OpenHV bot modules;
+2. add versioned game-save trait data for each decision-affecting field;
+3. add a continuous-vs-resumed automated comparison at tick 500;
+4. require equal full synchronized hash, player stocks, AI plans, and Universe
+   snapshot before closing Phase 1 save/load.

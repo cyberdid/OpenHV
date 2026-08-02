@@ -13,6 +13,7 @@ sources:
   - ../../OpenRA.Mods.HV/Simulation/SimulationResultWriter.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationUniverseSnapshotBuilder.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationCheckpointManifestWriter.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationLifecycleMonitor.cs
   - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
@@ -24,6 +25,7 @@ sources:
   - ../../schemas/simulation-result-v1.schema.json
   - ../../schemas/simulation-telemetry-v1.schema.json
   - ../../schemas/simulation-event-v1.schema.json
+  - ../../schemas/universe-checkpoint-v1.schema.json
   - ../../apply-engine-patches.sh
   - ../../engine-patches/openra-headless.patch
   - ../../engine-patches/openra-ai-combat.patch
@@ -130,6 +132,7 @@ window produces no result and stops the wrapper.
 | `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
 | `UniverseState.cs` | Owns synchronized Universe/system identity, three planet slots, lifecycle stage, activation, and macro time |
 | `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
+| `SimulationCheckpointManifestWriter.cs` | Atomically writes the versioned JSON companion for native OpenRA game saves |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
 | `CivilizationPlannerBotModule.cs` | Converts civilization plans into bounded economic, technical, and recovery production requests |
 | `CivilizationScenario.cs` | Defines synchronized balanced/scarcity lobby profiles |
@@ -188,6 +191,25 @@ Telemetry-enabled matches additionally write:
 Both streams are line-flushed so a process failure retains complete prior
 records. A retry or resume moves an existing stream to an attempt-qualified
 artifact before the canonical path is recreated.
+
+## Universe checkpoints
+
+`Launch.SimulationCheckpointWorldTick` requests a save only when
+`UniverseState.MacroTickRemainder` is zero. The observer temporarily freezes
+world advancement while the server commits OpenRA's native `.orasav`, then
+writes an atomic `universe-checkpoint-v1` JSON companion containing the exact
+request tick, synchronized hash, and Universe snapshot. The process unpauses
+without user input. `Launch.SimulationLoadCheckpoint` reconstructs the saved
+lobby, actors, orders, AI slots, RNG streams, and versioned Universe trait
+payload, then starts the observer and continues to the configured horizon.
+
+The Universe hierarchy currently has verified continuous/resumed snapshot
+parity. Full RTS hash parity is not yet claimed: game-save replay suppresses AI
+ticks, so every decision-affecting bot timer/cache must be explicit trait data.
+The dedicated `BotRandom` count and the major BaseBuilder timers/queue waits are
+restored; UNI-002B owns the remaining audit. This limitation is transitional
+and blocks closing the Phase 1 save/load gate, but does not affect ordinary
+uninterrupted deterministic runs.
 
 The current composite score is:
 

@@ -185,6 +185,83 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  
  			return server.GetEndpointForLocalConnection();
  		}
+diff --git a/OpenRA.Game/Support/MersenneTwister.cs b/OpenRA.Game/Support/MersenneTwister.cs
+--- a/OpenRA.Game/Support/MersenneTwister.cs
++++ b/OpenRA.Game/Support/MersenneTwister.cs
+@@ -29,6 +29,15 @@ namespace OpenRA.Support
+ 
+ 		public MersenneTwister(int seed)
+ 		{
++			Reset(seed);
++		}
++
++		public void Reset(int seed)
++		{
++			Array.Clear(mt);
++			index = 0;
++			Last = 0;
++			TotalCount = 0;
+ 			mt[0] = (uint)seed;
+ 			for (var i = 1u; i < mt.Length; i++)
+ 				mt[i] = 1812433253u * (mt[i - 1] ^ (mt[i - 1] >> 30)) + i;
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
+--- a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
+@@ -508,7 +508,13 @@ namespace OpenRA.Mods.Common.Traits
+ 			return
+ 			[
+ 				new("InitialBaseCenter", FieldSaver.FormatValue(initialBaseCenter)),
+-				new("DefenseCenter", FieldSaver.FormatValue(DefenseCenter))
++				new("DefenseCenter", FieldSaver.FormatValue(DefenseCenter)),
++				new("AssignRallyPointsTicks", FieldSaver.FormatValue(assignRallyPointsTicks)),
++				new("CheckBestResourceLocationTicks", FieldSaver.FormatValue(checkBestResourceLocationTicks)),
++				new("SellRefineryTick", FieldSaver.FormatValue(sellRefineryTick)),
++				new("FirstTick", FieldSaver.FormatValue(firstTick)),
++				new("CurrentBuilderIndex", FieldSaver.FormatValue(currentBuilderIndex)),
++				new("BuilderWaitTicks", FieldSaver.FormatValue(builders.Select(builder => builder.WaitTicks).ToArray()))
+ 			];
+ 		}
+ 
+@@ -556,6 +562,39 @@ namespace OpenRA.Mods.Common.Traits
+ 			var defenseCenterNode = data.NodeWithKeyOrDefault("DefenseCenter");
+ 			if (defenseCenterNode != null)
+ 				DefenseCenter = FieldLoader.GetValue<CPos>("DefenseCenter", defenseCenterNode.Value.Value);
++
++			var assignRallyPointsTicksNode = data.NodeWithKeyOrDefault("AssignRallyPointsTicks");
++			if (assignRallyPointsTicksNode != null)
++				assignRallyPointsTicks = FieldLoader.GetValue<int>("AssignRallyPointsTicks", assignRallyPointsTicksNode.Value.Value);
++
++			var checkBestResourceLocationTicksNode = data.NodeWithKeyOrDefault("CheckBestResourceLocationTicks");
++			if (checkBestResourceLocationTicksNode != null)
++				checkBestResourceLocationTicks = FieldLoader.GetValue<int>(
++					"CheckBestResourceLocationTicks",
++					checkBestResourceLocationTicksNode.Value.Value);
++
++			var sellRefineryTickNode = data.NodeWithKeyOrDefault("SellRefineryTick");
++			if (sellRefineryTickNode != null)
++				sellRefineryTick = FieldLoader.GetValue<int>("SellRefineryTick", sellRefineryTickNode.Value.Value);
++
++			var firstTickNode = data.NodeWithKeyOrDefault("FirstTick");
++			if (firstTickNode != null)
++				firstTick = FieldLoader.GetValue<bool>("FirstTick", firstTickNode.Value.Value);
++
++			var currentBuilderIndexNode = data.NodeWithKeyOrDefault("CurrentBuilderIndex");
++			if (currentBuilderIndexNode != null)
++				currentBuilderIndex = FieldLoader.GetValue<int>("CurrentBuilderIndex", currentBuilderIndexNode.Value.Value);
++
++			var builderWaitTicksNode = data.NodeWithKeyOrDefault("BuilderWaitTicks");
++			if (builderWaitTicksNode != null)
++			{
++				var restoredWaitTicks = FieldLoader.GetValue<int[]>("BuilderWaitTicks", builderWaitTicksNode.Value.Value);
++				if (restoredWaitTicks.Length != builders.Length)
++					throw new InvalidOperationException("Saved BaseBuilder queue count does not match current rules.");
++
++				for (var i = 0; i < builders.Length; i++)
++					builders[i].WaitTicks = restoredWaitTicks[i];
++			}
+ 		}
+ 
+ 		void INotifyActorDisposing.Disposing(Actor self)
 diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
 --- a/OpenRA.Game/World.cs
 +++ b/OpenRA.Game/World.cs

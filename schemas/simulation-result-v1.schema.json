@@ -84,6 +84,7 @@
         "starSystemId",
         "macroDay",
         "macroTickRemainder",
+        "macroEventSequence",
         "ticksPerMacroDay",
         "planets"
       ],
@@ -92,6 +93,7 @@
         "starSystemId": { "type": "string", "minLength": 1 },
         "macroDay": { "type": "integer", "minimum": 0 },
         "macroTickRemainder": { "type": "integer", "minimum": 0 },
+        "macroEventSequence": { "type": "integer", "minimum": 0 },
         "ticksPerMacroDay": { "type": "integer", "minimum": 1 },
         "planets": {
           "type": "array",
@@ -215,6 +217,9 @@
         "gitCommit": { "type": "string", "minLength": 1 },
         "gitDirty": { "type": "boolean" },
         "resultPath": { "type": "string" },
+        "checkpointWorldTick": { "type": "integer", "minimum": 0 },
+        "checkpointName": { "type": "string" },
+        "loadCheckpointName": { "type": "string" },
         "players": {
           "type": "array",
           "minItems": 1,

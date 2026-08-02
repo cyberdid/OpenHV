@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Traits;
@@ -55,6 +56,9 @@ namespace OpenRA.Mods.HV
 		public string GitCommit { get; init; }
 		public bool GitDirty { get; init; }
 		public string ResultPath { get; init; }
+		public int CheckpointWorldTick { get; init; }
+		public string CheckpointName { get; init; }
+		public string LoadCheckpointName { get; init; }
 		public SimulationPlayerConfig[] Players { get; set; } = [];
 
 		public static SimulationConfig Parse(Arguments args, MapPreview map)
@@ -195,6 +199,24 @@ namespace OpenRA.Mods.HV
 			if (string.IsNullOrWhiteSpace(gitCommit))
 				throw new ArgumentException("Launch.SimulationGitCommit must not be empty.");
 
+			var checkpointWorldTick =
+				ParseOptionalNonNegativeInt(args, "Launch.SimulationCheckpointWorldTick") ?? 0;
+			if (checkpointWorldTick >= maxWorldTicks.Value && checkpointWorldTick != 0)
+				throw new ArgumentException(
+					"Launch.SimulationCheckpointWorldTick must be lower than Launch.SimulationMaxTicks " +
+					"so the save order can be committed before shutdown.");
+
+			var checkpointName = args.GetValue(
+				"Launch.SimulationCheckpointName",
+				"");
+			if (string.IsNullOrWhiteSpace(checkpointName) && checkpointWorldTick > 0)
+				checkpointName = $"{matchId}.orasav";
+			var loadCheckpointName = args.GetValue("Launch.SimulationLoadCheckpoint", "");
+			if (!string.IsNullOrEmpty(checkpointName))
+				ValidateCheckpointName(checkpointName, "Launch.SimulationCheckpointName");
+			if (!string.IsNullOrEmpty(loadCheckpointName))
+				ValidateCheckpointName(loadCheckpointName, "Launch.SimulationLoadCheckpoint");
+
 			return new SimulationConfig
 			{
 				MatchId = matchId,
@@ -222,8 +244,18 @@ namespace OpenRA.Mods.HV
 				TradeEnabled = tradeEnabled,
 				GitCommit = gitCommit,
 				GitDirty = gitDirty,
-				ResultPath = args.GetValue("Launch.SimulationResult", "")
+				ResultPath = args.GetValue("Launch.SimulationResult", ""),
+				CheckpointWorldTick = checkpointWorldTick,
+				CheckpointName = checkpointName,
+				LoadCheckpointName = loadCheckpointName
 			};
+		}
+
+		static void ValidateCheckpointName(string value, string key)
+		{
+			if (string.IsNullOrWhiteSpace(value) || value != Path.GetFileName(value) ||
+				value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+				throw new ArgumentException($"{key} must be a safe file name without a directory path.");
 		}
 
 		static int? ParseOptionalInt(Arguments args, string key)

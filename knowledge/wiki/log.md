@@ -692,3 +692,34 @@ system/planet synchronized state, the macro-event spine, and checkpoint
 save/reload equivalence. Wiki lint found zero broken links or frontmatter
 issues across all 43 normal pages; the append-only project log is intentionally
 the sole special page without frontmatter.
+
+## [2026-08-02] change | Add atomic native Universe checkpoints (UNI-002A)
+
+Replaced the provisional flat planet counters with synchronized
+`UniverseState → StarSystemState → PlanetState[3]` nodes, each registered in
+stable hash order. Macro days now append deterministic IDs to an event spine.
+The Universe trait contributes a versioned payload to OpenRA's native game
+save, including hierarchy identity, clock/event state, planets, checkpoint
+tick, and the dedicated bot-RNG position. Simulation launch options can create
+an atomic macro-boundary `.orasav`, write a closed-schema JSON companion, load
+the saved autonomous lobby, and continue headlessly without a menu or player.
+
+Verification exposed and fixed two real restore faults: the normal load UI
+left a headless simulation paused, and trait data was captured before the save
+network frame finished. Trait order now resumes after the UI hook and the
+payload advances by the measured restore delta. A 250→500 resumed run reached
+the same day 2, remainder 0, event sequence 2, planet activation/lifecycle, and
+IDs as an uninterrupted 500-tick run. Full RTS hash equality remains open. In
+the final seed-112 four-bot check, the uninterrupted run ended at `B0776137`
+and the 250→500 resumed run at `B077DDA7` after restoring BotRandom and
+BaseBuilder timers. Three slots differed only by 5–12 credits of construction
+spend and the fourth matched, proving additional legacy AI caches/timers still
+need save data; UNI-002B is explicitly blocked from closure until that audit
+passes.
+
+Release compilation completed with zero warnings and errors; all 29 simulation
+contract/integration tests passed. MiniYAML validation completed with the
+existing 102 content warnings. Two uninterrupted 500-tick headless runs and a
+graphical/headless pair matched at `3A94CA09`. A newly generated checkpoint
+manifest passed its closed JSON Schema, and the seed-112 checkpoint/resume test
+proved exact Universe snapshot parity at day 2.

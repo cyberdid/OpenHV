@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cyberdid/OpenHV/schemas/universe-checkpoint-v1.schema.json",
+  "title": "Universe checkpoint manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "checkpointName",
+    "worldTick",
+    "synchronizedStateHash",
+    "universe"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "checkpointName": { "type": "string", "minLength": 1 },
+    "worldTick": { "type": "integer", "minimum": 0 },
+    "synchronizedStateHash": {
+      "type": "string",
+      "pattern": "^[0-9A-F]{8}$"
+    },
+    "universe": {
+      "$ref": "simulation-result-v1.schema.json#/$defs/universe"
+    }
+  }
+}

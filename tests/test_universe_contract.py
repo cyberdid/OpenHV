@@ -9,12 +9,16 @@ import unittest
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 RESULT_SCHEMA_PATH = PROJECT_DIR / "schemas" / "simulation-result-v1.schema.json"
 TELEMETRY_SCHEMA_PATH = (
     PROJECT_DIR / "schemas" / "simulation-telemetry-v1.schema.json"
+)
+CHECKPOINT_SCHEMA_PATH = (
+    PROJECT_DIR / "schemas" / "universe-checkpoint-v1.schema.json"
 )
 
 
@@ -29,6 +33,7 @@ def universe_snapshot():
         "starSystemId": "tyranthos-system",
         "macroDay": 2,
         "macroTickRemainder": 0,
+        "macroEventSequence": 2,
         "ticksPerMacroDay": 250,
         "planets": [
             {
@@ -103,6 +108,30 @@ class UniverseContractTests(unittest.TestCase):
             telemetry_schema["properties"]["universe"],
             {"$ref": "simulation-result-v1.schema.json#/$defs/universe"},
         )
+
+    def test_checkpoint_manifest_uses_the_result_universe_contract(self) -> None:
+        checkpoint_schema = read_json(CHECKPOINT_SCHEMA_PATH)
+        Draft202012Validator.check_schema(checkpoint_schema)
+        self.assertEqual(checkpoint_schema["properties"]["schemaVersion"], {"const": 1})
+        self.assertEqual(
+            checkpoint_schema["properties"]["universe"],
+            {"$ref": "simulation-result-v1.schema.json#/$defs/universe"},
+        )
+
+        registry = Registry().with_resource(
+            self.result_schema["$id"], Resource.from_contents(self.result_schema)
+        )
+        checkpoint_validator = Draft202012Validator(
+            checkpoint_schema, registry=registry
+        )
+        manifest = {
+            "schemaVersion": 1,
+            "checkpointName": "universe-split.orasav",
+            "worldTick": 250,
+            "synchronizedStateHash": "3A94CA09",
+            "universe": universe_snapshot(),
+        }
+        checkpoint_validator.validate(manifest)
 
 
 if __name__ == "__main__":

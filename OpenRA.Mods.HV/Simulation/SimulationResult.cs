@@ -40,6 +40,7 @@ namespace OpenRA.Mods.HV
 		public string StarSystemId { get; init; }
 		public int MacroDay { get; init; }
 		public int MacroTickRemainder { get; init; }
+		public int MacroEventSequence { get; init; }
 		public int TicksPerMacroDay { get; init; }
 		public SimulationPlanetResult[] Planets { get; init; }
 	}

@@ -29,16 +29,17 @@ namespace OpenRA.Mods.HV
 				StarSystemId = UniverseState.StarSystemId,
 				MacroDay = universe.MacroDay,
 				MacroTickRemainder = universe.MacroTickRemainder,
+				MacroEventSequence = universe.MacroEventSequence,
 				TicksPerMacroDay = universe.TicksPerMacroDay,
-				Planets = UniverseState.Planets.ToArray()
-					.OrderBy(planet => planet.Index)
+				Planets = universe.StarSystem.Planets
+					.OrderBy(planet => planet.Definition.Index)
 					.Select(planet => new SimulationPlanetResult
 					{
-						PlanetId = planet.PlanetId,
-						Name = planet.Name,
-						Index = planet.Index,
-						Active = universe.IsPlanetActive(planet.Index),
-						LifecycleStage = LifecycleIdentifier(universe.LifecycleStage(planet.Index)),
+						PlanetId = planet.Definition.PlanetId,
+						Name = planet.Definition.Name,
+						Index = planet.Definition.Index,
+						Active = planet.Active,
+						LifecycleStage = LifecycleIdentifier(planet.LifecycleStage),
 						NativeRaceId = null
 					})
 					.ToArray()

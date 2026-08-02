@@ -458,7 +458,6 @@ World:
 	ScrapOptions:
 		CheckboxDisplayOrder: 8
 	CivilizationScenario:
-	UniverseState:
 	DiplomacyManager:
 	TradeManager:
 	TimeLimitManager:
@@ -530,6 +529,7 @@ World:
 	ObjectivesPanel:
 		PanelName: SKIRMISH_STATS
 	LoadWidgetAtGameStart:
+	UniverseState:
 	ScriptTriggers:
 	CubeSpawner:
 		CheckboxDisplayOrder: 1

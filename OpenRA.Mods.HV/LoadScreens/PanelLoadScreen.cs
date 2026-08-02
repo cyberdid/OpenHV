@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using OpenRA.Graphics;
@@ -60,6 +61,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 			var lobbyConfigurationIssued = false;
 			var simulationStarted = false;
 			var factionsPending = false;
+			var checkpointLoadIssued = false;
+			var checkpointRequested = false;
 			void StartSimulation()
 			{
 				if (simulationStarted)
@@ -72,8 +75,27 @@ namespace OpenRA.Mods.HV.LoadScreens
 				}
 
 				var localClientIndex = orderManager.LocalClient.Index;
+				if (!string.IsNullOrEmpty(config.LoadCheckpointName) && !checkpointLoadIssued)
+				{
+					checkpointLoadIssued = true;
+					Console.WriteLine($"Loading simulation checkpoint {config.LoadCheckpointName}.");
+					orderManager.IssueOrder(Order.FromTargetString(
+						"LoadGameSave",
+						config.LoadCheckpointName,
+						true));
+					Game.RunAfterTick(StartSimulation);
+					return;
+				}
+
 				if (!lobbyConfigurationIssued)
 				{
+					if (checkpointLoadIssued &&
+						!orderManager.LobbyInfo.Clients.Any(client => client.Bot != null))
+					{
+						Game.RunAfterTick(StartSimulation);
+						return;
+					}
+
 					lobbyConfigurationIssued = true;
 					simulationSlots = orderManager.LobbyInfo.Slots
 						.Where(slot => slot.Value.AllowBots && !slot.Value.Closed)
@@ -82,6 +104,13 @@ namespace OpenRA.Mods.HV.LoadScreens
 					if (simulationSlots.Length == 0)
 						throw new InvalidOperationException(
 							$"Simulation map '{map.Title}' does not contain any open bot-compatible slots.");
+
+					if (checkpointLoadIssued)
+					{
+						config.EffectiveRandomSeed = orderManager.LobbyInfo.GlobalSettings.RandomSeed;
+						Game.RunAfterTick(StartSimulation);
+						return;
+					}
 
 					if (config.RequestedRandomSeed.HasValue)
 					{
@@ -216,6 +245,61 @@ namespace OpenRA.Mods.HV.LoadScreens
 							return;
 
 						lifecycle.Update(orderManager.World);
+						if (!checkpointRequested && config.CheckpointWorldTick > 0 &&
+							orderManager.World.WorldTick >= config.CheckpointWorldTick)
+						{
+							var universe = orderManager.World.WorldActor.TraitOrDefault<Traits.UniverseState>();
+							if (universe == null || universe.MacroTickRemainder != 0)
+								throw new InvalidOperationException(
+									"Simulation checkpoints must be requested on a Universe macro-day boundary.");
+
+							checkpointRequested = true;
+							var checkpointDirectory = Path.Combine(
+								Platform.SupportDir,
+								"Saves",
+								Game.ModData.Manifest.Id,
+								Game.ModData.Manifest.Metadata.Version);
+							var checkpointPath = Path.Combine(checkpointDirectory, config.CheckpointName);
+							var manifestPath = checkpointPath + ".json";
+							var manifest = new SimulationCheckpointManifest
+							{
+								SchemaVersion = Traits.UniverseState.CheckpointSchemaVersion,
+								CheckpointName = config.CheckpointName,
+								WorldTick = orderManager.World.WorldTick,
+								SynchronizedStateHash = unchecked((uint)orderManager.World.SyncHash()).ToString(
+									"X8",
+									CultureInfo.InvariantCulture),
+								Universe = SimulationUniverseSnapshotBuilder.Build(orderManager.World)
+							};
+
+							if (File.Exists(checkpointPath))
+								File.Delete(checkpointPath);
+							if (File.Exists(manifestPath))
+								File.Delete(manifestPath);
+
+							// Freeze synchronized simulation advancement while the server commits
+							// the save order. Network/immediate orders still run, producing an
+							// atomic macro-boundary checkpoint instead of an 1-2 net-frame skew.
+							orderManager.World.SetLocalPauseState(true);
+							orderManager.World.RequestGameSave(config.CheckpointName, false);
+							void AwaitCheckpoint()
+							{
+								if (!File.Exists(checkpointPath))
+								{
+									Game.RunAfterDelay(10, AwaitCheckpoint);
+									return;
+								}
+
+								SimulationCheckpointManifestWriter.Write(manifestPath, manifest);
+								orderManager.World.SetLocalPauseState(false);
+								orderManager.World.SetPauseState(false);
+								Console.WriteLine(
+									$"Simulation checkpoint written at world tick {manifest.WorldTick}: {checkpointPath}");
+							}
+
+							Game.RunAfterDelay(10, AwaitCheckpoint);
+						}
+
 						if (telemetry != null && orderManager.World.WorldTick >= nextTelemetryTick)
 						{
 							telemetry.Capture(orderManager.World);
@@ -247,7 +331,6 @@ namespace OpenRA.Mods.HV.LoadScreens
 					}
 
 					Game.RunAfterTick(CheckWorldTick);
-
 					if (config.WatchdogSeconds > 0)
 						Game.RunAfterDelay(config.WatchdogSeconds * 1000, () =>
 							FinishSimulation(
@@ -256,7 +339,10 @@ namespace OpenRA.Mods.HV.LoadScreens
 				}
 
 				Game.AfterGameStart += GameStarted;
-				orderManager.IssueOrder(Order.Command("startgame"));
+				if (checkpointLoadIssued)
+					orderManager.IssueOrder(Order.Command($"state {Session.ClientState.Ready}"));
+				else
+					orderManager.IssueOrder(Order.Command("startgame"));
 			}
 
 			Game.LobbyInfoChanged += StartSimulation;
