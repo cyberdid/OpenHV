@@ -208,6 +208,23 @@ def planet_surface(
     }
 
 
+def planet_biosphere(planet_id: str, active: bool):
+    return {
+        "pulseSequence": 2 if active else 0,
+        "stateHash": "F6C2CC67" if active else "FAB33635",
+        "lifeOriginated": False,
+        "originLatitudeIndex": -1,
+        "originLongitudeIndex": -1,
+        "meanHabitabilityPerMille": 0,
+        "habitableCellCount": 0,
+        "livingCellCount": 0,
+        "meanBiomassPerMille": 0,
+        "meanComplexityMillionths": 0,
+        "maximumComplexityMillionths": 0,
+        "maximumAbiogenesisProgressUnits": 0,
+    }
+
+
 def universe_snapshot():
     return {
         "universeId": "universe-0001",
@@ -233,6 +250,7 @@ def universe_snapshot():
                     surface_water=54_426,
                 ),
                 "surface": planet_surface("planet-0001", "72DD4BA0", 30137, 34663),
+                "biosphere": planet_biosphere("planet-0001", True),
             },
             {
                 "planetId": "planet-0002",
@@ -250,6 +268,7 @@ def universe_snapshot():
                     surface_water=0,
                 ),
                 "surface": planet_surface("planet-0002", "027DAEF1", 26424, 38376),
+                "biosphere": planet_biosphere("planet-0002", False),
             },
             {
                 "planetId": "planet-0003",
@@ -267,6 +286,7 @@ def universe_snapshot():
                     surface_water=0,
                 ),
                 "surface": planet_surface("planet-0003", "BDEA3634", 39087, 25713),
+                "biosphere": planet_biosphere("planet-0003", False),
             },
         ],
     }
@@ -301,6 +321,41 @@ class UniverseContractTests(unittest.TestCase):
         self.assertEqual(active["physics"]["geologicalAgeYears"], 2_000_000)
         self.assertEqual(active["physics"]["climatePulseSequence"], 2)
         self.assertGreater(active["physics"]["atmospherePressurePascals"], 0)
+
+    def test_biosphere_starts_from_zero_and_only_active_planet_advances(self) -> None:
+        planets = universe_snapshot()["planets"]
+        active = planets[0]["biosphere"]
+        self.assertEqual(active["pulseSequence"], 2)
+        self.assertFalse(active["lifeOriginated"])
+        self.assertEqual(active["livingCellCount"], 0)
+        self.assertEqual(active["meanBiomassPerMille"], 0)
+        self.assertEqual(active["originLatitudeIndex"], -1)
+        self.assertEqual(
+            [planet["biosphere"]["pulseSequence"] for planet in planets[1:]],
+            [0, 0],
+        )
+
+    def test_life_origin_has_a_real_cell_and_nonzero_biomass(self) -> None:
+        snapshot = universe_snapshot()
+        active = snapshot["planets"][0]
+        active["lifecycleStage"] = "biosphere"
+        active["biosphere"].update({
+            "lifeOriginated": True,
+            "originLatitudeIndex": 75,
+            "originLongitudeIndex": 120,
+            "livingCellCount": 1,
+            "meanBiomassPerMille": 1,
+            "maximumComplexityMillionths": 1,
+            "maximumAbiogenesisProgressUnits": 3_000,
+        })
+        self.assertTrue(self.universe_validator.is_valid(snapshot))
+
+    def test_life_origin_contract_rejects_missing_origin_cell(self) -> None:
+        snapshot = universe_snapshot()
+        biosphere = snapshot["planets"][0]["biosphere"]
+        biosphere["lifeOriginated"] = True
+        biosphere["maximumAbiogenesisProgressUnits"] = 3_000
+        self.assertFalse(self.universe_validator.is_valid(snapshot))
 
     def test_planet_surface_is_large_chunked_and_has_stable_ids(self) -> None:
         surface = universe_snapshot()["planets"][0]["surface"]

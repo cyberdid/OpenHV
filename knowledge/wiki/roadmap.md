@@ -38,10 +38,12 @@ The authoritative program is now the
 graph, one complete planet first, three planets by final acceptance, autonomous
 zero→life→race→civilization→space→interplanetary history, and same-world RTS.
 
-Current phase: **Phase 0 — program lock and inventory**. The next executable
-work package is **UNI-001**, which introduces Universe/System/three-Planet IDs,
-the synchronized macro clock, lifeless planet-zero state, and result/telemetry
-export without changing existing matches.
+Current phase: **Phase 3 — biosphere, ecology, and emergence**. UNI-001 through
+UNI-003 established the three-slot kernel and physical planet; UNI-004A added
+native zero-state abiogenesis, biomass, complexity, save/telemetry, and the
+passive Life layer. The next executable work package is **UNI-004B**: species,
+trophic energy, competition, mutation, migration, extinction, and carrying-
+capacity invariants.
 
 ## Completed foundation
 
@@ -50,8 +52,8 @@ export without changing existing matches.
 `run-universe.sh` is the current visual entry point. It launches one
 OpenHV spectator process containing four autonomous civilizations and all
 economic, civil, diplomatic, research, production, and combat systems. It has
-no Web battle selection and no experiment watchdog. Natural victory or total
-civil collapse begins the next deterministic epoch; manually closing the
+no Web battle selection and no experiment watchdog. Conquest victory and total
+civil collapse do not end persistent planetary time; manually closing the
 window stops the launcher. The older Web→per-cell battle bridge remains a
 compatibility experiment, not the product loop.
 

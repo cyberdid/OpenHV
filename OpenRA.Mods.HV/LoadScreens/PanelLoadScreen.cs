@@ -48,6 +48,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 				throw new ArgumentException($"Could not find simulation map '{Launch.Map}'.");
 
 			var config = SimulationConfig.Parse(args, map);
+			Game.ConfigurePersistentWorldSimulation(
+				config.ScenarioMode == SimulationConfig.LivingWorldScenario);
 			var startedUtc = DateTime.UtcNow;
 			var simulationComplete = false;
 			SimulationTelemetryWriter telemetry = null;
@@ -218,7 +220,7 @@ namespace OpenRA.Mods.HV.LoadScreens
 					// simulation cutoffs must do the same so replay metadata records
 					// the terminal game tick before the connection is disposed.
 					if (!orderManager.World.IsGameOver)
-						orderManager.World.EndGame();
+						orderManager.World.EndGame(force: true);
 
 					Console.WriteLine($"Simulation ended: {endReason.ToIdentifier()} ({endDetail}).");
 					Game.Exit();
@@ -297,14 +299,23 @@ namespace OpenRA.Mods.HV.LoadScreens
 									$"Simulation checkpoint written at world tick {manifest.WorldTick}: {checkpointPath}");
 							}
 
-							// Let the synchronized pause order enter the replay stream before the
-							// immediate save request. This keeps restored WorldTick and trait data
-							// on the same macro boundary.
-							Game.RunAfterTick(() => Game.RunAfterTick(() =>
+							// Let the synchronized pause cross the full network order-latency
+							// window and produce a paused sync packet before CreateGameSave. Two
+							// local ticks were enough in short smoke runs but could save the prior
+							// sync frame in long, busy worlds, causing an OOS at resume.
+							void CommitCheckpointAfterPause(int ticksRemaining)
 							{
+								if (ticksRemaining > 0)
+								{
+									Game.RunAfterTick(() => CommitCheckpointAfterPause(ticksRemaining - 1));
+									return;
+								}
+
 								orderManager.World.RequestGameSave(config.CheckpointName, false);
 								Game.RunAfterDelay(10, AwaitCheckpoint);
-							}));
+							}
+
+							CommitCheckpointAfterPause(8);
 						}
 
 						if (telemetry != null && orderManager.World.WorldTick >= nextTelemetryTick)
@@ -313,7 +324,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 							nextTelemetryTick += config.TelemetryIntervalTicks;
 						}
 
-						if (lifecycle.AllFactionsCollapsed)
+						if (config.ScenarioMode == SimulationConfig.ConflictScenario &&
+							lifecycle.AllFactionsCollapsed)
 							FinishSimulation(
 								SimulationEndReason.FactionCollapse,
 								"All autonomous factions crossed a configured collapse boundary.");

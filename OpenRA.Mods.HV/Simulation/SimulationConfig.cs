@@ -22,8 +22,10 @@ namespace OpenRA.Mods.HV
 	public sealed class SimulationConfig
 	{
 		public const int CurrentSchemaVersion = 1;
-		public const int DefaultMaxWorldTicks = 1500;
-		public const int DefaultWatchdogSeconds = 120;
+		// The product is a persistent observer simulation. Finite horizons belong
+		// to explicit experiments and tests, not to the default living world.
+		public const int DefaultMaxWorldTicks = int.MaxValue;
+		public const int DefaultWatchdogSeconds = 0;
 		public const string ConflictScenario = "conflict";
 		public const string LivingWorldScenario = "living-world";
 
@@ -119,7 +121,7 @@ namespace OpenRA.Mods.HV
 			maxWorldTicks ??= DefaultMaxWorldTicks;
 			if (maxWorldTicks <= 0)
 				throw new ArgumentException("Launch.SimulationMaxTicks must be greater than zero.");
-			var scenarioMode = args.GetValue("Launch.SimulationScenarioMode", ConflictScenario);
+			var scenarioMode = args.GetValue("Launch.SimulationScenarioMode", LivingWorldScenario);
 			if (scenarioMode != ConflictScenario && scenarioMode != LivingWorldScenario)
 				throw new ArgumentException(
 					"Launch.SimulationScenarioMode must be 'conflict' or 'living-world', " +

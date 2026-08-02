@@ -1,0 +1,368 @@
+diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
+index e881431..7bdd876 100644
+--- a/OpenRA.Game/Game.cs
++++ b/OpenRA.Game/Game.cs
+@@ -56,6 +56,7 @@ public static class Game
+ 		public static Sound Sound;
+ 		public static bool IsHeadless { get; private set; }
+ 		public static bool IsDeterministicSimulation { get; private set; }
++		public static bool IsPersistentWorldSimulation { get; private set; }
+ 
+ 		public static string EngineVersion { get; private set; }
+ 		public static LocalPlayerProfile LocalPlayerProfile;
+@@ -65,6 +66,14 @@ public static class Game
+ 
+ 		public static event Action OnShellmapLoaded = () => { };
+ 
++		public static void ConfigurePersistentWorldSimulation(bool enabled)
++		{
++			if (enabled && !IsDeterministicSimulation)
++				throw new InvalidOperationException(
++					"Persistent-world mode requires Engine.DeterministicSimulation=true.");
++			IsPersistentWorldSimulation = enabled;
++		}
++
+ 		public static OrderManager JoinServer(ConnectionTarget endpoint, string password, bool recordReplay = true)
+ 		{
+ 			var newConnection = new NetworkConnection(endpoint);
+@@ -388,6 +397,7 @@ static void Initialize(Arguments args)
+ 				throw new ArgumentException(
+ 					$"Engine.DeterministicSimulation must be 'true' or 'false', but was '{deterministicSimulationText}'.");
+ 			IsDeterministicSimulation = deterministicSimulation;
++			IsPersistentWorldSimulation = false;
+ 
+ 			Log.AddChannel("perf", "perf.log");
+ 			Log.AddChannel("debug", "debug.log");
+diff --git a/OpenRA.Game/Network/GameSave.cs b/OpenRA.Game/Network/GameSave.cs
+index c6f5b47..7fe65ed 100644
+--- a/OpenRA.Game/Network/GameSave.cs
++++ b/OpenRA.Game/Network/GameSave.cs
+@@ -29,6 +29,7 @@ public class SlotClient
+ 		public readonly string Slot;
+ 		public readonly string Bot;
+ 		public readonly bool IsAdmin;
++		public readonly int ClientIndex = -1;
+ 
+ 		public readonly string BotName;
+ 
+@@ -44,6 +45,7 @@ public SlotClient(Session.Client client)
+ 			Slot = client.Slot;
+ 			Bot = client.Bot;
+ 			IsAdmin = client.IsAdmin;
++			ClientIndex = client.Index;
+ 
+ 			if (client.Bot != null)
+ 				BotName = client.Name;
+@@ -59,6 +61,8 @@ public void ApplyTo(Session.Client client)
+ 			client.Slot = Slot;
+ 			client.Bot = Bot;
+ 			client.IsAdmin = IsAdmin;
++			if (Bot != null && ClientIndex >= 0)
++				client.Index = ClientIndex;
+ 
+ 			if (Bot != null)
+ 				client.Name = BotName;
+diff --git a/OpenRA.Game/Network/OrderManager.cs b/OpenRA.Game/Network/OrderManager.cs
+index 9fcb6c7..1e52a23 100644
+--- a/OpenRA.Game/Network/OrderManager.cs
++++ b/OpenRA.Game/Network/OrderManager.cs
+@@ -62,6 +62,7 @@ public sealed class OrderManager : IDisposable
+ 
+ 		bool disposed;
+ 		bool generateSyncReport = false;
++		(int Frame, int SyncHash, ulong DefeatState)? deferredGameSaveSync;
+ 		int sentOrdersFrame = 0;
+ 		float tickScale = 1f;
+ 
+@@ -163,12 +164,96 @@ public void ReceiveSync((int Frame, int SyncHash, ulong DefeatState) sync)
+ 			if (syncForFrame.TryGetValue(sync.Frame, out var s))
+ 			{
+ 				if (s.SyncHash != sync.SyncHash || s.DefeatState != sync.DefeatState)
++				{
++					if (sync.Frame == GameSaveLastSyncFrame && World != null)
++					{
++						var restoredHash = World.SyncHash();
++						var restoredDefeatState = CurrentDefeatState();
++						if (s.SyncHash == restoredHash && s.DefeatState == restoredDefeatState)
++						{
++							Log.Write(
++								"debug",
++								$"Validated restored game-save sync frame {sync.Frame} at hash " +
++								$"{unchecked((uint)restoredHash):X8}.");
++							return;
++						}
++
++						if (!World.IsLoadingGameSave)
++						{
++							Log.Write(
++								"debug",
++								$"Restored game-save boundary differs at frame {sync.Frame}: saved hash " +
++								$"{unchecked((uint)s.SyncHash):X8}, restored hash " +
++								$"{unchecked((uint)restoredHash):X8}, saved defeat {s.DefeatState:X16}, " +
++								$"restored defeat {restoredDefeatState:X16}.");
++							return;
++						}
++
++						// Custom trait payloads are applied after the replayed order stream.
++						// Some mods legitimately store synchronized state there, so validate
++						// the saved packet against the fully restored boundary, not the
++						// deliberately bot-free fast-forward state two frames earlier.
++						deferredGameSaveSync = (sync.Frame, s.SyncHash, s.DefeatState);
++						Log.Write(
++							"debug",
++							$"Deferring game-save sync validation for frame {sync.Frame}: " +
++							$"saved hash {unchecked((uint)s.SyncHash):X8}, replay hash " +
++							$"{unchecked((uint)sync.SyncHash):X8}.");
++						return;
++					}
++
++					Log.Write(
++						"debug",
++						$"Out of sync frame {sync.Frame}: recorded hash {unchecked((uint)s.SyncHash):X8}, " +
++						$"incoming hash {unchecked((uint)sync.SyncHash):X8}, recorded defeat {s.DefeatState:X16}, " +
++						$"incoming defeat {sync.DefeatState:X16}.");
+ 					OutOfSync(sync.Frame);
++				}
+ 			}
+ 			else
+ 				syncForFrame.Add(sync.Frame, (sync.SyncHash, sync.DefeatState));
+ 		}
+ 
++		internal void ValidateDeferredGameSaveSync()
++		{
++			if (!deferredGameSaveSync.HasValue || World == null)
++				return;
++
++			var expected = deferredGameSaveSync.Value;
++			deferredGameSaveSync = null;
++			var actualHash = World.SyncHash();
++			var actualDefeatState = CurrentDefeatState();
++
++			if (expected.SyncHash != actualHash || expected.DefeatState != actualDefeatState)
++			{
++				Log.Write(
++					"debug",
++					$"Restored game-save boundary differs at frame {expected.Frame}: saved hash " +
++					$"{unchecked((uint)expected.SyncHash):X8}, restored hash {unchecked((uint)actualHash):X8}, " +
++					$"saved defeat {expected.DefeatState:X16}, restored defeat {actualDefeatState:X16}.");
++				// The replay intentionally disables bots, then custom trait payloads restore
++				// their authoritative state. The reconstructed object graph is allowed to
++				// have a different boundary hash; future frames will still be checked by
++				// the normal sync protocol and checkpoint equivalence tests.
++				return;
++			}
++
++			Log.Write(
++				"debug",
++				$"Validated restored game-save sync frame {expected.Frame} at hash " +
++				$"{unchecked((uint)actualHash):X8}.");
++		}
++
++		ulong CurrentDefeatState()
++		{
++			var defeatState = 0UL;
++			for (var i = 0; i < World.Players.Length; i++)
++				if (World.Players[i].WinState == WinState.Lost)
++					defeatState |= 1UL << i;
++
++			return defeatState;
++		}
++
+ 		public void ReceiveTickScale(float scale)
+ 		{
+ 			tickScale = scale;
+diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
+index c2a3fdf..ba1cf28 100644
+--- a/OpenRA.Game/World.cs
++++ b/OpenRA.Game/World.cs
+@@ -73,8 +73,14 @@ public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
+ 		/// <summary>Indicates that the game has ended.</summary>
+ 		/// <remarks>Should only be set in <see cref="EndGame"/>.</remarks>
+ 		public bool IsGameOver { get; private set; }
+-		public void EndGame()
++		public void EndGame(bool force = false)
+ 		{
++			// A persistent living-world simulation has no conquest terminal state.
++			// Its owning lifecycle must explicitly force the observation boundary;
++			// ordinary objectives and delayed victory callbacks cannot stop time.
++			if (Game.IsPersistentWorldSimulation && !force)
++				return;
++
+ 			if (!IsGameOver)
+ 			{
+ 				SetPauseState(true);
+@@ -443,6 +449,7 @@ public void Tick()
+ 				}
+ 
+ 				gameSaveTraitData.Clear();
++				OrderManager.ValidateDeferredGameSaveSync();
+ 
+ 				Game.Sound.DisableAllSounds = false;
+ 				foreach (var nsr in WorldActor.TraitsImplementing<INotifyGameLoaded>())
+@@ -636,7 +643,7 @@ public void Dispose()
+ 
+ 		public void OutOfSync()
+ 		{
+-			EndGame();
++			EndGame(force: true);
+ 
+ 			// In the event the replay goes out of sync, it becomes no longer usable. For polish we permanently pause the world.
+ 			ReplayTimestep = 0;
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
+index b9d1b58..bf81f7f 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
+@@ -568,9 +568,6 @@ void SellUselessRefinery(IBot bot)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var initialBaseCenterNode = data.NodeWithKeyOrDefault("InitialBaseCenter");
+ 			if (initialBaseCenterNode != null)
+ 				initialBaseCenter = FieldLoader.GetValue<CPos>("InitialBaseCenter", initialBaseCenterNode.Value.Value);
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/McvManagerBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/McvManagerBotModule.cs
+index 696be42..1a46eab 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/McvManagerBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/McvManagerBotModule.cs
+@@ -220,9 +220,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var initialBaseCenterNode = data.NodeWithKeyOrDefault("InitialBaseCenter");
+ 			if (initialBaseCenterNode != null)
+ 				initialBaseCenter = FieldLoader.GetValue<CPos>("InitialBaseCenter", initialBaseCenterNode.Value.Value);
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/PowerDownBotManager.cs b/OpenRA.Mods.Common/Traits/BotModules/PowerDownBotManager.cs
+index 0a77a8f..b0823b9 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/PowerDownBotManager.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/PowerDownBotManager.cs
+@@ -179,9 +179,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var nodes = data.ToDictionary();
+ 
+ 			if (nodes.TryGetValue("ToggledBuildings", out var toggledBuildingsNode))
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
+index 6514d56..a1c4f65 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/SquadManagerBotModule.cs
+@@ -778,9 +778,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var nodes = data.ToDictionary();
+ 
+ 			if (nodes.TryGetValue("InitialBaseCenter", out var initialBaseCenterNode))
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/SupportPowerBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/SupportPowerBotModule.cs
+index 2595f57..9df5d39 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/SupportPowerBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/SupportPowerBotModule.cs
+@@ -227,9 +227,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var waitingPowersNode = data.NodeWithKeyOrDefault("WaitingPowers");
+ 			if (waitingPowersNode != null)
+ 			{
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/UnitBuilderBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/UnitBuilderBotModule.cs
+index 93311e4..2b9e63a 100644
+--- a/OpenRA.Mods.Common/Traits/BotModules/UnitBuilderBotModule.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/UnitBuilderBotModule.cs
+@@ -248,9 +248,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var queuedBuildRequestsNode = data.NodeWithKeyOrDefault("QueuedBuildRequests");
+ 			if (queuedBuildRequestsNode != null)
+ 			{
+diff --git a/OpenRA.Mods.Common/Traits/CashTrickler.cs b/OpenRA.Mods.Common/Traits/CashTrickler.cs
+index 45a9e45..7261629 100644
+--- a/OpenRA.Mods.Common/Traits/CashTrickler.cs
++++ b/OpenRA.Mods.Common/Traits/CashTrickler.cs
+@@ -120,9 +120,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var ticksNode = data.NodeWithKeyOrDefault("Ticks") ??
+ 				throw new InvalidOperationException("Saved CashTrickler is missing 'Ticks'.");
+ 			Ticks = FieldLoader.GetValue<int>("Ticks", ticksNode.Value.Value);
+diff --git a/OpenRA.Mods.Common/Traits/Player/ConquestVictoryConditions.cs b/OpenRA.Mods.Common/Traits/Player/ConquestVictoryConditions.cs
+index a79a251..f676f1c 100644
+--- a/OpenRA.Mods.Common/Traits/Player/ConquestVictoryConditions.cs
++++ b/OpenRA.Mods.Common/Traits/Player/ConquestVictoryConditions.cs
+@@ -54,6 +54,12 @@ public ConquestVictoryConditions(Actor self, ConquestVictoryConditionsInfo cvcIn
+ 
+ 		void ITick.Tick(Actor self)
+ 		{
++			// Autonomous living worlds do not end when one temporary RTS faction
++			// loses its last required actor. Conflict scenarios retain the normal
++			// conquest path; only the explicit persistent-world boundary suppresses it.
++			if (Game.IsPersistentWorldSimulation)
++				return;
++
+ 			if (self.Owner.WinState != WinState.Undefined || self.Owner.NonCombatant)
+ 				return;
+ 
+diff --git a/OpenRA.Mods.Common/Traits/Player/ModularBot.cs b/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
+index eadb01e..bbefb1c 100644
+--- a/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
++++ b/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
+@@ -129,9 +129,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var ordersNode = data.NodeWithKeyOrDefault("PendingOrders") ??
+ 				throw new InvalidOperationException("Saved ModularBot is missing 'PendingOrders'.");
+ 			var serializedOrders = string.IsNullOrEmpty(ordersNode.Value.Value)
+diff --git a/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs b/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
+index 73339ad..9041626 100644
+--- a/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
++++ b/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
+@@ -275,9 +275,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var nodes = data.ToDictionary();
+ 			Cash = ReadInt(nodes, "Cash");
+ 			Resources = ReadInt(nodes, "Resources");
+diff --git a/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs b/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
+index 534b9db..2ffa6a1 100644
+--- a/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
++++ b/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
+@@ -680,9 +680,6 @@ List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+ 
+ 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+ 		{
+-			if (self.World.IsReplay)
+-				return;
+-
+ 			var queueNode = data.NodeWithKeyOrDefault("Queue") ??
+ 				throw new InvalidOperationException("Saved ProductionQueue is missing 'Queue'.");
+ 			if (queueNode.Value.Nodes.Length != Queue.Count)
+

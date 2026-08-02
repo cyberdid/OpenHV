@@ -96,10 +96,14 @@ and mechanics prototype, not a second game engine.
   mobilization and casualties reduce workforce, production, population, and
   stability.
 - Conflict and living-world scenarios now have distinct deterministic
-  lifecycle semantics. Observation horizons never invent winners; partial
-  faction collapses are recorded while survivors continue; total collapse,
-  explicit stalemate termination, and the hard tick ceiling have separate end
-  reasons.
+  lifecycle semantics. Observation horizons never invent winners; persistent
+  worlds ignore conquest victory and treat even total civil collapse as
+  history rather than the end of planetary time. Finite collapse, stalemate,
+  watchdog, and hard-ceiling endings remain explicit experiment options.
+- One active 180×360 planet now evolves geology, climate, a conservative
+  eight-level atmosphere/water cycle, and native cell-level habitability,
+  abiogenesis precursor, biomass, churn, and complexity. It begins with zero
+  life and can originate a biosphere without player or scripted race spawn.
 - The first held-out civil/military baseline completed 112/112 clean-commit
   matches with 448 player observations, strict artifact QA, profile/map/spawn/
   faction breakdowns, and deterministic uncertainty estimates. It identified

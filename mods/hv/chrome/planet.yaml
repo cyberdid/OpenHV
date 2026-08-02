@@ -29,45 +29,51 @@ Background@PLANET_PANEL:
 			Height: 26
 			Children:
 				Button@TERRAIN_BUTTON:
-					Width: 70
+					Width: 61
 					Height: 24
 					Text: button-planet-terrain
 					Font: TinyBold
 				Button@GEOLOGY_BUTTON:
-					X: 74
-					Width: 70
+					X: 65
+					Width: 61
 					Height: 24
 					Text: button-planet-geology
 					Font: TinyBold
 				Button@TEMPERATURE_BUTTON:
-					X: 148
-					Width: 70
+					X: 130
+					Width: 61
 					Height: 24
 					Text: button-planet-temperature
 					Font: TinyBold
 				Button@PRESSURE_BUTTON:
-					X: 222
-					Width: 70
+					X: 195
+					Width: 61
 					Height: 24
 					Text: button-planet-pressure
 					Font: TinyBold
 				Button@WIND_BUTTON:
-					X: 296
-					Width: 70
+					X: 260
+					Width: 61
 					Height: 24
 					Text: button-planet-wind
 					Font: TinyBold
 				Button@PRECIPITATION_BUTTON:
-					X: 370
-					Width: 70
+					X: 325
+					Width: 61
 					Height: 24
 					Text: button-planet-rain
 					Font: TinyBold
 				Button@VERTICAL_BUTTON:
-					X: 444
-					Width: 70
+					X: 390
+					Width: 61
 					Height: 24
 					Text: button-planet-vertical
+					Font: TinyBold
+				Button@BIOMASS_BUTTON:
+					X: 455
+					Width: 61
+					Height: 24
+					Text: button-planet-life
 					Font: TinyBold
 		Background@CELL_PANEL:
 			X: 556

@@ -2,8 +2,8 @@
 
 # Launch the actual product: one persistent OpenHV world, with the local client
 # observing and every civilization controlled by AI.  This is intentionally
-# separate from run-simulation.sh, whose finite watchdogs and tick ceilings are
-# useful for experiments but wrong for a world meant to keep living.
+# separate from run-simulation.sh so the product defaults and output location
+# remain explicit; finite watchdogs and tick ceilings are opt-in experiments.
 
 set -u
 
@@ -19,7 +19,7 @@ WORLD_HEADLESS="${LIVING_WORLD_HEADLESS:-false}"
 WORLD_MAX_TICKS="${LIVING_WORLD_MAX_TICKS:-2147000000}"
 WORLD_HORIZON="${LIVING_WORLD_OBSERVATION_HORIZON_TICKS:-${WORLD_MAX_TICKS}}"
 WORLD_WATCHDOG="${LIVING_WORLD_WATCHDOG_SECONDS:-0}"
-WORLD_AUTO_RESTART="${LIVING_WORLD_AUTO_RESTART:-true}"
+WORLD_AUTO_RESTART="${LIVING_WORLD_AUTO_RESTART:-false}"
 WORLD_SEED="${LIVING_WORLD_SEED:-42}"
 
 mkdir -p "${WORLD_DIR}"
@@ -75,6 +75,7 @@ while :; do
 
 	case "${end_reason}" in
 		natural-victory|faction-collapse)
+			# Compatibility path for explicitly finite/legacy lifecycle settings.
 			epoch=$((epoch + 1))
 			WORLD_SEED=$((WORLD_SEED + 1))
 			echo "A new autonomous epoch will begin."

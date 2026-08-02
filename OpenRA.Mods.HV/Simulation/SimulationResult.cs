@@ -56,6 +56,23 @@ namespace OpenRA.Mods.HV
 		public string NativeRaceId { get; init; }
 		public SimulationPlanetPhysicsResult Physics { get; init; }
 		public SimulationPlanetSurfaceResult Surface { get; init; }
+		public SimulationPlanetBiosphereResult Biosphere { get; init; }
+	}
+
+	public sealed class SimulationPlanetBiosphereResult
+	{
+		public int PulseSequence { get; init; }
+		public string StateHash { get; init; }
+		public bool LifeOriginated { get; init; }
+		public int OriginLatitudeIndex { get; init; }
+		public int OriginLongitudeIndex { get; init; }
+		public int MeanHabitabilityPerMille { get; init; }
+		public int HabitableCellCount { get; init; }
+		public int LivingCellCount { get; init; }
+		public int MeanBiomassPerMille { get; init; }
+		public int MeanComplexityMillionths { get; init; }
+		public int MaximumComplexityMillionths { get; init; }
+		public int MaximumAbiogenesisProgressUnits { get; init; }
 	}
 
 	public sealed class SimulationPlanetSurfaceResult

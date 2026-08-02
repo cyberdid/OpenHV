@@ -88,11 +88,12 @@ Planet physics, civil settlements, population, needs, research, trade,
 diplomacy, production, units, and combat therefore advance in the same
 synchronized OpenHV `World`. The Python/Web planet and `fight-cell.sh` are
 legacy observer/bridge tools, not parts of the canonical product runtime. The
-native panel may temporarily read their HTTP export only for biological and
-social layers that have not yet migrated; all physical overlays bind directly
-to C# state. If OpenHV reports a natural victory or total civil collapse, the
-wrapper starts a new deterministic epoch; closing the window produces no
-result and stops the wrapper.
+native panel may temporarily read their HTTP export only for social layers
+that have not yet migrated; physical and biosphere overlays bind directly to
+C# state. In persistent mode, ordinary conquest victory and total civil
+collapse do not stop geological or ecological time. Only an explicitly
+configured experiment boundary or forced shutdown may finalize the world;
+closing the window stops it without inventing a result.
 
 ## Runtime flow
 
@@ -129,8 +130,9 @@ result and stops the wrapper.
 12. When enabled, a mod-owned observer writes periodic JSONL snapshots and
     derives reason-coded civil events without mutating synchronized state.
 13. A mod-owned callback checks `WorldTick` before each following logic tick.
-14. Natural game-over, the synchronized tick limit, or the deadlock watchdog
-    calls `SimulationResultWriter`.
+14. In finite experiments, a synchronized tick/collapse limit or deadlock
+    watchdog calls `SimulationResultWriter`; persistent living-world mode
+    ignores ordinary conquest victory and civil extinction.
 15. Artificial terminal conditions finalize the `World` after result capture
     so replay metadata records the terminal tick without changing the captured
     synchronized state.
@@ -322,12 +324,25 @@ network-order ceiling.
 
 The normal graphical world advances `UniverseState` under the same tick path
 as headless execution. Its auto-opened planet observer reads cell arrays
-directly and exposes seven passive layers: terrain, geology, temperature,
-pressure, wind, precipitation, and vertical motion. The geology inspector
-shows evolved elevation, last-pulse change, and material stock. The old local
-HTTP endpoint remains only a
-compatibility source for not-yet-native biosphere/faction overlays; it is not a
-second physics engine and is not required for the native physical view.
+directly and exposes eight passive layers: terrain, geology, temperature,
+pressure, wind, precipitation, vertical motion, and life. The inspector shows
+evolved physical and biological cell state. The old local
+HTTP endpoint remains only a compatibility source for not-yet-native faction,
+chronicle, and strata overlays; it is not a second engine and is not required
+for planet physics or biosphere observation.
+
+The same cell grid now owns `PlanetSurfaceBiosphereState`. Habitability is an
+integer function of local temperature, moisture, pressure, terrain, and
+nutrient/material availability. A lifeless cell must accumulate a sustained
+precursor budget before one deterministic best candidate crosses the
+abiogenesis threshold. Hostile pulses erase precursor progress; life is never
+spawned because a timer elapsed. After origin, bounded logistic growth,
+neighbour spread, environmental churn, and accumulated stability advance
+biomass and complexity. All five arrays share the surface clock, digest,
+result, and telemetry contracts. Habitability is re-derived from restored
+physics; precursor, biomass, churn, and complexity use the compressed save
+payload. The eighth passive native layer renders life directly from these
+authoritative arrays.
 
 Five isolated full-grid C# golden cases hold all inputs except one fixed while
 testing high greenhouse, thin atmosphere, fast rotation, and high stellar
@@ -352,10 +367,11 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
-Universe trait-save schema 7 additionally persists physical state and compressed
+Universe trait-save schema 8 additionally persists physical state and compressed
 mutable geology/surface/climate/atmosphere/hydrology/vertical-column layers
-while validating regenerated plate topology, every restored domain digest,
-and exact water, latent-energy, elevation, and material closure.
+plus habitability, precursor, biomass, churn, and complexity while validating
+regenerated plate topology, every restored domain digest, and exact water,
+latent-energy, elevation, and material closure.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 

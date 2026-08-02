@@ -150,6 +150,24 @@ namespace OpenRA.Mods.HV.Traits
 
 		[FieldLoader.Require]
 		public string VerticalVelocityBrotliBase64;
+
+		public int BiospherePulseSequence;
+
+		public int BiosphereHash;
+
+		public bool LifeOriginated;
+
+		public int OriginLatitudeIndex;
+
+		public int OriginLongitudeIndex;
+
+		public string BiomassBrotliBase64;
+
+		public string BiomassChurnBrotliBase64;
+
+		public string ComplexityBrotliBase64;
+
+		public string AbiogenesisProgressBrotliBase64;
 	}
 
 	/// <summary>
@@ -160,7 +178,7 @@ namespace OpenRA.Mods.HV.Traits
 	/// </summary>
 	public sealed partial class PlanetSurfaceState : IEffect, ISync
 	{
-		const int SaveSchemaVersion = 5;
+		const int SaveSchemaVersion = 6;
 		const int LatitudeCount = 180;
 		const int LongitudeCount = 360;
 		const int ChunkLatitudeCount = 12;
@@ -236,6 +254,7 @@ namespace OpenRA.Mods.HV.Traits
 			InitializeClimate(physics);
 			InitializeAtmosphereAndHydrology(physics);
 			InitializeVerticalAtmosphere();
+			InitializeBiosphere();
 		}
 
 		public string CellId(int latitudeIndex, int longitudeIndex)
@@ -342,14 +361,27 @@ namespace OpenRA.Mods.HV.Traits
 			ColumnNorthWindBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
 				CompressShorts(columnNorthWindCentimetersPerSecond),
 			VerticalVelocityBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
-				CompressShorts(verticalVelocityMillimetersPerSecond)
+				CompressShorts(verticalVelocityMillimetersPerSecond),
+			BiospherePulseSequence = biospherePulseSequence,
+			BiosphereHash = biosphereHash,
+			LifeOriginated = lifeOriginated,
+			OriginLatitudeIndex = OriginLatitudeIndex,
+			OriginLongitudeIndex = OriginLongitudeIndex,
+			BiomassBrotliBase64 = biospherePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(biomassPerMille),
+			BiomassChurnBrotliBase64 = biospherePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(biomassChurnPerMille),
+			ComplexityBrotliBase64 = biospherePulseSequence == 0 ? string.Empty :
+				CompressDeltaUInts(complexityMillionths),
+			AbiogenesisProgressBrotliBase64 = biospherePulseSequence == 0 ? string.Empty :
+				CompressDeltaUInts(abiogenesisProgressUnits)
 		};
 
 		internal void Restore(PlanetSurfaceSaveData data, PlanetPhysicalState physics, int macroDay)
 		{
-			if (data.SchemaVersion != SaveSchemaVersion)
+			if (data.SchemaVersion < 5 || data.SchemaVersion > SaveSchemaVersion)
 				throw new InvalidOperationException(
-					$"Planet surface save schema {data.SchemaVersion} is not supported.");
+					$"Planet surface save schema {data.SchemaVersion} is not supported; expected 5–{SaveSchemaVersion}.");
 
 			generation = data.Generation;
 			if (topologyHash != data.TopologyHash)
@@ -369,6 +401,10 @@ namespace OpenRA.Mods.HV.Traits
 			}
 
 			RecalculateClimateDerivedState(physics, climatePulseSequence == 0 ? 0 : macroDay);
+			if (data.SchemaVersion >= 6)
+				RestoreBiosphere(data);
+			else
+				InitializeBiosphere();
 			RecalculateDerivedState();
 			if (geologyHash != data.GeologyHash)
 				throw new InvalidOperationException(

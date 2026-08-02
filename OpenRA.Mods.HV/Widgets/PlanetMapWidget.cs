@@ -86,6 +86,9 @@ namespace OpenRA.Mods.HV.Widgets
 
 		public int[] Biome { get; private set; }
 		public int[] Biomass { get; private set; }
+		public int[] Habitability { get; private set; }
+		public int[] Complexity { get; private set; }
+		public int[] AbiogenesisProgress { get; private set; }
 		public int[] PopulationDensity { get; private set; }
 		public int[] Faction { get; private set; }
 		public int[] TemperatureK { get; private set; }
@@ -217,6 +220,9 @@ namespace OpenRA.Mods.HV.Widgets
 			var count = surface.CellCount;
 			Biome = new int[count];
 			Biomass = new int[count];
+			Habitability = new int[count];
+			Complexity = new int[count];
+			AbiogenesisProgress = new int[count];
 			PopulationDensity = new int[count];
 			Faction = new int[count];
 			TemperatureK = new int[count];
@@ -233,6 +239,10 @@ namespace OpenRA.Mods.HV.Widgets
 				{
 					var index = latitude * LongitudeCells + longitude;
 					Biome[index] = (int)surface.TerrainAt(latitude, longitude);
+					Biomass[index] = surface.BiomassPerMilleAt(latitude, longitude) * 255 / 1000;
+					Habitability[index] = surface.HabitabilityPerMilleAt(latitude, longitude);
+					Complexity[index] = surface.ComplexityMillionthsAt(latitude, longitude);
+					AbiogenesisProgress[index] = surface.AbiogenesisProgressUnitsAt(latitude, longitude);
 					Faction[index] = -1;
 					TemperatureK[index] = surface.TemperatureMilliKelvinAt(latitude, longitude) / 1000;
 					ElevationMeters[index] = surface.ElevationAt(latitude, longitude);

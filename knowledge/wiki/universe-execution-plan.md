@@ -266,3 +266,42 @@ The remaining localhost compatibility fallback belongs to Phase 5 migration:
 it can be removed only after biosphere, faction, chronicle, and strata layers
 have native state/renderers. Immediate work package `UNI-004` now begins the
 native biosphere and abiogenesis pipeline on this completed physical substrate.
+
+## Completed work package: UNI-004A
+
+The first Phase 3 slice starts from literal zero. Every one of the 64,800
+surface cells now owns synchronized integer habitability, abiogenesis
+precursor, biomass, environmental churn, and complexity. Temperature,
+moisture, pressure, terrain, and nutrient/material stock determine whether a
+cell can accumulate precursor. Unsuitable periods destroy progress, and only
+the deterministic best sustained candidate may become the first living cell.
+After origin, bounded logistic growth, neighbour spread, churn, and stability
+advance the biosphere; no life or lifecycle label is granted merely because
+time elapsed.
+
+The lifecycle now emits one `PlanetLifeOriginated` macro event and changes the
+active planet from `lifeless` to `biosphere`. Result, telemetry, native cell
+inspection, the eighth `Life` overlay, synchronized digests, and Universe
+trait-save schema 8 all read or preserve that same state. The two inactive
+planet slots remain exactly lifeless and at pulse zero.
+
+The seed-424242 acceptance run had zero living cells at tick 500. At tick
+10,000, life originated autonomously at longitude 168, latitude 3; 480 cells
+were habitable, one carried biomass, maximum complexity reached 28 millionths,
+the biosphere digest was `137E17F4`, the complete world hash was `8093960A`,
+and the macro-event sequence was 81. Two independent 10,000-tick runs matched
+the normalized result and hash. The closed result contract and all 42
+simulation tests pass; Release compilation reports zero warnings/errors.
+
+The product lifecycle is now persistent by default: `living-world`, an
+effectively unbounded synchronized horizon, no wall-clock watchdog, no
+conquest terminal, and no termination when all current civilizations collapse.
+Finite horizons, collapse endings, and watchdogs remain explicit experiment
+options. The OpenRA changes are stored as the reproducible final
+`openra-living-world.patch` layer rather than as edits to the ignored SDK cache.
+
+Immediate work package `UNI-004B` adds explicit species populations, trophic
+energy flow, mutation, competition, migration, extinction, and carrying-
+capacity conservation on top of the native biomass field. `UNI-004C` then
+derives sapience and one planet-native race from ecological history rather
+than spawning a predefined faction.

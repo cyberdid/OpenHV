@@ -927,3 +927,42 @@ the new Geology control in the auto-opened native observer over the live RTS
 shellmap. Release compilation completed with zero warnings/errors; MiniYAML
 kept only its 96 pre-existing unused-attribute warnings, and the stricter Debug
 style build reported no warning in a file changed by UNI-003F.
+
+## [2026-08-02] change | Add native abiogenesis and persistent living worlds (UNI-004A)
+
+Added `PlanetSurfaceBiosphereState` to the authoritative 180×360 planet grid.
+All cells begin with zero life, biomass, complexity, and precursor. Local
+fixed-point temperature, moisture, pressure, terrain, and material/nutrients
+produce habitability; sustained suitable pulses accumulate abiogenesis while
+hostile pulses decay it. One deterministic best candidate crosses the origin
+threshold, after which logistic biomass growth, neighbour spread,
+environmental churn, and accumulated stability advance complexity. The
+lifecycle changes only from a real origin and emits `PlanetLifeOriginated`.
+
+Result/telemetry schemas, per-cell inspection, the native `Life` overlay,
+domain digest, and compressed Universe trait-save schema 8 now share the same
+biological state. The seed-424242 acceptance stayed lifeless with zero biomass
+at tick 500 and reached a biosphere at tick 10,000: origin `(168, 3)`, 480
+habitable cells, one living cell, maximum complexity 28 millionths,
+biosphere hash `137E17F4`, complete hash `8093960A`, BotRandom count 24,083,
+and 81 macro events. The repeat run normalized identically. All 42 simulation
+tests passed and Release built with zero warnings/errors.
+
+Changed the normal simulation defaults to `living-world`, an effectively
+unbounded tick horizon, and no wall-clock watchdog. Persistent mode ignores
+ordinary OpenRA conquest victory, and civil extinction is an event rather than
+the end of geological/ecological time. Explicit finite conflict and experiment
+boundaries remain available. The save/load and persistent-world engine changes
+are versioned in `openra-living-world.patch`; repeated SDK patch application is
+idempotent. The 500-tick checkpoint fork still matched exactly at hash
+`472487B6` and BotRandom count 578. A 2,500-tick busy-RTS fork exposed a
+remaining transient production/order-accounting mismatch after otherwise
+successful restoration; it is recorded under SAV-01 and must close before the
+save system is considered fully verified. A second checkpoint taken after
+abiogenesis at tick 10,000 restored and advanced both biological branches to
+the identical tick-10,250 biosphere digest `BFD51B88`, confirming schema 8's
+derived-habitability and compressed life payload even though the surrounding
+busy RTS branch still exhibited the recorded non-biological mismatch. Static
+validation found zero broken relative links or frontmatter errors across all
+44 compiled wiki pages; shell, Python, JSON Schema, patch-stack, and diff
+checks also passed.

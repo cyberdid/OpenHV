@@ -14,6 +14,7 @@ fi
 ENGINE_PATH="${PROJECT_DIR}/${ENGINE_DIRECTORY#./}"
 PATCH_PATH="${PROJECT_DIR}/engine-patches/openra-headless.patch"
 AI_COMBAT_PATCH_PATH="${PROJECT_DIR}/engine-patches/openra-ai-combat.patch"
+LIVING_WORLD_PATCH_PATH="${PROJECT_DIR}/engine-patches/openra-living-world.patch"
 OVERLAY_SOURCE="${PROJECT_DIR}/engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs"
 OVERLAY_TARGET="${ENGINE_PATH}/OpenRA.Game/Graphics/HeadlessPlatform.cs"
 BOT_MODULES_PATH="${ENGINE_PATH}/OpenRA.Mods.Common/Traits/BotModules"
@@ -21,6 +22,17 @@ BOT_MODULES_PATH="${ENGINE_PATH}/OpenRA.Mods.Common/Traits/BotModules"
 if [ ! -f "${ENGINE_PATH}/VERSION" ]; then
 	echo "Cannot apply engine patches: ${ENGINE_PATH} is not an initialized OpenRA SDK." >&2
 	exit 1
+fi
+
+# The living-world patch is the final layer and depends on both patches below.
+# If it can be reversed then the complete stack is already installed. This
+# also keeps repeated `make` calls idempotent when a later layer changes the
+# context lines used by an earlier patch.
+if git -C "${PROJECT_DIR}" apply --reverse --check \
+	--directory="${ENGINE_DIRECTORY#./}" "${LIVING_WORLD_PATCH_PATH}" 2>/dev/null; then
+	mkdir -p "$(dirname "${OVERLAY_TARGET}")"
+	cp "${OVERLAY_SOURCE}" "${OVERLAY_TARGET}"
+	exit 0
 fi
 
 apply_patch() {
@@ -63,3 +75,7 @@ fi
 # The combat planner patch is generated against the BotRandom-routed tree, so it
 # must be applied after the rewrite above rather than with the headless patch.
 apply_patch "${AI_COMBAT_PATCH_PATH}"
+
+# Persistent autonomous worlds and their save/load lifecycle extend the
+# already-patched deterministic engine, so this patch must be applied last.
+apply_patch "${LIVING_WORLD_PATCH_PATH}"

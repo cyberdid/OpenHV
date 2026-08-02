@@ -93,6 +93,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				("WIND_BUTTON", PlanetOverlay.Wind),
 				("PRECIPITATION_BUTTON", PlanetOverlay.Precipitation),
 				("VERTICAL_BUTTON", PlanetOverlay.VerticalMotion),
+				("BIOMASS_BUTTON", PlanetOverlay.Biomass),
 			})
 			{
 				var b = widget.GetOrNull<ButtonWidget>(button);
@@ -222,6 +223,10 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 					$"wind       {wind / 100f:0.0} m/s",
 					$"rain       {map.PrecipitationTenthsMillimetersPerDay[i] / 10f:0.0} mm/day",
 					$"vertical   {map.VerticalVelocityMillimetersPerSecond[i] / 1000f:+0.000;-0.000;0.000} m/s",
+					$"habitable  {map.Habitability[i] / 1000f:0.000}",
+					$"biomass    {map.Biomass[i] / 255f:0.000}",
+					$"complexity {map.Complexity[i] / 1_000_000f:0.000000}",
+					$"abiogenesis {map.AbiogenesisProgress[i]} units",
 					"",
 					"Autonomous world",
 					"No player orders"

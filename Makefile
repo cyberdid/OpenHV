@@ -150,6 +150,7 @@ test: all
 test-simulation:
 	@python3 -m py_compile analyze-baseline.py compare-candidate.py \
 		generate-baseline-manifest.py import-sprite.py generate-sprite.py \
+		check-biosphere-emergence.py \
 		run-batch.py tests/fake-simulation.py tests/test_baseline_analysis.py \
 		tests/test_batch_runner.py tests/test_battle_contract.py \
 		tests/test_universe_contract.py

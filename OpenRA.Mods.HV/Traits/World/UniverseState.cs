@@ -29,7 +29,8 @@ namespace OpenRA.Mods.HV.Traits
 	public enum UniverseMacroEventType
 	{
 		MacroDayAdvanced = 1,
-		PlanetClimatePulse = 2
+		PlanetClimatePulse = 2,
+		PlanetLifeOriginated = 3
 	}
 
 	public sealed class PlanetPhysicsDefinition
@@ -402,13 +403,17 @@ namespace OpenRA.Mods.HV.Traits
 			this.active = active;
 		}
 
-		internal void AdvanceClimate(int macroDay)
+		internal bool AdvanceClimate(int macroDay)
 		{
-			if (active)
-			{
-				Physics.AdvanceClimate(macroDay);
-				Surface.AdvanceClimate(Physics, macroDay);
-			}
+			if (!active)
+				return false;
+
+			Physics.AdvanceClimate(macroDay);
+			Surface.AdvanceClimate(Physics, macroDay);
+			var lifeOriginated = Surface.AdvanceBiosphere();
+			if (lifeOriginated && lifecycleStage == (int)PlanetLifecycleStage.Lifeless)
+				lifecycleStage = (int)PlanetLifecycleStage.Biosphere;
+			return lifeOriginated;
 		}
 
 		internal void Restore(bool restoredActive, PlanetLifecycleStage restoredLifecycleStage)
@@ -466,7 +471,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 7;
+		const int TraitSaveSchemaVersion = 8;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -536,12 +541,12 @@ namespace OpenRA.Mods.HV.Traits
 		void INotifyGameLoaded.GameLoaded(World world)
 		{
 			// The normal save UI opens the options menu after restoration, which pauses
-			// a headless observer forever. Autonomous simulations have no menu/user to
-			// close it, so resume both local and synchronized pause state explicitly.
+			// a headless observer forever. Queue the synchronized unpause, but preserve
+			// the local paused bit until that order is processed: clearing it here changes
+			// the hash before the save's final paused sync packet is validated.
 			if (!Game.IsDeterministicSimulation)
 				return;
 
-			world.SetLocalPauseState(false);
 			world.SetPauseState(false);
 		}
 
@@ -566,8 +571,10 @@ namespace OpenRA.Mods.HV.Traits
 					if (!planet.Active)
 						continue;
 
-					planet.AdvanceClimate(macroDay);
+					var lifeOriginated = planet.AdvanceClimate(macroDay);
 					AppendEvent(UniverseMacroEventType.PlanetClimatePulse, macroDay, planet.Definition.Index);
+					if (lifeOriginated)
+						AppendEvent(UniverseMacroEventType.PlanetLifeOriginated, macroDay, planet.Definition.Index);
 				}
 			}
 		}
@@ -621,8 +628,11 @@ namespace OpenRA.Mods.HV.Traits
 
 		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
 		{
-			if (self.World.IsReplay)
-				return;
+			Log.Write(
+				"debug",
+				$"Resolving Universe checkpoint at replay world tick {self.World.WorldTick}, " +
+				$"macro day {macroDay}, event sequence {macroEventSequence}, " +
+				$"pre-restore hash {unchecked((uint)self.World.SyncHash()):X8}.");
 
 			var schemaVersion = ReadInt(data, "SchemaVersion");
 			if (schemaVersion < 1 || schemaVersion > TraitSaveSchemaVersion)
@@ -656,6 +666,10 @@ namespace OpenRA.Mods.HV.Traits
 						FieldLoader.Load<PlanetSurfaceSaveData>(RequiredNode(data, $"{prefix}Surface").Value),
 						planet.Physics,
 						macroDay);
+				if (schemaVersion >= 8 &&
+					(planet.LifecycleStage != PlanetLifecycleStage.Lifeless) != planet.Surface.LifeOriginated)
+					throw new InvalidOperationException(
+						$"Planet {planet.Definition.PlanetId} lifecycle and biosphere origin state disagree.");
 			}
 
 			events.Clear();

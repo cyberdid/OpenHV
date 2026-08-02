@@ -43,9 +43,29 @@ namespace OpenRA.Mods.HV
 						LifecycleStage = LifecycleIdentifier(planet.LifecycleStage),
 						NativeRaceId = null,
 						Physics = PhysicsSnapshot(planet.Physics),
-						Surface = SurfaceSnapshot(planet.Surface)
+						Surface = SurfaceSnapshot(planet.Surface),
+						Biosphere = BiosphereSnapshot(planet.Surface)
 					})
 					.ToArray()
+			};
+		}
+
+		static SimulationPlanetBiosphereResult BiosphereSnapshot(PlanetSurfaceState surface)
+		{
+			return new SimulationPlanetBiosphereResult
+			{
+				PulseSequence = surface.BiospherePulseSequence,
+				StateHash = unchecked((uint)surface.BiosphereHash).ToString("X8", CultureInfo.InvariantCulture),
+				LifeOriginated = surface.LifeOriginated,
+				OriginLatitudeIndex = surface.OriginLatitudeIndex,
+				OriginLongitudeIndex = surface.OriginLongitudeIndex,
+				MeanHabitabilityPerMille = surface.MeanHabitabilityPerMille,
+				HabitableCellCount = surface.HabitableCellCount,
+				LivingCellCount = surface.LivingCellCount,
+				MeanBiomassPerMille = surface.MeanBiomassPerMille,
+				MeanComplexityMillionths = surface.MeanComplexityMillionths,
+				MaximumComplexityMillionths = surface.MaximumComplexityMillionths,
+				MaximumAbiogenesisProgressUnits = surface.MaximumAbiogenesisProgressUnits
 			};
 		}
 

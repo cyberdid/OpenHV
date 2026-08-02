@@ -9,3 +9,7 @@
 
 # Custom for Visual Studio
 *.cs     diff=csharp
+
+# Patch payloads contain diff context markers that intentionally precede tabs
+# and blank lines; do not reinterpret those markers as source whitespace.
+engine-patches/*.patch -whitespace
