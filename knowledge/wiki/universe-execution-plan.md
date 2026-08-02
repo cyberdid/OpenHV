@@ -147,9 +147,9 @@ Gate: every ledger row is `verified`; save/load/replay and normalized hashes
 match; CoruscantSim is retained as history/reference but no longer required by
 the product runtime.
 
-## Immediate work package: UNI-001
+## Completed work package: UNI-001
 
-The next code change is Phase 1's smallest executable slice:
+Phase 1's first executable slice delivered:
 
 1. introduce immutable IDs and definitions for Universe, system, and three
    planets;
@@ -159,4 +159,19 @@ The next code change is Phase 1's smallest executable slice:
 5. prove same-seed repeat and graphical/headless parity.
 
 No physics or life behavior enters UNI-001. Its purpose is to establish the
-stable container every later system depends on.
+stable container every later system depends on. At tick 500 the synchronized
+clock reached macro day 2 with zero remainder. Two identical headless runs and
+the graphical/headless pair all produced hash `3A94C592`; result JSON and
+periodic JSONL telemetry contained the same three-slot Universe snapshot.
+
+## Immediate work package: UNI-002
+
+Complete the remaining Phase 1 kernel before physical simulation begins:
+
+1. replace the provisional flat planet-slot counters with explicit
+   `StarSystemState` and `PlanetState` synchronized objects;
+2. add deterministic macro-event IDs and an append-only event spine;
+3. define the versioned Universe checkpoint schema;
+4. save only on a macro-tick boundary and reload into the same IDs/state;
+5. prove uninterrupted and save/reload runs end with identical normalized
+   Universe state and synchronized hash.

@@ -130,7 +130,8 @@ namespace OpenRA.Mods.HV
 				Players = players,
 				Diplomacy = diplomacy,
 				TradeRoutes = tradeRoutes,
-				Lifecycle = lifecycleSnapshot
+				Lifecycle = lifecycleSnapshot,
+				Universe = SimulationUniverseSnapshotBuilder.Build(world)
 			});
 
 			foreach (var player in players)
@@ -567,6 +568,7 @@ namespace OpenRA.Mods.HV
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 		public SimulationTradeRoute[] TradeRoutes { get; init; }
 		public SimulationLifecycleResult Lifecycle { get; init; }
+		public SimulationUniverseResult Universe { get; init; }
 	}
 
 	public sealed class SimulationTelemetryPlayer

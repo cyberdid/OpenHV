@@ -70,9 +70,74 @@
     },
     "lifecycle": {
       "$ref": "#/$defs/lifecycle"
+    },
+    "universe": {
+      "$ref": "#/$defs/universe"
     }
   },
   "$defs": {
+    "universe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "universeId",
+        "starSystemId",
+        "macroDay",
+        "macroTickRemainder",
+        "ticksPerMacroDay",
+        "planets"
+      ],
+      "properties": {
+        "universeId": { "type": "string", "minLength": 1 },
+        "starSystemId": { "type": "string", "minLength": 1 },
+        "macroDay": { "type": "integer", "minimum": 0 },
+        "macroTickRemainder": { "type": "integer", "minimum": 0 },
+        "ticksPerMacroDay": { "type": "integer", "minimum": 1 },
+        "planets": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/planet" },
+          "contains": {
+            "type": "object",
+            "required": ["active"],
+            "properties": { "active": { "const": true } }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    "planet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "planetId",
+        "name",
+        "index",
+        "active",
+        "lifecycleStage"
+      ],
+      "properties": {
+        "planetId": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "index": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "active": { "type": "boolean" },
+        "lifecycleStage": {
+          "enum": [
+            "lifeless",
+            "biosphere",
+            "sapient-life",
+            "civilization",
+            "spacefaring"
+          ]
+        },
+        "nativeRaceId": {
+          "type": ["string", "null"]
+        }
+      }
+    },
     "build": {
       "type": "object",
       "additionalProperties": false,

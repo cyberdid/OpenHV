@@ -12,11 +12,13 @@ sources:
   - ../../OpenRA.Mods.HV/Simulation/SimulationResult.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationResultWriter.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTelemetryWriter.cs
+  - ../../OpenRA.Mods.HV/Simulation/SimulationUniverseSnapshotBuilder.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationLifecycleMonitor.cs
   - ../../OpenRA.Mods.HV/Traits/Player/CivilizationState.cs
   - ../../OpenRA.Mods.HV/Traits/World/CivilizationScenario.cs
   - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
   - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
+  - ../../OpenRA.Mods.HV/Traits/World/UniverseState.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTradeSnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
@@ -93,22 +95,25 @@ window produces no result and stops the wrapper.
 8. Bot modules use the seed-derived `World.BotRandom`; render/audio cosmetics
    continue to use `World.LocalRandom`, so execution mode cannot change later
    strategic choices.
-9. `SettlementCore` actors advance civil and demographic pulses using only
+9. `UniverseState` advances a synchronized integer macro clock and owns stable
+   Universe/system identity plus three immutable planet slots. Tyranthos is
+   active and lifeless; the other two slots exist but remain inactive.
+10. `SettlementCore` actors advance civil and demographic pulses using only
    synchronized integer state; infrastructure is assigned by distance and
    actor-ID tie-breaking.
-10. `CivilizationState` selects an opening, economy, technology, or recovery
+11. `CivilizationState` selects an opening, economy, technology, or recovery
     plan. A conditional bot module converts the plan into bounded production
     requests while the settlement model applies its synchronized opportunity
     costs and output bonuses.
-11. When enabled, a mod-owned observer writes periodic JSONL snapshots and
+12. When enabled, a mod-owned observer writes periodic JSONL snapshots and
     derives reason-coded civil events without mutating synchronized state.
-12. A mod-owned callback checks `WorldTick` before each following logic tick.
-13. Natural game-over, the synchronized tick limit, or the deadlock watchdog
+13. A mod-owned callback checks `WorldTick` before each following logic tick.
+14. Natural game-over, the synchronized tick limit, or the deadlock watchdog
     calls `SimulationResultWriter`.
-14. Artificial terminal conditions finalize the `World` after result capture
+15. Artificial terminal conditions finalize the `World` after result capture
     so replay metadata records the terminal tick without changing the captured
     synchronized state.
-15. The batch runner validates Result Schema v1 plus config correspondence,
+16. The batch runner validates Result Schema v1 plus config correspondence,
     classifies the attempt, harvests replay/support diagnostics, atomically
     writes status, and aggregates only valid completed results.
 
@@ -123,6 +128,8 @@ window produces no result and stops the wrapper.
 | `SimulationResult.cs` | Defines the strongly typed result contract |
 | `SimulationResultWriter.cs` | Captures synchronized state/statistics and atomically writes JSON |
 | `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
+| `UniverseState.cs` | Owns synchronized Universe/system identity, three planet slots, lifecycle stage, activation, and macro time |
+| `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
 | `CivilizationPlannerBotModule.cs` | Converts civilization plans into bounded economic, technical, and recovery production requests |
 | `CivilizationScenario.cs` | Defines synchronized balanced/scarcity lobby profiles |
@@ -164,7 +171,9 @@ Every result records:
 - natural winners and score leader as separate fields;
 - final per-player combat/economy statistics and optional backward-compatible
   civilization/settlement state;
-- synchronized `civilizationProfile` when produced by the current runtime.
+- synchronized `civilizationProfile` when produced by the current runtime;
+- stable Universe/system IDs, macro day/remainder, and exactly three planet
+  slots with activation, lifecycle, and optional native-race identity.
 
 Telemetry-enabled matches additionally write:
 

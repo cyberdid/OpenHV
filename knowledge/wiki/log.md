@@ -671,3 +671,24 @@ Checked 44 compiled wiki pages: all relative links resolve. Frontmatter lint
 found one pre-existing unstructured page, `swarm-art-prompts.md`; added the
 required title/status/date/sources/tags block without changing its content.
 After correction every normal wiki page passes the frontmatter contract.
+
+## [2026-08-02] change | Establish the synchronized Universe root (UNI-001)
+
+Added the first executable North Star slice to the canonical .NET/OpenHV
+runtime. `UniverseState` now owns stable Universe and star-system identity,
+three immutable planet slots, one active lifeless Tyranthos, two inactive
+reserved worlds, explicit lifecycle stages, and an integer macro clock included
+in OpenRA synchronization. Existing ordinary OpenHV matches remain unchanged;
+the clock advances only in deterministic simulation sessions.
+
+Result JSON and periodic telemetry JSONL now export the same typed Universe
+snapshot under closed schemas. A new contract suite enforces three slots, one
+initially active planet, valid lifecycle values, and nullable/omittable native
+race identity. The Release build completed with zero warnings/errors; all 27
+simulation tests passed; MiniYAML validation completed with the existing 102
+content warnings; two 500-tick headless runs and a graphical/headless pair all
+ended at macro day 2 and sync hash `3A94C592`. UNI-002 will add explicit nested
+system/planet synchronized state, the macro-event spine, and checkpoint
+save/reload equivalence. Wiki lint found zero broken links or frontmatter
+issues across all 43 normal pages; the append-only project log is intentionally
+the sole special page without frontmatter.

@@ -42,6 +42,9 @@
     },
     "lifecycle": {
       "$ref": "simulation-result-v1.schema.json#/$defs/lifecycle"
+    },
+    "universe": {
+      "$ref": "simulation-result-v1.schema.json#/$defs/universe"
     }
   },
   "$defs": {

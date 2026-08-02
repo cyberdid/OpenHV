@@ -133,7 +133,8 @@ namespace OpenRA.Mods.HV
 				Players = players,
 				Diplomacy = SimulationDiplomacySnapshotBuilder.Build(world),
 				TradeRoutes = SimulationTradeSnapshotBuilder.Build(world),
-				Lifecycle = lifecycle
+				Lifecycle = lifecycle,
+				Universe = SimulationUniverseSnapshotBuilder.Build(world)
 			};
 
 			var directory = Path.GetDirectoryName(path);

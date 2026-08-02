@@ -72,7 +72,7 @@ runtime retirement.
 | SPC-02 | Ships, freighters, frigates, carriers, flotillas | actors + `FleetState/System` | construction, fuel, cargo, damage, command | partial assets/RTS |
 | SPC-03 | Orbital/interplanetary routes and travel time | `OrbitalNetwork` | mass/cargo conservation + deterministic arrival | new |
 | SPC-04 | Discovery, colonization, interplanetary trade/diplomacy/war | `InterplanetaryRelations` | observable autonomous first contact | new |
-| MUL-01 | Three planet states and native races | `StarSystemState.Planets[3]` | isolated evolution + distinct emergent traits | new |
+| MUL-01 | Three planet states and native races | `StarSystemState.Planets[3]` | isolated evolution + distinct emergent traits | partial: stable slots/clock native; planet state/races pending |
 | INV-01 | Late Tyranid fleet, landing, biomass consumption, adaptation | invasion scenario systems + swarm actors | autonomous trigger through planetary consequences | partial assets/lore |
 
 ## Parity closure rule

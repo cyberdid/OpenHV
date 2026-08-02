@@ -31,6 +31,27 @@ namespace OpenRA.Mods.HV
 		public SimulationDiplomaticRelation[] Diplomacy { get; init; }
 		public SimulationTradeRoute[] TradeRoutes { get; init; }
 		public SimulationLifecycleResult Lifecycle { get; init; }
+		public SimulationUniverseResult Universe { get; init; }
+	}
+
+	public sealed class SimulationUniverseResult
+	{
+		public string UniverseId { get; init; }
+		public string StarSystemId { get; init; }
+		public int MacroDay { get; init; }
+		public int MacroTickRemainder { get; init; }
+		public int TicksPerMacroDay { get; init; }
+		public SimulationPlanetResult[] Planets { get; init; }
+	}
+
+	public sealed class SimulationPlanetResult
+	{
+		public string PlanetId { get; init; }
+		public string Name { get; init; }
+		public int Index { get; init; }
+		public bool Active { get; init; }
+		public string LifecycleStage { get; init; }
+		public string NativeRaceId { get; init; }
 	}
 
 	public sealed class SimulationBuildMetadata
