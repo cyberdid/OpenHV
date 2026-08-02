@@ -723,3 +723,29 @@ existing 102 content warnings. Two uninterrupted 500-tick headless runs and a
 graphical/headless pair matched at `3A94CA09`. A newly generated checkpoint
 manifest passed its closed JSON Schema, and the seed-112 checkpoint/resume test
 proved exact Universe snapshot parity at day 2.
+
+## [2026-08-02] fix | Close full checkpoint branch parity (UNI-002B)
+
+Completed the mutable-state audit opened by UNI-002A. The remaining divergence
+was not one isolated AI timer: the native save boundary omitted pending bot
+orders, BaseBuilder queues and derived resource maps, production progress,
+player resources, cash timers, and synchronized civilization/settlement
+fields. Each now participates in a versioned save contract. The checkpoint
+barrier also pauses synchronized and local execution, drains in-flight network
+orders, commits the save, and restores the logical world tick before either
+branch continues.
+
+Added `check-universe-checkpoint-equivalence.sh` as the permanent acceptance
+gate. It creates one checkpoint at tick 250, lets the original process continue
+to tick 500, loads that same checkpoint in a second process, normalizes only
+timestamps and launch-path metadata, and requires byte-identical result JSON.
+The seed-112 four-bot run passed with full synchronized hash `B077801F`,
+BotRandom count `578`, identical cash/spending for all four factions, and an
+identical Universe snapshot. Both results and the checkpoint manifest passed
+their closed JSON Schemas.
+
+Release compilation completed with zero warnings and errors. All 29 simulation
+tests passed in 9.096 seconds; two ordinary deterministic runs and the
+graphical/headless pair matched at tick 500 with hash `3A94CA09`; MiniYAML
+validation completed with the existing 102 content warnings. The generated
+engine patch reverse-applies cleanly to the current engine checkout.

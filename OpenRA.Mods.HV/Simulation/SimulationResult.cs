@@ -25,6 +25,7 @@ namespace OpenRA.Mods.HV
 		public int WorldTick { get; init; }
 		public double SimulatedSeconds { get; init; }
 		public string SynchronizedStateHash { get; init; }
+		public int BotRandomTotalCount { get; init; }
 		public SimulationLeader[] NaturalWinners { get; init; }
 		public SimulationLeader ScoreLeader { get; init; }
 		public SimulationPlayerResult[] Players { get; init; }

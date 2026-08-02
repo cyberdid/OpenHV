@@ -1,7 +1,7 @@
 diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
 --- a/OpenRA.Game/Game.cs
 +++ b/OpenRA.Game/Game.cs
-@@ -54,6 +54,8 @@ namespace OpenRA
+@@ -54,6 +54,8 @@
  
  		public static Renderer Renderer;
  		public static Sound Sound;
@@ -10,7 +10,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  
  		public static string EngineVersion { get; private set; }
  		public static LocalPlayerProfile LocalPlayerProfile;
-@@ -377,6 +379,15 @@ namespace OpenRA
+@@ -377,6 +379,15 @@
  			}
  
  			InitializeSettings(args);
@@ -26,7 +26,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  
  			Log.AddChannel("perf", "perf.log");
  			Log.AddChannel("debug", "debug.log");
-@@ -429,29 +440,40 @@ namespace OpenRA
+@@ -429,29 +440,40 @@
  			foreach (var mod in ExternalMods)
  				Console.WriteLine($"\t{mod.Key} ({mod.Value.Version})");
  
@@ -39,6 +39,14 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
 -
 -				Settings.Game.Platform = p;
 -				try
+-				{
+-					var platform = CreatePlatform(p);
+-					Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
+-					Sound = new Sound(platform, Settings.Sound);
+-
+-					break;
+-				}
+-				catch (Exception e)
 +				Console.WriteLine("Using headless graphics and sound platform.");
 +				var platform = new HeadlessPlatform();
 +				Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
@@ -49,27 +57,20 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
 +				var platforms = new[] { Settings.Game.Platform, "Default", null };
 +				foreach (var p in platforms)
  				{
--					var platform = CreatePlatform(p);
--					Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
--					Sound = new Sound(platform, Settings.Sound);
+-					Log.Write("graphics", $"{e}");
+-					Console.WriteLine("Renderer initialization failed. Check graphics.log for details.");
 +					if (p == null)
 +						throw new InvalidOperationException(
 +							"Failed to initialize platform-integration library. Check graphics.log for details.");
  
--					break;
--				}
--				catch (Exception e)
--				{
--					Log.Write("graphics", $"{e}");
--					Console.WriteLine("Renderer initialization failed. Check graphics.log for details.");
+-					Renderer?.Dispose();
 +					Settings.Game.Platform = p;
 +					try
 +					{
 +						var platform = CreatePlatform(p);
 +						Renderer = new Renderer(platform, Settings.Graphics, manifest.RendererConstants.VertexBatchSize);
 +						Sound = new Sound(platform, Settings.Sound);
- 
--					Renderer?.Dispose();
++
 +						break;
 +					}
 +					catch (Exception e)
@@ -85,7 +86,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  				}
  			}
  
-@@ -628,13 +650,16 @@ namespace OpenRA
+@@ -628,13 +650,16 @@
  
  			var world = orderManager.World;
  
@@ -103,7 +104,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  			if (orderManager.LastTickTime.ShouldAdvance(tick))
  			{
  				if (orderManager.GameStarted && orderManager.LocalFrameNumber == 0)
-@@ -655,7 +680,8 @@ namespace OpenRA
+@@ -655,7 +680,8 @@
  						return;
  					}
  
@@ -113,7 +114,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  					{
  						Sync.RunUnsynced(world, () => world.OrderGenerator.Tick(world));
  
-@@ -665,7 +691,7 @@ namespace OpenRA
+@@ -665,7 +691,7 @@
  					}
  
  					// Wait until we have done our first world Tick before TickRendering
@@ -122,13 +123,10 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  						Sync.RunUnsynced(world, () => world.TickRender(worldRenderer));
  				}
  
-@@ -896,6 +922,27 @@ namespace OpenRA
- 				}
- 				else
- 					Thread.Sleep((int)(nextUpdate - now));
-+			}
-+		}
-+
+@@ -896,6 +922,27 @@
+ 			}
+ 		}
+ 
 +		static void HeadlessLoop()
 +		{
 +			var idleLoops = 0;
@@ -147,10 +145,13 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
 +				}
 +				else
 +					idleLoops = 0;
- 			}
- 		}
- 
-@@ -906,7 +953,10 @@ namespace OpenRA
++			}
++		}
++
+ 		static RunStatus Run()
+ 		{
+ 			if (Settings.Graphics.MaxFramerate < 1)
+@@ -906,7 +953,10 @@
  
  			try
  			{
@@ -162,7 +163,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  			}
  			finally
  			{
-@@ -962,7 +1012,7 @@ namespace OpenRA
+@@ -962,7 +1012,7 @@
  			return server.GetEndpointForLocalConnection();
  		}
  
@@ -171,7 +172,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
  		{
  			var settings = new ServerSettings()
  			{
-@@ -979,7 +1029,12 @@ namespace OpenRA
+@@ -979,7 +1029,12 @@
  			{
  				new(IPAddress.Loopback, 0)
  			};
@@ -188,7 +189,7 @@ diff --git a/OpenRA.Game/Game.cs b/OpenRA.Game/Game.cs
 diff --git a/OpenRA.Game/Support/MersenneTwister.cs b/OpenRA.Game/Support/MersenneTwister.cs
 --- a/OpenRA.Game/Support/MersenneTwister.cs
 +++ b/OpenRA.Game/Support/MersenneTwister.cs
-@@ -29,6 +29,15 @@ namespace OpenRA.Support
+@@ -27,6 +27,15 @@
  
  		public MersenneTwister(int seed)
  		{
@@ -207,25 +208,78 @@ diff --git a/OpenRA.Game/Support/MersenneTwister.cs b/OpenRA.Game/Support/Mersen
 diff --git a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
 --- a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
 +++ b/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs
-@@ -508,7 +508,13 @@ namespace OpenRA.Mods.Common.Traits
+@@ -171,7 +171,7 @@
+ 		public CPos GetRandomBaseCenter()
+ 		{
+ 			var randomConstructionYard = ConstructionYardBuildings.Actors.Where(a => !a.IsDead)
+-				.RandomOrDefault(world.LocalRandom);
++				.RandomOrDefault(world.BotRandom);
+ 
+ 			return randomConstructionYard?.Location ?? initialBaseCenter;
+ 		}
+@@ -249,9 +249,9 @@
+ 		protected override void TraitEnabled(Actor self)
+ 		{
+ 			// Avoid all AIs reevaluating assignments on the same tick, randomize their initial evaluation delay.
+-			assignRallyPointsTicks = world.LocalRandom.Next(0, Info.AssignRallyPointsInterval);
+-			checkBestResourceLocationTicks = world.LocalRandom.Next(0, Info.CheckBestResourceLocationInterval);
+-			sellRefineryTick = Info.SellRefineryInterval < 0 ? 0 : world.LocalRandom.Next(0, Info.SellRefineryInterval);
++			assignRallyPointsTicks = world.BotRandom.Next(0, Info.AssignRallyPointsInterval);
++			checkBestResourceLocationTicks = world.BotRandom.Next(0, Info.CheckBestResourceLocationInterval);
++			sellRefineryTick = Info.SellRefineryInterval < 0 ? 0 : world.BotRandom.Next(0, Info.SellRefineryInterval);
+ 		}
+ 
+ 		void IBotPositionsUpdated.UpdatedBaseCenter(CPos newLocation)
+@@ -436,7 +436,7 @@
+ 				return producer.Location;
+ 			}
+ 
+-			return possibleRallyPoints.Random(world.LocalRandom);
++			return possibleRallyPoints.Random(world.BotRandom);
+ 		}
+ 
+ 		Locomotor[] LocomotorsForProducibles(Actor producer)
+@@ -509,7 +509,29 @@
  			return
  			[
  				new("InitialBaseCenter", FieldSaver.FormatValue(initialBaseCenter)),
 -				new("DefenseCenter", FieldSaver.FormatValue(DefenseCenter))
 +				new("DefenseCenter", FieldSaver.FormatValue(DefenseCenter)),
++				new("ResourceConyardCenter", FieldSaver.FormatValue(ResourceConyardCenter)),
 +				new("AssignRallyPointsTicks", FieldSaver.FormatValue(assignRallyPointsTicks)),
 +				new("CheckBestResourceLocationTicks", FieldSaver.FormatValue(checkBestResourceLocationTicks)),
 +				new("SellRefineryTick", FieldSaver.FormatValue(sellRefineryTick)),
 +				new("FirstTick", FieldSaver.FormatValue(firstTick)),
 +				new("CurrentBuilderIndex", FieldSaver.FormatValue(currentBuilderIndex)),
-+				new("BuilderWaitTicks", FieldSaver.FormatValue(builders.Select(builder => builder.WaitTicks).ToArray()))
++				new("RallyPointActorIds", FieldSaver.FormatValue(rallyPoints
++					.Where(rallyPoint => !rallyPoint.Actor.Disposed)
++					.Select(rallyPoint => rallyPoint.Actor.ActorID)
++					.ToArray())),
++				new("RequestedRefineries", "", RequestedRefineries
++					.Where(request => !request.Key.Disposed)
++					.Select(request => new MiniYamlNode(
++						request.Key.ActorID.ToStringInvariant(),
++						"",
++						[
++							new("ConyardLocation", FieldSaver.FormatValue(request.Value.ConyardLoc)),
++							new("ResourceLocation", FieldSaver.FormatValue(request.Value.ResourceLoc))
++						]))),
++				new("Builders", "", builders.Select((builder, index) => new MiniYamlNode(
++					index.ToStringInvariant(),
++					new MiniYaml("", builder.IssueTraitData()))))
  			];
  		}
  
-@@ -556,6 +562,39 @@ namespace OpenRA.Mods.Common.Traits
+@@ -556,6 +578,87 @@
  			var defenseCenterNode = data.NodeWithKeyOrDefault("DefenseCenter");
  			if (defenseCenterNode != null)
  				DefenseCenter = FieldLoader.GetValue<CPos>("DefenseCenter", defenseCenterNode.Value.Value);
++
++			var resourceConyardCenterNode = data.NodeWithKeyOrDefault("ResourceConyardCenter");
++			if (resourceConyardCenterNode != null)
++				ResourceConyardCenter = FieldLoader.GetValue<CPos?>(
++					"ResourceConyardCenter",
++					resourceConyardCenterNode.Value.Value);
 +
 +			var assignRallyPointsTicksNode = data.NodeWithKeyOrDefault("AssignRallyPointsTicks");
 +			if (assignRallyPointsTicksNode != null)
@@ -243,29 +297,467 @@ diff --git a/OpenRA.Mods.Common/Traits/BotModules/BaseBuilderBotModule.cs b/Open
 +
 +			var firstTickNode = data.NodeWithKeyOrDefault("FirstTick");
 +			if (firstTickNode != null)
++			{
 +				firstTick = FieldLoader.GetValue<bool>("FirstTick", firstTickNode.Value.Value);
++				if (!firstTick)
++					ResourceMapModule = self.Owner.PlayerActor.TraitsImplementing<ResourceMapBotModule>()
++						.FirstOrDefault(t => t.IsTraitEnabled());
++			}
 +
 +			var currentBuilderIndexNode = data.NodeWithKeyOrDefault("CurrentBuilderIndex");
 +			if (currentBuilderIndexNode != null)
 +				currentBuilderIndex = FieldLoader.GetValue<int>("CurrentBuilderIndex", currentBuilderIndexNode.Value.Value);
 +
-+			var builderWaitTicksNode = data.NodeWithKeyOrDefault("BuilderWaitTicks");
-+			if (builderWaitTicksNode != null)
++			var rallyPointActorIdsNode = data.NodeWithKeyOrDefault("RallyPointActorIds");
++			if (rallyPointActorIdsNode != null)
 +			{
-+				var restoredWaitTicks = FieldLoader.GetValue<int[]>("BuilderWaitTicks", builderWaitTicksNode.Value.Value);
-+				if (restoredWaitTicks.Length != builders.Length)
++				rallyPoints.Clear();
++				var actorIds = FieldLoader.GetValue<uint[]>("RallyPointActorIds", rallyPointActorIdsNode.Value.Value);
++				foreach (var actorId in actorIds.Reverse())
++				{
++					var actor = self.World.GetActorById(actorId);
++					var rallyPoint = actor?.TraitOrDefault<RallyPoint>();
++					if (rallyPoint != null)
++						rallyPoints.Push(new TraitPair<RallyPoint>(actor, rallyPoint));
++				}
++			}
++
++			RequestedRefineries.Clear();
++			var requestedRefineriesNode = data.NodeWithKeyOrDefault("RequestedRefineries");
++			if (requestedRefineriesNode != null)
++			{
++				foreach (var requestNode in requestedRefineriesNode.Value.Nodes)
++				{
++					var actorId = FieldLoader.GetValue<uint>("RequestedRefineryActor", requestNode.Key);
++					var actor = self.World.GetActorById(actorId);
++					if (actor == null)
++						continue;
++
++					var request = requestNode.Value.ToDictionary();
++					RequestedRefineries[actor] = (
++						FieldLoader.GetValue<CPos>("ConyardLocation", request["ConyardLocation"].Value),
++						FieldLoader.GetValue<CPos>("ResourceLocation", request["ResourceLocation"].Value));
++				}
++			}
++
++			var buildersNode = data.NodeWithKeyOrDefault("Builders");
++			if (buildersNode != null)
++			{
++				if (buildersNode.Value.Nodes.Length != builders.Length)
 +					throw new InvalidOperationException("Saved BaseBuilder queue count does not match current rules.");
 +
 +				for (var i = 0; i < builders.Length; i++)
-+					builders[i].WaitTicks = restoredWaitTicks[i];
++				{
++					var builderNode = buildersNode.Value.Nodes.SingleOrDefault(node => node.Key == i.ToStringInvariant());
++					if (builderNode == null)
++						throw new InvalidOperationException($"Saved BaseBuilder is missing queue index {i}.");
++
++					builders[i].ResolveTraitData(builderNode.Value);
++				}
 +			}
  		}
  
  		void INotifyActorDisposing.Disposing(Actor self)
+diff --git a/OpenRA.Mods.Common/Traits/BotModules/BotModuleLogic/BaseBuilderQueueManager.cs b/OpenRA.Mods.Common/Traits/BotModules/BotModuleLogic/BaseBuilderQueueManager.cs
+--- a/OpenRA.Mods.Common/Traits/BotModules/BotModuleLogic/BaseBuilderQueueManager.cs
++++ b/OpenRA.Mods.Common/Traits/BotModules/BotModuleLogic/BaseBuilderQueueManager.cs
+@@ -58,6 +58,55 @@
+ 				waterState = WaterCheck.DontCheck;
+ 		}
+ 
++		public List<MiniYamlNode> IssueTraitData()
++		{
++			return
++			[
++				new("Category", Category),
++				new("WaitTicks", FieldSaver.FormatValue(WaitTicks)),
++				new("FailCount", FieldSaver.FormatValue(failCount)),
++				new("FailRetryTicks", FieldSaver.FormatValue(failRetryTicks)),
++				new("LastFailedBuilding", lastFailedBuilding ?? ""),
++				new("CheckForBasesTicks", FieldSaver.FormatValue(checkForBasesTicks)),
++				new("CachedBases", FieldSaver.FormatValue(cachedBases)),
++				new("CachedBuildings", FieldSaver.FormatValue(cachedBuildings)),
++				new("MinimumExcessPower", FieldSaver.FormatValue(minimumExcessPower)),
++				new("BaseCenterKeepsFailing", FieldSaver.FormatValue(baseCenterKeepsFailing)),
++				new("WaterState", FieldSaver.FormatValue((int)waterState))
++			];
++		}
++
++		public void ResolveTraitData(MiniYaml data)
++		{
++			var nodes = data.ToDictionary();
++			if (!nodes.TryGetValue("Category", out var categoryNode) || categoryNode.Value != Category)
++				throw new InvalidOperationException($"Saved BaseBuilder category does not match '{Category}'.");
++
++			WaitTicks = ReadInt(nodes, "WaitTicks");
++			failCount = ReadInt(nodes, "FailCount");
++			failRetryTicks = ReadInt(nodes, "FailRetryTicks");
++			lastFailedBuilding = nodes.TryGetValue("LastFailedBuilding", out var lastFailedBuildingNode) &&
++				!string.IsNullOrEmpty(lastFailedBuildingNode.Value) ? lastFailedBuildingNode.Value : null;
++			checkForBasesTicks = ReadInt(nodes, "CheckForBasesTicks");
++			cachedBases = ReadInt(nodes, "CachedBases");
++			cachedBuildings = ReadInt(nodes, "CachedBuildings");
++			minimumExcessPower = ReadInt(nodes, "MinimumExcessPower");
++			if (nodes.TryGetValue("BaseCenterKeepsFailing", out var baseCenterKeepsFailingNode))
++				baseCenterKeepsFailing = FieldLoader.GetValue<CPos?>(
++					"BaseCenterKeepsFailing",
++					baseCenterKeepsFailingNode.Value);
++
++			waterState = (WaterCheck)ReadInt(nodes, "WaterState");
++		}
++
++		static int ReadInt(IReadOnlyDictionary<string, MiniYaml> nodes, string key)
++		{
++			if (!nodes.TryGetValue(key, out var node))
++				throw new InvalidOperationException($"Saved BaseBuilder queue is missing '{key}'.");
++
++			return FieldLoader.GetValue<int>(key, node.Value);
++		}
++
+ 		public void Tick(IBot bot, ILookup<string, ProductionQueue> queuesByCategory)
+ 		{
+ 			// If we can't place any structures, give a nudge to BaseExpansionModules and hope it gets fixed.
+@@ -146,7 +195,7 @@
+ 
+ 			// Add a random factor so not every AI produces at the same tick early in the game.
+ 			// Minimum should not be negative as delays in HackyAI could be zero.
+-			var randomFactor = world.LocalRandom.Next(0, baseBuilder.Info.StructureProductionRandomBonusDelay);
++			var randomFactor = world.BotRandom.Next(0, baseBuilder.Info.StructureProductionRandomBonusDelay);
+ 
+ 			WaitTicks = active ? baseBuilder.Info.StructureProductionActiveDelay + randomFactor
+ 				: baseBuilder.Info.StructureProductionInactiveDelay + randomFactor;
+@@ -199,7 +248,7 @@
+ 				else
+ 				{
+ 					// Check if Building is a defense and if we should place it towards the enemy or not.
+-					if (baseBuilder.Info.DefenseTypes.Contains(actorInfo.Name) && world.LocalRandom.Next(100) < baseBuilder.Info.PlaceDefenseTowardsEnemyChance)
++					if (baseBuilder.Info.DefenseTypes.Contains(actorInfo.Name) && world.BotRandom.Next(100) < baseBuilder.Info.PlaceDefenseTowardsEnemyChance)
+ 						type = BuildingType.Defense;
+ 					else if (baseBuilder.Info.RefineryTypes.Contains(actorInfo.Name))
+ 						type = BuildingType.Refinery;
+@@ -254,9 +303,9 @@
+ 						var tolerateOnCash = playerResources.GetCashAndResources() / Math.Max(baseBuilder.Info.PerExpansionTolerateOnCash, 1);
+ 
+ 						if (numRef >= baseBuilder.Info.InititalMinimumRefineryCount + baseBuilder.Info.AdditionalMinimumRefineryCount
+-							&& numProd > 0 && numProd + numTech - baseBuilder.Info.ExpansionTolerate.Random(world.LocalRandom) - tolerateOnCash >= numRef)
++							&& numProd > 0 && numProd + numTech - baseBuilder.Info.ExpansionTolerate.Random(world.BotRandom) - tolerateOnCash >= numRef)
+ 						{
+-							var undeployEvenNoBase = numProd + numTech - baseBuilder.Info.ForceExpansionTolerate.Random(world.LocalRandom) - tolerateOnCash >= numRef;
++							var undeployEvenNoBase = numProd + numTech - baseBuilder.Info.ForceExpansionTolerate.Random(world.BotRandom) - tolerateOnCash >= numRef;
+ 
+ 							foreach (var be in baseBuilder.BaseExpansionModules)
+ 								be.UpdateExpansionParams(bot, true, undeployEvenNoBase, null);
+@@ -287,7 +336,7 @@
+ 			if (orderBy != null)
+ 				return available.MaxByOrDefault(orderBy);
+ 
+-			return available.RandomOrDefault(world.LocalRandom);
++			return available.RandomOrDefault(world.BotRandom);
+ 		}
+ 
+ 		bool HasSufficientPowerForActor(ActorInfo actorInfo)
+@@ -331,7 +380,7 @@
+ 
+ 			// Make sure that we can spend as fast as we are earning
+ 			if (baseBuilder.Info.NewProductionCashThreshold > 0 && playerResources.GetCashAndResources() > baseBuilder.Info.NewProductionCashThreshold
+-				&& world.LocalRandom.Next(100) < baseBuilder.Info.NewProductionChance)
++				&& world.BotRandom.Next(100) < baseBuilder.Info.NewProductionChance)
+ 			{
+ 				var production = GetProducibleBuilding(baseBuilder.Info.ProductionTypes, buildableThings);
+ 				if (production != null && HasSufficientPowerForActor(production))
+@@ -384,7 +433,7 @@
+ 			}
+ 
+ 			// Build everything else
+-			foreach (var frac in baseBuilder.Info.BuildingFractions.Shuffle(world.LocalRandom))
++			foreach (var frac in baseBuilder.Info.BuildingFractions.Shuffle(world.BotRandom))
+ 			{
+ 				var name = frac.Key;
+ 
+@@ -507,15 +556,15 @@
+ 							}
+ 						}
+ 						else
+-							actorVariant = world.LocalRandom.Next(buildingVariantInfo.Actors.Length + 1);
++							actorVariant = world.BotRandom.Next(buildingVariantInfo.Actors.Length + 1);
+ 					}
+ 				}
+ 				else
+ 				{
+-					cells = cells.Shuffle(world.LocalRandom);
++					cells = cells.Shuffle(world.BotRandom);
+ 
+ 					if (buildingVariantInfo?.Actors != null)
+-						actorVariant = world.LocalRandom.Next(buildingVariantInfo.Actors.Length + 1);
++						actorVariant = world.BotRandom.Next(buildingVariantInfo.Actors.Length + 1);
+ 				}
+ 
+ 				if (actorVariant != 0)
+@@ -580,7 +629,7 @@
+ 						IEnumerable<CPos> resourcesShouldCheck = null;
+ 
+ 						if (closestRefinery == null)
+-							resourcesShouldCheck = nearbyResources.Shuffle(world.LocalRandom).Take(baseBuilder.Info.MaxResourceCellsToCheck);
++							resourcesShouldCheck = nearbyResources.Shuffle(world.BotRandom).Take(baseBuilder.Info.MaxResourceCellsToCheck);
+ 						else if (requestRef != null)
+ 						{
+ 							resourcesShouldCheck = nearbyResources.OrderBy(c => (c - baseBuilder.RequestedRefineries[requestRef].ResourceLoc).LengthSquared)
+diff --git a/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs b/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
+--- a/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
++++ b/OpenRA.Mods.Common/Traits/Player/PlayerResources.cs
+@@ -78,7 +78,7 @@
+ 		public override object Create(ActorInitializer init) { return new PlayerResources(init.Self, this); }
+ 	}
+ 
+-	public class PlayerResources : ISync
++	public class PlayerResources : ISync, IGameSaveTraitData
+ 	{
+ 		public readonly PlayerResourcesInfo Info;
+ 		readonly Player owner;
+@@ -260,5 +260,38 @@
+ 		{
+ 			return Cash + Resources;
+ 		}
++
++		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
++		{
++			return
++			[
++				new("Cash", FieldSaver.FormatValue(Cash)),
++				new("Resources", FieldSaver.FormatValue(Resources)),
++				new("ResourceCapacity", FieldSaver.FormatValue(ResourceCapacity)),
++				new("Earned", FieldSaver.FormatValue(Earned)),
++				new("Spent", FieldSaver.FormatValue(Spent))
++			];
++		}
++
++		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
++		{
++			if (self.World.IsReplay)
++				return;
++
++			var nodes = data.ToDictionary();
++			Cash = ReadInt(nodes, "Cash");
++			Resources = ReadInt(nodes, "Resources");
++			ResourceCapacity = ReadInt(nodes, "ResourceCapacity");
++			Earned = ReadInt(nodes, "Earned");
++			Spent = ReadInt(nodes, "Spent");
++		}
++
++		static int ReadInt(IReadOnlyDictionary<string, MiniYaml> nodes, string key)
++		{
++			if (!nodes.TryGetValue(key, out var node))
++				throw new InvalidOperationException($"Saved PlayerResources is missing '{key}'.");
++
++			return FieldLoader.GetValue<int>(key, node.Value);
++		}
+ 	}
+ }
+diff --git a/OpenRA.Mods.Common/Traits/CashTrickler.cs b/OpenRA.Mods.Common/Traits/CashTrickler.cs
+--- a/OpenRA.Mods.Common/Traits/CashTrickler.cs
++++ b/OpenRA.Mods.Common/Traits/CashTrickler.cs
+@@ -9,6 +9,8 @@
+  */
+ #endregion
+ 
++using System;
++using System.Collections.Generic;
+ using System.Linq;
+ using OpenRA.Mods.Common.Effects;
+ using OpenRA.Traits;
+@@ -45,7 +47,8 @@
+ 		public override object Create(ActorInitializer init) { return new CashTrickler(this); }
+ 	}
+ 
+-	public class CashTrickler : PausableConditionalTrait<CashTricklerInfo>, ITick, ISync, INotifyCreated, INotifyOwnerChanged
++	public class CashTrickler : PausableConditionalTrait<CashTricklerInfo>, ITick, ISync,
++		INotifyCreated, INotifyOwnerChanged, IGameSaveTraitData
+ 	{
+ 		readonly CashTricklerInfo info;
+ 		PlayerResources resources;
+@@ -109,5 +112,20 @@
+ 				self.World.AddFrameEndTask(w =>
+ 					w.Add(new FloatingText(self.CenterPosition, self.OwnerColor(), FloatingText.FormatCashTick(amount), info.DisplayDuration)));
+ 		}
++
++		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
++		{
++			return [new("Ticks", FieldSaver.FormatValue(Ticks))];
++		}
++
++		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
++		{
++			if (self.World.IsReplay)
++				return;
++
++			var ticksNode = data.NodeWithKeyOrDefault("Ticks") ??
++				throw new InvalidOperationException("Saved CashTrickler is missing 'Ticks'.");
++			Ticks = FieldLoader.GetValue<int>("Ticks", ticksNode.Value.Value);
++		}
+ 	}
+ }
+diff --git a/OpenRA.Mods.Common/Traits/Player/ModularBot.cs b/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
+--- a/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
++++ b/OpenRA.Mods.Common/Traits/Player/ModularBot.cs
+@@ -11,7 +11,9 @@
+ 
+ using System;
+ using System.Collections.Generic;
++using System.IO;
+ using System.Linq;
++using OpenRA.Network;
+ using OpenRA.Support;
+ using OpenRA.Traits;
+ 
+@@ -40,7 +42,7 @@
+ 		public override object Create(ActorInitializer init) { return new ModularBot(this, init); }
+ 	}
+ 
+-	public sealed class ModularBot : ITick, IBot, INotifyDamage
++	public sealed class ModularBot : ITick, IBot, INotifyDamage, IGameSaveTraitData
+ 	{
+ 		public bool IsEnabled;
+ 
+@@ -118,5 +120,27 @@
+ 				});
+ 			}
+ 		}
++
++		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
++		{
++			var serializedOrders = orders.SelectMany(order => order.Serialize()).ToArray();
++			return [new("PendingOrders", Convert.ToBase64String(serializedOrders))];
++		}
++
++		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
++		{
++			if (self.World.IsReplay)
++				return;
++
++			var ordersNode = data.NodeWithKeyOrDefault("PendingOrders") ??
++				throw new InvalidOperationException("Saved ModularBot is missing 'PendingOrders'.");
++			var serializedOrders = string.IsNullOrEmpty(ordersNode.Value.Value)
++				? []
++				: Convert.FromBase64String(ordersNode.Value.Value);
++
++			orders.Clear();
++			foreach (var order in new OrderPacket(new MemoryStream(serializedOrders)).GetOrders(self.World))
++				orders.Enqueue(order);
++		}
+ 	}
+ }
+diff --git a/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs b/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
+--- a/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
++++ b/OpenRA.Mods.Common/Traits/Player/ProductionQueue.cs
+@@ -133,7 +133,8 @@
+ 		}
+ 	}
+ 
+-	public class ProductionQueue : IResolveOrder, ITick, ITechTreeElement, INotifyOwnerChanged, INotifyKilled, INotifySold, ISync, INotifyTransform, INotifyCreated
++	public class ProductionQueue : IResolveOrder, ITick, ITechTreeElement, INotifyOwnerChanged,
++		INotifyKilled, INotifySold, ISync, INotifyTransform, INotifyCreated, IGameSaveTraitData
+ 	{
+ 		public readonly ProductionQueueInfo Info;
+ 
+@@ -665,6 +666,36 @@
+ 		public virtual int RemainingTimeActual(ProductionItem item)
+ 		{
+ 			return item.RemainingTimeActual;
++		}
++
++		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
++		{
++			return
++			[
++				new("Queue", "", Queue.Select((item, index) => new MiniYamlNode(
++					index.ToStringInvariant(),
++					item.IssueTraitData())))
++			];
++		}
++
++		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
++		{
++			if (self.World.IsReplay)
++				return;
++
++			var queueNode = data.NodeWithKeyOrDefault("Queue") ??
++				throw new InvalidOperationException("Saved ProductionQueue is missing 'Queue'.");
++			if (queueNode.Value.Nodes.Length != Queue.Count)
++				throw new InvalidOperationException("Saved ProductionQueue item count does not match replay state.");
++
++			for (var i = 0; i < Queue.Count; i++)
++			{
++				var itemNode = queueNode.Value.Nodes.SingleOrDefault(node => node.Key == i.ToStringInvariant());
++				if (itemNode == null)
++					throw new InvalidOperationException($"Saved ProductionQueue is missing item index {i}.");
++
++				Queue[i].ResolveTraitData(itemNode.Value);
++			}
+ 		}
+ 
+ 		// Returns the actor/trait that is most likely (but not necessarily guaranteed) to produce something in this queue
+@@ -809,5 +840,57 @@
+ 		}
+ 
+ 		public void Pause(bool paused) { Paused = paused; }
++
++		public MiniYaml IssueTraitData()
++		{
++			return new MiniYaml("",
++			[
++				new("Item", Item),
++				new("TotalCost", FieldSaver.FormatValue(TotalCost)),
++				new("TotalTime", FieldSaver.FormatValue(TotalTime)),
++				new("RemainingTime", FieldSaver.FormatValue(RemainingTime)),
++				new("RemainingCost", FieldSaver.FormatValue(RemainingCost)),
++				new("ResourcesPaid", FieldSaver.FormatValue(ResourcesPaid)),
++				new("Paused", FieldSaver.FormatValue(Paused)),
++				new("Done", FieldSaver.FormatValue(Done)),
++				new("Started", FieldSaver.FormatValue(Started)),
++				new("Slowdown", FieldSaver.FormatValue(Slowdown)),
++				new("Infinite", FieldSaver.FormatValue(Infinite))
++			]);
++		}
++
++		public void ResolveTraitData(MiniYaml data)
++		{
++			var nodes = data.ToDictionary();
++			if (!nodes.TryGetValue("Item", out var itemNode) || itemNode.Value != Item ||
++				ReadInt(nodes, "TotalCost") != TotalCost)
++				throw new InvalidOperationException($"Saved production item does not match '{Item}'.");
++
++			TotalTime = ReadInt(nodes, "TotalTime");
++			RemainingTime = ReadInt(nodes, "RemainingTime");
++			RemainingCost = ReadInt(nodes, "RemainingCost");
++			ResourcesPaid = ReadInt(nodes, "ResourcesPaid");
++			Paused = ReadBool(nodes, "Paused");
++			Done = ReadBool(nodes, "Done");
++			Started = ReadBool(nodes, "Started");
++			Slowdown = ReadInt(nodes, "Slowdown");
++			Infinite = ReadBool(nodes, "Infinite");
++		}
++
++		static int ReadInt(IReadOnlyDictionary<string, MiniYaml> nodes, string key)
++		{
++			if (!nodes.TryGetValue(key, out var node))
++				throw new InvalidOperationException($"Saved production item is missing '{key}'.");
++
++			return FieldLoader.GetValue<int>(key, node.Value);
++		}
++
++		static bool ReadBool(IReadOnlyDictionary<string, MiniYaml> nodes, string key)
++		{
++			if (!nodes.TryGetValue(key, out var node))
++				throw new InvalidOperationException($"Saved production item is missing '{key}'.");
++
++			return FieldLoader.GetValue<bool>(key, node.Value);
++		}
+ 	}
+ }
 diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
 --- a/OpenRA.Game/World.cs
 +++ b/OpenRA.Game/World.cs
-@@ -50,6 +50,7 @@ namespace OpenRA
+@@ -50,6 +50,7 @@
  
  		public readonly MersenneTwister SharedRandom;
  		public readonly MersenneTwister LocalRandom;
@@ -273,7 +765,7 @@ diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
  		public LongBitSet<PlayerBitMask> AllPlayersMask = default;
  		public readonly LongBitSet<PlayerBitMask> NoPlayersMask = default;
  
-@@ -197,7 +198,12 @@ namespace OpenRA
+@@ -197,7 +198,12 @@
  			Timestep = ReplayTimestep = GameSpeed.Timestep;
  
  			SharedRandom = new MersenneTwister(orderManager.LobbyInfo.GlobalSettings.RandomSeed);
@@ -287,10 +779,28 @@ diff --git a/OpenRA.Game/World.cs b/OpenRA.Game/World.cs
  
  			var worldActorType = type == WorldType.Editor ? SystemActors.EditorWorld : SystemActors.World;
  			WorldActor = CreateActor(worldActorType.ToString(), []);
+@@ -389,7 +395,17 @@
+ 		public bool PredictedPaused { get; internal set; }
+ 
+ 		public int WorldTick { get; private set; }
++
++		public void RestoreGameSaveWorldTick(int checkpointWorldTick)
++		{
++			if (!wasLoadingGameSave)
++				throw new InvalidOperationException("World tick can only be restored while resolving a game save.");
++			if (checkpointWorldTick < 0 || checkpointWorldTick > WorldTick)
++				throw new ArgumentOutOfRangeException(nameof(checkpointWorldTick));
+ 
++			WorldTick = checkpointWorldTick;
++		}
++
+ 		readonly Dictionary<int, MiniYaml> gameSaveTraitData = [];
+ 		internal void AddGameSaveTraitData(int traitIndex, MiniYaml yaml)
+ 		{
 diff --git a/OpenRA.Game/Sound/Sound.cs b/OpenRA.Game/Sound/Sound.cs
 --- a/OpenRA.Game/Sound/Sound.cs
 +++ b/OpenRA.Game/Sound/Sound.cs
-@@ -113,7 +113,7 @@ namespace OpenRA
+@@ -113,7 +113,7 @@
  
  		ISound Play(SoundType type, Player player, string name, bool headRelative, WPos pos, float volumeModifier = 1f, bool loop = false)
  		{
@@ -299,7 +809,7 @@ diff --git a/OpenRA.Game/Sound/Sound.cs b/OpenRA.Game/Sound/Sound.cs
  				return null;
  
  			if (player != null && player != player.World.LocalPlayer)
-@@ -230,7 +230,7 @@ namespace OpenRA
+@@ -230,7 +230,7 @@
  
  		public void PlayMusicThen(MusicInfo m, Action then)
  		{
@@ -308,7 +818,7 @@ diff --git a/OpenRA.Game/Sound/Sound.cs b/OpenRA.Game/Sound/Sound.cs
  				return;
  
  			onMusicComplete = then;
-@@ -247,7 +247,7 @@ namespace OpenRA
+@@ -247,7 +247,7 @@
  
  		public void PlayMusic(MusicInfo m, bool looped = false)
  		{
@@ -320,7 +830,7 @@ diff --git a/OpenRA.Game/Sound/Sound.cs b/OpenRA.Game/Sound/Sound.cs
 diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
 --- a/OpenRA.Game/Server/Server.cs
 +++ b/OpenRA.Game/Server/Server.cs
-@@ -114,7 +114,7 @@ namespace OpenRA.Server
+@@ -114,7 +114,7 @@
  		[FluentReference]
  		const string GameStarted = "notification-game-started";
  
@@ -329,7 +839,7 @@ diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
  		public readonly ServerType Type;
  		public bool IsMultiplayer => Type == ServerType.Dedicated || Type == ServerType.Multiplayer;
  
-@@ -235,7 +235,12 @@ namespace OpenRA.Server
+@@ -235,7 +235,12 @@
  			}
  		}
  
@@ -343,7 +853,7 @@ diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
  		{
  			Log.AddChannel("server", "server.log", true);
  
-@@ -303,7 +308,8 @@ namespace OpenRA.Server
+@@ -303,7 +308,8 @@
  
  			playerDatabase = modData.GetOrCreate<PlayerDatabase>();
  
@@ -354,10 +864,9 @@ diff --git a/OpenRA.Game/Server/Server.cs b/OpenRA.Game/Server/Server.cs
  			if (IsMultiplayer && settings.EnableGeoIP)
  				GeoIP.Initialize();
 diff --git a/OpenRA.Game/Server/OrderBuffer.cs b/OpenRA.Game/Server/OrderBuffer.cs
-index cddb0e2..21d48a3 100644
 --- a/OpenRA.Game/Server/OrderBuffer.cs
 +++ b/OpenRA.Game/Server/OrderBuffer.cs
-@@ -43,6 +43,11 @@ namespace OpenRA.Server
+@@ -43,6 +43,11 @@
  		{
  			timestamps[playerIndex] = gameTimer.ElapsedMilliseconds;
  
@@ -369,12 +878,12 @@ index cddb0e2..21d48a3 100644
  			if (timestamps.Values.All(t => t != EmptyValue))
  			{
  				var baseline = timestamps[baselinePlayer];
-@@ -68,7 +73,14 @@ namespace OpenRA.Server
+@@ -68,8 +73,15 @@
  			ticksPerInterval = Interval / timestep;
  
  			this.players = players.ToList();
 -			baselinePlayer = this.players[0];
-+
+ 
 +			// A match can start with no ordering connection: an autonomous
 +			// simulation is observed by a spectator whose slot is empty, and a
 +			// client can also drop during the start handshake. There is no
@@ -382,6 +891,7 @@ index cddb0e2..21d48a3 100644
 +			// thread down with an unhandled exception. RemovePlayer already
 +			// tolerates an empty roster; Start must too.
 +			baselinePlayer = this.players.Count > 0 ? this.players[0] : EmptyValue;
- 
++
  			foreach (var player in this.players)
  			{
+ 				timestamps.TryAdd(player, EmptyValue);

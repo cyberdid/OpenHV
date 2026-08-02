@@ -31,6 +31,7 @@ sources:
   - ../../engine-patches/openra-ai-combat.patch
   - ../../engine-patches/OpenRA.Game/Graphics/HeadlessPlatform.cs
   - ../../check-headless-equivalence.sh
+  - ../../check-universe-checkpoint-equivalence.sh
   - ../../run-batch.py
   - ../../generate-baseline-manifest.py
   - ../../analyze-baseline.py
@@ -152,6 +153,7 @@ window produces no result and stops the wrapper.
 | `run-tournament.sh` | Runs a map/seed series and creates standings |
 | `check-simulation-determinism.sh` | Compares paired runs, validates schema, and checks invalid input |
 | `check-headless-equivalence.sh` | Compares graphical/headless artifacts and proves that device backends were bypassed |
+| `check-universe-checkpoint-equivalence.sh` | Forks one checkpoint into continued/resumed branches and requires identical full state |
 
 `CivilizationState.MilitaryArmyValue` is the canonical civil/strategic measure
 of armed power. It excludes explicit worker and support actor value and is used
@@ -203,13 +205,18 @@ without user input. `Launch.SimulationLoadCheckpoint` reconstructs the saved
 lobby, actors, orders, AI slots, RNG streams, and versioned Universe trait
 payload, then starts the observer and continues to the configured horizon.
 
-The Universe hierarchy currently has verified continuous/resumed snapshot
-parity. Full RTS hash parity is not yet claimed: game-save replay suppresses AI
-ticks, so every decision-affecting bot timer/cache must be explicit trait data.
-The dedicated `BotRandom` count and the major BaseBuilder timers/queue waits are
-restored; UNI-002B owns the remaining audit. This limitation is transitional
-and blocks closing the Phase 1 save/load gate, but does not affect ordinary
-uninterrupted deterministic runs.
+The checkpoint contract includes the dedicated BotRandom position, pending bot
+decisions, BaseBuilder queue state, production progress, player resources,
+periodic cash state, civilization decisions, and settlement stocks and timers.
+The barrier drains in-flight network orders without advancing the world, then
+commits the native save and manifest on one macro boundary.
+
+`check-universe-checkpoint-equivalence.sh` compares two branches from that same
+checkpoint: one continues in-process and one reloads in a new process. It
+requires identical normalized result JSON, full `World.SyncHash`, BotRandom
+count, faction metrics, and Universe snapshot, then validates all three JSON
+artifacts. The seed-112 four-bot acceptance run passed at tick 500 with hash
+`B077801F` and BotRandom count `578`.
 
 The current composite score is:
 

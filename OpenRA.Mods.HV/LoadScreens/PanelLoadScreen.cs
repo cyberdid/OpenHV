@@ -280,8 +280,8 @@ namespace OpenRA.Mods.HV.LoadScreens
 							// Freeze synchronized simulation advancement while the server commits
 							// the save order. Network/immediate orders still run, producing an
 							// atomic macro-boundary checkpoint instead of an 1-2 net-frame skew.
+							orderManager.World.SetPauseState(true);
 							orderManager.World.SetLocalPauseState(true);
-							orderManager.World.RequestGameSave(config.CheckpointName, false);
 							void AwaitCheckpoint()
 							{
 								if (!File.Exists(checkpointPath))
@@ -297,7 +297,14 @@ namespace OpenRA.Mods.HV.LoadScreens
 									$"Simulation checkpoint written at world tick {manifest.WorldTick}: {checkpointPath}");
 							}
 
-							Game.RunAfterDelay(10, AwaitCheckpoint);
+							// Let the synchronized pause order enter the replay stream before the
+							// immediate save request. This keeps restored WorldTick and trait data
+							// on the same macro boundary.
+							Game.RunAfterTick(() => Game.RunAfterTick(() =>
+							{
+								orderManager.World.RequestGameSave(config.CheckpointName, false);
+								Game.RunAfterDelay(10, AwaitCheckpoint);
+							}));
 						}
 
 						if (telemetry != null && orderManager.World.WorldTick >= nextTelemetryTick)

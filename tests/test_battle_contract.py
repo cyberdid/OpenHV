@@ -97,7 +97,13 @@ class BattleContractTests(unittest.TestCase):
             "The battle reply is a simulation-result-v1 document by design",
         )
         result = read_json(result_schema)
-        for field in ("players", "naturalWinners", "endReason", "synchronizedStateHash"):
+        for field in (
+            "players",
+            "naturalWinners",
+            "endReason",
+            "synchronizedStateHash",
+            "botRandomTotalCount",
+        ):
             self.assertIn(
                 field,
                 result["required"],

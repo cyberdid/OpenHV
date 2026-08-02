@@ -310,7 +310,7 @@ namespace OpenRA.Mods.HV.Traits
 			}
 
 			events.Clear();
-			AdvanceTicks(Math.Max(0, self.World.WorldTick - checkpointWorldTick));
+			self.World.RestoreGameSaveWorldTick(checkpointWorldTick);
 
 			var botSeed = unchecked(
 				self.World.LobbyInfo.GlobalSettings.RandomSeed ^ (int)0xBB67AE85u);

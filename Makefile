@@ -21,7 +21,7 @@
 # to check the mod yaml for errors, run:
 #   make test
 
-.PHONY: engine all clean version check-scripts check test test-simulation install
+.PHONY: engine all clean version check-scripts check test test-simulation check-universe-checkpoint install
 .DEFAULT_GOAL := all
 
 VERSION = $(shell git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null || echo git-`git rev-parse --short HEAD`)
@@ -221,8 +221,12 @@ test-simulation:
 	@python3 -m unittest -v tests.test_baseline_analysis tests.test_batch_runner \
 		tests.test_battle_contract tests.test_universe_contract
 	@sh -n apply-engine-patches.sh check-headless-equivalence.sh \
-		check-simulation-determinism.sh fetch-engine.sh launch-game.sh \
+		check-simulation-determinism.sh check-universe-checkpoint-equivalence.sh \
+		fetch-engine.sh launch-game.sh \
 		run-simulation.sh run-tournament.sh
+
+check-universe-checkpoint: all
+	@./check-universe-checkpoint-equivalence.sh
 
 docs: engine
 	@echo

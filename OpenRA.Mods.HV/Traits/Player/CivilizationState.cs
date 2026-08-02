@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using OpenRA.Mods.Common.Lint;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Mods.Common.Traits.BotModules.Squads;
@@ -74,12 +75,18 @@ namespace OpenRA.Mods.HV.Traits
 		public override object Create(ActorInitializer init) { return new CivilizationState(init, this); }
 	}
 
-	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision, IBotNotifyIdleBaseUnits
+	public sealed class CivilizationState : ITick, ISync, INotifySquadDecision,
+		IBotNotifyIdleBaseUnits, IGameSaveTraitData
 	{
 		[FluentReference]
 		const string TechnologyLine = "notification-technology";
 
 		static readonly int PressureTermCount = Enum.GetValues<PressureTerm>().Length;
+		static readonly FieldInfo[] SaveFields = typeof(CivilizationState)
+			.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+			.Where(field => !field.IsInitOnly && field.HasAttribute<VerifySyncAttribute>())
+			.OrderBy(field => field.MetadataToken)
+			.ToArray();
 
 		public static readonly string[] TechnologyNames =
 		[
@@ -820,6 +827,38 @@ namespace OpenRA.Mods.HV.Traits
 				"tanker2";
 		}
 
+		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+		{
+			var data = new List<MiniYamlNode>
+			{
+				new("SchemaVersion", FieldSaver.FormatValue(1))
+			};
+
+			foreach (var field in SaveFields)
+				data.Add(new MiniYamlNode(field.Name, FieldSaver.FormatValue(field.GetValue(this))));
+
+			return data;
+		}
+
+		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+		{
+			if (self.World.IsReplay)
+				return;
+
+			var nodes = data.ToDictionary();
+			if (!nodes.TryGetValue("SchemaVersion", out var schemaNode) ||
+				FieldLoader.GetValue<int>("SchemaVersion", schemaNode.Value) != 1)
+				throw new InvalidOperationException("Unsupported CivilizationState save schema.");
+
+			foreach (var field in SaveFields)
+			{
+				if (!nodes.TryGetValue(field.Name, out var node))
+					throw new InvalidOperationException($"Saved CivilizationState is missing '{field.Name}'.");
+
+				FieldLoader.LoadFieldOrProperty(this, field.Name, node.Value);
+			}
+		}
+
 		static bool Matches(DiplomaticRelation relation, Player player, Player other)
 		{
 			return (relation.PlayerA == player && relation.PlayerB == other) ||
@@ -934,8 +973,14 @@ namespace OpenRA.Mods.HV.Traits
 		public override object Create(ActorInitializer init) { return new SettlementCore(init, this); }
 	}
 
-	public sealed class SettlementCore : ITick, ISync
+	public sealed class SettlementCore : ITick, ISync, IGameSaveTraitData
 	{
+		static readonly FieldInfo[] SaveFields = typeof(SettlementCore)
+			.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+			.Where(field => !field.IsInitOnly && field.HasAttribute<VerifySyncAttribute>())
+			.OrderBy(field => field.MetadataToken)
+			.ToArray();
+
 		readonly SettlementCoreInfo info;
 		readonly Actor self;
 
@@ -1334,6 +1379,38 @@ namespace OpenRA.Mods.HV.Traits
 		static int TradeSpecialization(Player owner)
 		{
 			return Math.Abs(owner.ClientIndex) % 3;
+		}
+
+		List<MiniYamlNode> IGameSaveTraitData.IssueTraitData(Actor self)
+		{
+			var data = new List<MiniYamlNode>
+			{
+				new("SchemaVersion", FieldSaver.FormatValue(1))
+			};
+
+			foreach (var field in SaveFields)
+				data.Add(new MiniYamlNode(field.Name, FieldSaver.FormatValue(field.GetValue(this))));
+
+			return data;
+		}
+
+		void IGameSaveTraitData.ResolveTraitData(Actor self, MiniYaml data)
+		{
+			if (self.World.IsReplay)
+				return;
+
+			var nodes = data.ToDictionary();
+			if (!nodes.TryGetValue("SchemaVersion", out var schemaNode) ||
+				FieldLoader.GetValue<int>("SchemaVersion", schemaNode.Value) != 1)
+				throw new InvalidOperationException("Unsupported SettlementCore save schema.");
+
+			foreach (var field in SaveFields)
+			{
+				if (!nodes.TryGetValue(field.Name, out var node))
+					throw new InvalidOperationException($"Saved SettlementCore is missing '{field.Name}'.");
+
+				FieldLoader.LoadFieldOrProperty(this, field.Name, node.Value);
+			}
 		}
 	}
 }

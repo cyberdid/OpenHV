@@ -128,6 +128,7 @@ namespace OpenRA.Mods.HV
 				SynchronizedStateHash = unchecked((uint)world.SyncHash()).ToString(
 					"X8",
 					CultureInfo.InvariantCulture),
+				BotRandomTotalCount = world.BotRandom.TotalCount,
 				NaturalWinners = naturalWinners,
 				ScoreLeader = scoreLeader != null ? ToLeader(scoreLeader) : null,
 				Players = players,

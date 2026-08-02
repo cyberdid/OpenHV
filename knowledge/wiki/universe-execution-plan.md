@@ -164,7 +164,7 @@ clock reached macro day 2 with zero remainder. Two identical headless runs and
 the graphical/headless pair all produced hash `3A94C592`; result JSON and
 periodic JSONL telemetry contained the same three-slot Universe snapshot.
 
-## In-progress work package: UNI-002
+## Completed work package: UNI-002
 
 Complete the remaining Phase 1 kernel before physical simulation begins:
 
@@ -176,21 +176,22 @@ Complete the remaining Phase 1 kernel before physical simulation begins:
 5. prove uninterrupted and save/reload runs end with identical normalized
    Universe state and synchronized hash.
 
-`UNI-002A` has delivered items 1–4 and the Universe half of item 5. The runtime
-now writes an atomic native `.orasav` plus a versioned JSON manifest at a macro
-boundary, restores the hierarchy and event sequence, resumes a headless
-observer automatically, and reaches the same normalized Universe snapshot as
-an uninterrupted run. The full `World.SyncHash` gate remains open: legacy bot
-modules contain mutable planning/timer state that OpenRA's original game-save
-contract does not serialize. `BotRandom`, BaseBuilder timers, queue rotation,
-and queue waits are now restored, substantially narrowing the divergence, but
-the remaining AI state must be inventoried and serialized before UNI-002 is
-complete.
+`UNI-002A` delivered items 1–4 and exposed the mutable state omitted by the
+stock OpenRA save boundary. `UNI-002B` completed item 5: BotRandom position,
+pending modular-bot orders, BaseBuilder queue state, player resources,
+production items, cash timers, civilization state, and settlement state now
+have explicit save contracts. The checkpoint barrier drains in-flight network
+orders before the native save is committed and restores the logical world tick
+before live simulation resumes.
 
-Immediate `UNI-002B` work:
+The executable acceptance check forks one macro-boundary checkpoint into two
+branches: the original process continues to tick 500, while a second process
+loads the save and reaches the same horizon. Both branches produce the full
+hash `B077801F`, BotRandom count `578`, identical faction stocks/spending,
+identical AI/civilization/settlement state, and the same three-planet Universe
+snapshot. `check-universe-checkpoint-equivalence.sh` validates both result
+documents and the checkpoint manifest against their closed schemas.
 
-1. inventory every mutable field in active stock/OpenHV bot modules;
-2. add versioned game-save trait data for each decision-affecting field;
-3. add a continuous-vs-resumed automated comparison at tick 500;
-4. require equal full synchronized hash, player stocks, AI plans, and Universe
-   snapshot before closing Phase 1 save/load.
+Immediate work package `UNI-003` begins Phase 2 with synchronized planetary
+mass, radius, rotation, orbit, energy balance, atmosphere, hydrosphere, terrain
+plates, and a deterministic climate pulse for the active lifeless planet.

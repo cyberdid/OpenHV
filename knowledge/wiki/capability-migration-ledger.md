@@ -61,7 +61,7 @@ runtime retirement.
 | VIS-04 | Chronicle and characters (`chronicle.html`) | native chronicle UI | filterable eras/events/characters | reference |
 | VIS-05 | Vertical city/planet strata (`city_levels.html`) | native strata/underground view | five layer classes or explicit superseding model | reference |
 | OBS-01 | Results, telemetry, events, batch, headless, hashes | existing simulation toolchain | full suite + schema validation | native |
-| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | partial: native checkpoint/resume + Universe parity; legacy AI hash parity pending |
+| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | native foundation: full current-runtime branch parity verified; every future domain trait must join the versioned contract |
 | BRG-01 | Planet/battle contracts and deterministic request replay | developer import/replay tools | schema tests retained; no product click dependency | native |
 
 ## Space and multi-planet scope

@@ -15,6 +15,7 @@
     "worldTick",
     "simulatedSeconds",
     "synchronizedStateHash",
+    "botRandomTotalCount",
     "naturalWinners",
     "scoreLeader",
     "players"
@@ -46,6 +47,7 @@
       "type": "string",
       "pattern": "^[0-9A-F]{8}$"
     },
+    "botRandomTotalCount": { "type": "integer", "minimum": 0 },
     "naturalWinners": {
       "type": "array",
       "items": { "$ref": "#/$defs/leader" }

@@ -243,6 +243,7 @@ def main() -> int:
         "worldTick": max_ticks,
         "simulatedSeconds": max_ticks * 0.02,
         "synchronizedStateHash": state_hash,
+        "botRandomTotalCount": max_ticks,
         "naturalWinners": [],
         "scoreLeader": {
             "playerName": "Fake AI",
