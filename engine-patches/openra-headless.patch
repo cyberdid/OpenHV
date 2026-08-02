@@ -895,3 +895,23 @@ diff --git a/OpenRA.Game/Server/OrderBuffer.cs b/OpenRA.Game/Server/OrderBuffer.
  			foreach (var player in this.players)
  			{
  				timestamps.TryAdd(player, EmptyValue);
+
+diff --git a/OpenRA.Game/Network/GameSave.cs b/OpenRA.Game/Network/GameSave.cs
+--- a/OpenRA.Game/Network/GameSave.cs
++++ b/OpenRA.Game/Network/GameSave.cs
+@@ -80,6 +80,7 @@
+ 		public const int EOFMarker = -2;
+ 		public const int MetadataMarker = -1;
+ 		public const int TraitDataMarker = -3;
++		public const int MaxTraitDataLength = 16 * 1024 * 1024;
+ 
+ 		readonly MemoryStream ordersStream = new();
+ 
+@@ -149,6 +150,6 @@
+ 				if (rs.Position != traitDataOffset || rs.ReadInt32() != TraitDataMarker)
+ 					throw new InvalidDataException("Invalid orasav file");
+ 
+-				var traitData = MiniYaml.FromString(rs.ReadLengthPrefixedString(Encoding.UTF8, Connection.MaxOrderLength), $"{filepath}:traitData");
++				var traitData = MiniYaml.FromString(rs.ReadLengthPrefixedString(Encoding.UTF8, MaxTraitDataLength), $"{filepath}:traitData");
+ 				foreach (var td in traitData)
+ 					TraitData.Add(Exts.ParseInt32Invariant(td.Key), td.Value);

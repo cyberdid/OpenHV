@@ -20,6 +20,7 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/World/DiplomacyManager.cs
   - ../../OpenRA.Mods.HV/Traits/World/TradeManager.cs
   - ../../OpenRA.Mods.HV/Traits/World/UniverseState.cs
+  - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceState.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTradeSnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
@@ -132,6 +133,7 @@ window produces no result and stops the wrapper.
 | `SimulationResultWriter.cs` | Captures synchronized state/statistics and atomically writes JSON |
 | `SimulationTelemetryWriter.cs` | Writes periodic JSONL snapshots and reason-coded civil events |
 | `UniverseState.cs` | Owns synchronized Universe/system identity, three planet slots, lifecycle stage, activation, and macro time |
+| `PlanetSurfaceState.cs` | Owns the 180×360 geology, hydrology, spatial radiation, temperature, and pressure fields for each planet |
 | `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
 | `SimulationCheckpointManifestWriter.cs` | Atomically writes the versioned JSON companion for native OpenRA game saves |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
@@ -220,17 +222,31 @@ integer generation assigns tectonic plates, oceanic/continental/boundary crust,
 elevation, basin/shelf/lowland/highland/mountain/volcanic terrain, and mineral
 richness. Longitude wraps; latitude remains bounded.
 
+The same cells now carry authoritative fixed-point absorbed stellar radiation,
+temperature, and hydrostatic pressure. Insolation varies with latitude,
+orbital phase, axial tilt, and the global energy state; elevation applies a
+bounded lapse rate and pressure correction. Each macro climate pulse computes
+the next temperature into a second buffer using a radiative target plus
+four-neighbour diffusion, then swaps the complete field. Traversal is stable
+chunk/row/column order, longitude wraps, and latitude clamps, so no partial
+cell update can influence a later cell in the same pulse. Result and telemetry
+publish field digests plus min/mean/max diagnostics instead of transferring
+all 194,400 planet cells to observers.
+
 The large cell arrays are not traversed by the normal 50 Hz RTS sync hash.
 Instead, every mutation closes by recomputing a synchronized domain digest.
 Immutable geology is regenerated from its seed during load and must match the
-saved topology digest. Mutable water depth is Deflate-compressed in the native
-save and must match its saved hydrology digest. This reduced the experimental
-728 KiB textual payload that exceeded OpenRA's limit to a complete 23 KiB
-`.orasav` while preserving exact branch parity.
+saved topology digest. Mutable water depth is Deflate-compressed; evolved
+temperature is delta-encoded and Brotli-compressed; both are checked against
+their domain digests after restore. Inactive initial fields are regenerated
+from the same day-zero orbital state and require no temperature payload. The
+native `.orasav` is currently 135 KiB. A dedicated 16 MiB local trait-data read
+ceiling accommodates future compressed planet domains without changing
+OpenRA's 128 KiB network-order ceiling.
 
-This is still not the finished Phase 2 model. Spatial atmosphere, wind,
-hydrology, golden calibration, native overlays, and measured chunk LOD budgets
-remain required.
+This is still not the finished Phase 2 model. Wind/Coriolis/CFL stepping,
+spatial hydrology, golden calibration, native overlays, and measured chunk LOD
+budgets remain required.
 
 ## Universe checkpoints
 
@@ -246,8 +262,9 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
-Universe trait-save schema 3 additionally persists physical state and compressed
-mutable surface layers while validating regenerated geology by digest.
+Universe trait-save schema 4 additionally persists physical state and compressed
+mutable surface/climate layers while validating regenerated geology and every
+restored domain by digest.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 
@@ -257,7 +274,7 @@ requires identical normalized result JSON, full `World.SyncHash`, BotRandom
 count, faction metrics, and Universe snapshot, then validates all three JSON
 artifacts. The current seed-112 four-bot acceptance run, including global
 physics and all three 64,800-cell surfaces, passed at tick 500 with hash
-`12C56135` and BotRandom count `578`.
+`BB079066` and BotRandom count `578`.
 
 The current composite score is:
 

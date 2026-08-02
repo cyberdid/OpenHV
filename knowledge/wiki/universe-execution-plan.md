@@ -206,7 +206,7 @@ an equilibrium temperature, temperature approaches it through a bounded
 energy imbalance, water vapor can condense into a conserved ocean stock,
 ocean coverage changes albedo and weathering, and tectonics drive bounded
 outgassing. Every field is exported in result/telemetry, participates in the
-full sync hash, and is restored by Universe trait-save schema 3.
+full sync hash, and is restored by Universe trait-save schema 4.
 
 The second slice adds a 180×360 native surface to every planet: 64,800 stable
 cells grouped into 450 chunks. Deterministic generation creates distinct plate
@@ -216,12 +216,20 @@ digests are part of result/telemetry/checkpoint contracts. Immutable topology
 regenerates from the seed during load; mutable hydrology uses compressed binary
 save data. Continuous/resumed branches match after restoring all three grids.
 
+The third slice makes climate spatial on those same cells. Every planet owns
+absorbed-radiation, temperature, and elevation-dependent pressure fields. The
+active planet advances temperature through a deterministic double-buffered
+radiative/diffusive pulse in stable chunk order; inactive planets retain their
+day-zero orbital climate. Domain summaries/digests share the result,
+telemetry, checkpoint, and native-save boundary. Evolved temperature is
+delta+Brotli compressed and restores exactly.
+
 Remaining UNI-003 work:
 
-1. port deterministic spatial radiation, atmosphere, pressure, wind, and CFL
-   stepping from the Python oracle;
-2. port evaporation, clouds, condensation, precipitation, runoff, and strict
-   water conservation;
+1. port deterministic Coriolis, wind, and CFL-stable atmosphere stepping from
+   the Python oracle;
+2. port evaporation, clouds, condensation, precipitation, runoff, advection,
+   and strict water conservation;
 3. connect tectonic activity to evolving uplift, erosion, volcanism, and local
    material transport instead of generation-time terrain only;
 4. add native whole-planet physical/climate overlays and diagnostics;

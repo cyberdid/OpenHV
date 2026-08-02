@@ -793,3 +793,25 @@ Release builds completed with zero warnings and errors. All 32 simulation tests
 passed in 9.344 seconds. Two ordinary runs and the graphical/headless pair
 matched at tick 500 with full hash `4EFA6210`. Result, telemetry, and checkpoint
 schemas expose the same closed surface summary contract.
+
+## [2026-08-02] change | Add spatial planetary climate (UNI-003C)
+
+Added authoritative absorbed-radiation, temperature, and hydrostatic-pressure
+fields to every 180×360 `PlanetSurfaceState`. Latitude, orbital phase, axial
+tilt, elevation lapse, global energy balance, and four-neighbour diffusion now
+drive a deterministic double-buffered climate pulse in stable chunk order.
+Only active Tyranthos advances; both reserved planets preserve their day-zero
+climate until activation. The result, telemetry, checkpoint, and full sync
+contracts now expose climate pulse/digest and min/mean/max diagnostics.
+
+Universe trait-save schema 4 delta-encodes and Brotli-compresses evolved
+temperature while regenerating inactive initial fields and validating all
+restored climate values by digest. OpenRA's local game-save trait reader now
+accepts up to 16 MiB without changing the 128 KiB network-order limit. The
+native checkpoint is 135 KiB. A seed-112 checkpoint fork matched continuous
+and resumed branches at tick 500 with full hash `BB079066` and BotRandom count
+`578`. Validation also corrected an integer overflow that had suppressed the
+global orbital-eccentricity forcing. Two ordinary runs and the
+graphical/headless pair matched at tick 500 with full hash `571F0C00`.
+Release builds completed with zero warnings and errors; all 33 simulation
+tests passed in 9.502 seconds.

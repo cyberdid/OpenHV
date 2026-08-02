@@ -26,11 +26,11 @@ runtime retirement.
 | ID | Capability and source | C# destination | Gate | Status |
 |---|---|---|---|---|
 | PHY-01 | Canonical planet configuration and calibration (`config.py`) | `Universe/Planet/PlanetDefinition` | config snapshot + validation | native foundation: three immutable physical seeds exported under a closed contract |
-| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicalState/System` | temperature range + energy residual golden suite | partial: synchronized fixed-point global energy pulse; spatial fields/golden calibration pending |
-| PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | reference |
+| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicalState/System` | temperature range + energy residual golden suite | partial: synchronized global energy plus 180×360 radiation/temperature fields native; golden calibration pending |
+| PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | partial: native elevation-dependent pressure field; Coriolis/wind/CFL pending |
 | PHY-04 | Evaporation, clouds, condensation, precipitation, water fixer | `HydrologySystem` | water conservation + precipitation parity | partial: global vapor condensation and ocean stock native; spatial cycle pending |
-| PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | reference |
-| PHY-06 | Large 2:1 surface, topology, stable cells/chunks | `PlanetSurfaceState` | deterministic topology + save/hash/LOD budget | partial: 180×360 native geology and 450 chunks verified; evolving spatial fields/LOD pending |
+| PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | partial: climate digests and min/mean/max radiation/temperature/pressure exported; forcing sweeps/textures pending |
+| PHY-06 | Large 2:1 surface, topology, stable cells/chunks | `PlanetSurfaceState` | deterministic topology + save/hash/LOD budget | partial: 180×360 native geology, climate fields, 450 chunks, and exact compressed restore verified; LOD pending |
 | BIO-01 | Habitability, biomass, complexity (`biosphere.py`) | `BiosphereState/System` | barren/no-life + growth/carrying-capacity tests | reference |
 | BIO-02 | Food web, species competition, mutation, migration | `EcosystemState/System` | deterministic diversity and extinction invariants | new |
 | EMR-01 | Race emergence and inherited traits (`emergence.py`) | `SapienceEmergenceSystem` | different planets produce different traits | reference |
@@ -62,7 +62,7 @@ runtime retirement.
 | VIS-04 | Chronicle and characters (`chronicle.html`) | native chronicle UI | filterable eras/events/characters | reference |
 | VIS-05 | Vertical city/planet strata (`city_levels.html`) | native strata/underground view | five layer classes or explicit superseding model | reference |
 | OBS-01 | Results, telemetry, events, batch, headless, hashes | existing simulation toolchain | full suite + schema validation | native |
-| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | native foundation: full current-runtime branch parity verified; every future domain trait must join the versioned contract |
+| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | native foundation: schema 4 restores physics, geology, hydrology, and spatial temperature with full branch parity; every future domain trait must join the contract |
 | BRG-01 | Planet/battle contracts and deterministic request replay | developer import/replay tools | schema tests retained; no product click dependency | native |
 
 ## Space and multi-planet scope

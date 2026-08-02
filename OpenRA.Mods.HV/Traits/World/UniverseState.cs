@@ -323,7 +323,7 @@ namespace OpenRA.Mods.HV.Traits
 			var half = Math.Max(1, orbit / 2);
 			var triangle = orbitalDay <= half ? orbitalDay * 2000 / half - 1000 :
 				1000 - (orbitalDay - half) * 2000 / Math.Max(1, orbit - half);
-			var seasonalFlux = definition.StellarFluxWattsPerSquareMeter *
+			var seasonalFlux = (long)definition.StellarFluxWattsPerSquareMeter *
 				definition.OrbitalEccentricityMillionths * triangle / 1_000_000_000L;
 			var incidentFlux = definition.StellarFluxWattsPerSquareMeter + (int)seasonalFlux;
 			absorbedSolarWattsPerSquareMeter = incidentFlux * (1000 - bondAlbedoPerMille) / 4000;
@@ -361,14 +361,17 @@ namespace OpenRA.Mods.HV.Traits
 		{
 			Definition = definition;
 			Physics = new PlanetPhysicalState(definition.Physics);
-			Surface = new PlanetSurfaceState(definition);
+			Surface = new PlanetSurfaceState(definition, Physics);
 			this.active = active;
 		}
 
 		internal void AdvanceClimate(int macroDay)
 		{
 			if (active)
+			{
 				Physics.AdvanceClimate(macroDay);
+				Surface.AdvanceClimate(Physics, macroDay);
+			}
 		}
 
 		internal void Restore(bool restoredActive, PlanetLifecycleStage restoredLifecycleStage)
@@ -426,7 +429,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 3;
+		const int TraitSaveSchemaVersion = 4;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -614,9 +617,11 @@ namespace OpenRA.Mods.HV.Traits
 				if (schemaVersion >= 2)
 					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
 						RequiredNode(data, $"{prefix}Physics").Value));
-				if (schemaVersion >= 3)
-					planet.Surface.Restore(FieldLoader.Load<PlanetSurfaceSaveData>(
-						RequiredNode(data, $"{prefix}Surface").Value));
+				if (schemaVersion >= 4)
+					planet.Surface.Restore(
+						FieldLoader.Load<PlanetSurfaceSaveData>(RequiredNode(data, $"{prefix}Surface").Value),
+						planet.Physics,
+						macroDay);
 			}
 
 			events.Clear();

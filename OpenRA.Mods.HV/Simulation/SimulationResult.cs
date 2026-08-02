@@ -71,10 +71,19 @@ namespace OpenRA.Mods.HV
 		public int Generation { get; init; }
 		public string TopologyHash { get; init; }
 		public string HydrologyHash { get; init; }
+		public int ClimatePulseSequence { get; init; }
+		public string ClimateHash { get; init; }
 		public int MinimumElevationMeters { get; init; }
 		public int MaximumElevationMeters { get; init; }
 		public int LandCellCount { get; init; }
 		public int BasinCellCount { get; init; }
+		public int MinimumTemperatureMilliKelvin { get; init; }
+		public int MaximumTemperatureMilliKelvin { get; init; }
+		public int MeanTemperatureMilliKelvin { get; init; }
+		public int MinimumPressurePascals { get; init; }
+		public int MaximumPressurePascals { get; init; }
+		public int MeanPressurePascals { get; init; }
+		public int MeanAbsorbedSolarWattsPerSquareMeter { get; init; }
 		public string FirstCellId { get; init; }
 		public string LastCellId { get; init; }
 		public string FirstChunkId { get; init; }

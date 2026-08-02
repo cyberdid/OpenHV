@@ -58,6 +58,20 @@ def planet_physics(*, active: bool, mass: int, radius: int):
 def planet_surface(
     planet_id: str, topology_hash: str, land_cells: int, basin_cells: int
 ):
+    climate = {
+        "planet-0001": (
+            2, "E8F85B93", 361_500, 480_600, 422_493,
+            249_490, 682_949, 472_214, 203,
+        ),
+        "planet-0002": (
+            0, "1F2D5FAF", 269_300, 362_000, 319_357,
+            53_460, 146_340, 104_525, 110,
+        ),
+        "planet-0003": (
+            0, "57FCD0FB", 623_300, 788_700, 701_943,
+            891_000, 2_440_500, 1_557_526, 350,
+        ),
+    }[planet_id]
     return {
         "latitudeCells": 180,
         "longitudeCells": 360,
@@ -70,10 +84,19 @@ def planet_surface(
         "generation": 1,
         "topologyHash": topology_hash,
         "hydrologyHash": "5EBF32C5",
+        "climatePulseSequence": climate[0],
+        "climateHash": climate[1],
         "minimumElevationMeters": -5700,
         "maximumElevationMeters": 3700,
         "landCellCount": land_cells,
         "basinCellCount": basin_cells,
+        "minimumTemperatureMilliKelvin": climate[2],
+        "maximumTemperatureMilliKelvin": climate[3],
+        "meanTemperatureMilliKelvin": climate[4],
+        "minimumPressurePascals": climate[5],
+        "maximumPressurePascals": climate[6],
+        "meanPressurePascals": climate[7],
+        "meanAbsorbedSolarWattsPerSquareMeter": climate[8],
         "firstCellId": f"{planet_id}:cell:000:000",
         "lastCellId": f"{planet_id}:cell:179:359",
         "firstChunkId": f"{planet_id}:chunk:00:00",
@@ -172,6 +195,24 @@ class UniverseContractTests(unittest.TestCase):
             for planet in universe_snapshot()["planets"]
         }
         self.assertEqual(len(hashes), 3)
+
+    def test_spatial_climate_advances_only_on_the_active_planet(self) -> None:
+        planets = universe_snapshot()["planets"]
+        self.assertEqual(planets[0]["surface"]["climatePulseSequence"], 2)
+        self.assertEqual(
+            [planet["surface"]["climatePulseSequence"] for planet in planets[1:]],
+            [0, 0],
+        )
+        for planet in planets:
+            surface = planet["surface"]
+            self.assertLessEqual(
+                surface["minimumTemperatureMilliKelvin"],
+                surface["meanTemperatureMilliKelvin"],
+            )
+            self.assertLessEqual(
+                surface["meanTemperatureMilliKelvin"],
+                surface["maximumTemperatureMilliKelvin"],
+            )
 
     def test_only_one_planet_is_active_in_the_initial_contract(self) -> None:
         snapshot = universe_snapshot()

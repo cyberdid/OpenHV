@@ -51,6 +51,15 @@ namespace OpenRA.Mods.HV.Traits
 
 		[FieldLoader.Require]
 		public string WaterDepthDeflateBase64;
+
+		[FieldLoader.Require]
+		public int ClimatePulseSequence;
+
+		[FieldLoader.Require]
+		public int ClimateHash;
+
+		[FieldLoader.Require]
+		public string TemperatureBrotliBase64;
 	}
 
 	/// <summary>
@@ -61,7 +70,7 @@ namespace OpenRA.Mods.HV.Traits
 	/// </summary>
 	public sealed class PlanetSurfaceState : IEffect, ISync
 	{
-		const int SaveSchemaVersion = 1;
+		const int SaveSchemaVersion = 2;
 		const int LatitudeCount = 180;
 		const int LongitudeCount = 360;
 		const int ChunkLatitudeCount = 12;
@@ -74,6 +83,10 @@ namespace OpenRA.Mods.HV.Traits
 		readonly byte[] terrain;
 		readonly ushort[] waterDepthMeters;
 		readonly byte[] materialRichness;
+		readonly ushort[] temperatureDeciKelvin;
+		readonly ushort[] nextTemperatureDeciKelvin;
+		readonly int[] pressurePascals;
+		readonly ushort[] absorbedSolarWattsPerSquareMeter;
 
 		[VerifySync]
 		int generation = 1;
@@ -83,6 +96,12 @@ namespace OpenRA.Mods.HV.Traits
 
 		[VerifySync]
 		int hydrologyHash;
+
+		[VerifySync]
+		int climatePulseSequence;
+
+		[VerifySync]
+		int climateHash;
 
 		public int LatitudeCells => LatitudeCount;
 		public int LongitudeCells => LongitudeCount;
@@ -95,12 +114,21 @@ namespace OpenRA.Mods.HV.Traits
 		public int Generation => generation;
 		public int TopologyHash => topologyHash;
 		public int HydrologyHash => hydrologyHash;
+		public int ClimatePulseSequence => climatePulseSequence;
+		public int ClimateHash => climateHash;
 		public int MinimumElevationMeters { get; private set; }
 		public int MaximumElevationMeters { get; private set; }
 		public int LandCellCount { get; private set; }
 		public int BasinCellCount { get; private set; }
+		public int MinimumTemperatureMilliKelvin { get; private set; }
+		public int MaximumTemperatureMilliKelvin { get; private set; }
+		public int MeanTemperatureMilliKelvin { get; private set; }
+		public int MinimumPressurePascals { get; private set; }
+		public int MaximumPressurePascals { get; private set; }
+		public int MeanPressurePascals { get; private set; }
+		public int MeanAbsorbedSolarWattsPerSquareMeter { get; private set; }
 
-		public PlanetSurfaceState(PlanetDefinition planet)
+		public PlanetSurfaceState(PlanetDefinition planet, PlanetPhysicalState physics)
 		{
 			this.planet = planet;
 			elevationMeters = new short[CellCount];
@@ -109,7 +137,12 @@ namespace OpenRA.Mods.HV.Traits
 			terrain = new byte[CellCount];
 			waterDepthMeters = new ushort[CellCount];
 			materialRichness = new byte[CellCount];
+			temperatureDeciKelvin = new ushort[CellCount];
+			nextTemperatureDeciKelvin = new ushort[CellCount];
+			pressurePascals = new int[CellCount];
+			absorbedSolarWattsPerSquareMeter = new ushort[CellCount];
 			Generate();
+			InitializeClimate(physics);
 		}
 
 		public string CellId(int latitudeIndex, int longitudeIndex)
@@ -153,16 +186,35 @@ namespace OpenRA.Mods.HV.Traits
 			return materialRichness[CellIndex(latitudeIndex, longitudeIndex)];
 		}
 
+		public int TemperatureMilliKelvinAt(int latitudeIndex, int longitudeIndex)
+		{
+			return temperatureDeciKelvin[CellIndex(latitudeIndex, longitudeIndex)] * 100;
+		}
+
+		public int PressurePascalsAt(int latitudeIndex, int longitudeIndex)
+		{
+			return pressurePascals[CellIndex(latitudeIndex, longitudeIndex)];
+		}
+
+		public int AbsorbedSolarWattsPerSquareMeterAt(int latitudeIndex, int longitudeIndex)
+		{
+			return absorbedSolarWattsPerSquareMeter[CellIndex(latitudeIndex, longitudeIndex)];
+		}
+
 		internal PlanetSurfaceSaveData CreateSaveData() => new()
 		{
 			SchemaVersion = SaveSchemaVersion,
 			Generation = generation,
 			TopologyHash = topologyHash,
 			HydrologyHash = hydrologyHash,
-			WaterDepthDeflateBase64 = CompressWaterDepth()
+			WaterDepthDeflateBase64 = CompressUShorts(waterDepthMeters),
+			ClimatePulseSequence = climatePulseSequence,
+			ClimateHash = climateHash,
+			TemperatureBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(temperatureDeciKelvin)
 		};
 
-		internal void Restore(PlanetSurfaceSaveData data)
+		internal void Restore(PlanetSurfaceSaveData data, PlanetPhysicalState physics, int macroDay)
 		{
 			if (data.SchemaVersion != SaveSchemaVersion)
 				throw new InvalidOperationException(
@@ -173,10 +225,18 @@ namespace OpenRA.Mods.HV.Traits
 				throw new InvalidOperationException(
 					"Planet surface seed generated a different topology than the saved runtime.");
 
-			RestoreWaterDepth(data.WaterDepthDeflateBase64);
+			RestoreUShorts(data.WaterDepthDeflateBase64, waterDepthMeters, "hydrology");
+			climatePulseSequence = data.ClimatePulseSequence;
+			if (climatePulseSequence > 0)
+				RestoreDeltaUShorts(data.TemperatureBrotliBase64, temperatureDeciKelvin, "temperature");
+
+			RecalculateClimateDerivedState(physics, climatePulseSequence == 0 ? 0 : macroDay);
 			RecalculateDerivedState();
 			if (hydrologyHash != data.HydrologyHash)
 				throw new InvalidOperationException("Planet surface save payload failed its deterministic digest check.");
+			if (climateHash != data.ClimateHash)
+				throw new InvalidOperationException(
+					$"Planet surface climate digest {unchecked((uint)climateHash):X8} does not match saved {unchecked((uint)data.ClimateHash):X8}.");
 		}
 
 		void Generate()
@@ -257,6 +317,143 @@ namespace OpenRA.Mods.HV.Traits
 			RecalculateDerivedState();
 		}
 
+		void InitializeClimate(PlanetPhysicalState physics)
+		{
+			var globalAbsorbed = physics.AbsorbedSolarWattsPerSquareMeter;
+			for (var latitude = 0; latitude < LatitudeCount; latitude++)
+				for (var longitude = 0; longitude < LongitudeCount; longitude++)
+				{
+					var index = latitude * LongitudeCount + longitude;
+					var factor = BaseInsolationFactor(latitude);
+					var absorbed = globalAbsorbed * factor / 1000;
+					absorbedSolarWattsPerSquareMeter[index] = (ushort)Math.Clamp(absorbed, 0, ushort.MaxValue);
+					var lapseDeciKelvin = elevationMeters[index] * 65 / 1000;
+					var temperature = physics.MeanSurfaceTemperatureMilliKelvin / 100 +
+						(absorbed - globalAbsorbed) * 2 - lapseDeciKelvin;
+					temperatureDeciKelvin[index] = (ushort)Math.Clamp(temperature, 1000, 9000);
+					pressurePascals[index] = LocalPressure(
+						physics.AtmospherePressurePascals, elevationMeters[index]);
+				}
+
+			// Derived radiation must use the same orbital/axial-tilt model as
+			// checkpoint restoration, including the day-zero seasonal phase.
+			RecalculateClimateDerivedState(physics, 0);
+		}
+
+		internal void AdvanceClimate(PlanetPhysicalState physics, int macroDay)
+		{
+			climatePulseSequence++;
+			var orbit = Math.Max(1, physics.OrbitalPeriodDays);
+			var orbitalDay = Math.Abs(macroDay % orbit);
+			var half = Math.Max(1, orbit / 2);
+			var season = orbitalDay <= half ? orbitalDay * 2000 / half - 1000 :
+				1000 - (orbitalDay - half) * 2000 / Math.Max(1, orbit - half);
+			var tiltScale = Math.Clamp(physics.AxialTiltMilliDegrees * 1000 / 45_000, 0, 1000);
+			var globalAbsorbed = physics.AbsorbedSolarWattsPerSquareMeter;
+
+			for (var chunkLatitude = 0; chunkLatitude < ChunkRows; chunkLatitude++)
+				for (var chunkLongitude = 0; chunkLongitude < ChunkColumns; chunkLongitude++)
+					for (var localLatitude = 0; localLatitude < ChunkLatitudeCount; localLatitude++)
+						for (var localLongitude = 0; localLongitude < ChunkLongitudeCount; localLongitude++)
+						{
+							var latitude = chunkLatitude * ChunkLatitudeCount + localLatitude;
+							var longitude = chunkLongitude * ChunkLongitudeCount + localLongitude;
+							var index = latitude * LongitudeCount + longitude;
+							var signedLatitude = (LatitudeCount - 1 - latitude * 2) * 1000 / (LatitudeCount - 1);
+							var seasonalAdjustment = signedLatitude * season * tiltScale / 2_000_000;
+							var factor = Math.Clamp(BaseInsolationFactor(latitude) + seasonalAdjustment, 50, 2100);
+							var absorbed = globalAbsorbed * factor / 1000;
+							absorbedSolarWattsPerSquareMeter[index] = (ushort)Math.Clamp(absorbed, 0, ushort.MaxValue);
+
+							var lapseDeciKelvin = elevationMeters[index] * 65 / 1000;
+							var target = physics.RadiativeEquilibriumMilliKelvin / 100 +
+								(absorbed - globalAbsorbed) * 2 - lapseDeciKelvin;
+							var north = Math.Max(0, latitude - 1) * LongitudeCount + longitude;
+							var south = Math.Min(LatitudeCount - 1, latitude + 1) * LongitudeCount + longitude;
+							var west = latitude * LongitudeCount + (longitude + LongitudeCount - 1) % LongitudeCount;
+							var east = latitude * LongitudeCount + (longitude + 1) % LongitudeCount;
+							var neighborMean = (temperatureDeciKelvin[north] + temperatureDeciKelvin[south] +
+								temperatureDeciKelvin[west] + temperatureDeciKelvin[east]) / 4;
+							var current = temperatureDeciKelvin[index];
+							var next = current + (target - current) / 12 + (neighborMean - current) / 20;
+							nextTemperatureDeciKelvin[index] = (ushort)Math.Clamp(next, 1000, 9000);
+						}
+
+			Array.Copy(nextTemperatureDeciKelvin, temperatureDeciKelvin, CellCount);
+			RecalculateClimateDerivedState(physics, macroDay);
+		}
+
+		void RecalculateClimateDerivedState(PlanetPhysicalState physics, int macroDay)
+		{
+			var orbit = Math.Max(1, physics.OrbitalPeriodDays);
+			var orbitalDay = Math.Abs(macroDay % orbit);
+			var half = Math.Max(1, orbit / 2);
+			var season = orbitalDay <= half ? orbitalDay * 2000 / half - 1000 :
+				1000 - (orbitalDay - half) * 2000 / Math.Max(1, orbit - half);
+			var tiltScale = Math.Clamp(physics.AxialTiltMilliDegrees * 1000 / 45_000, 0, 1000);
+			var globalAbsorbed = physics.AbsorbedSolarWattsPerSquareMeter;
+			for (var latitude = 0; latitude < LatitudeCount; latitude++)
+				for (var longitude = 0; longitude < LongitudeCount; longitude++)
+				{
+					var index = latitude * LongitudeCount + longitude;
+					var signedLatitude = (LatitudeCount - 1 - latitude * 2) * 1000 / (LatitudeCount - 1);
+					var seasonalAdjustment = signedLatitude * season * tiltScale / 2_000_000;
+					var factor = Math.Clamp(BaseInsolationFactor(latitude) + seasonalAdjustment, 50, 2100);
+					absorbedSolarWattsPerSquareMeter[index] = (ushort)Math.Clamp(
+						globalAbsorbed * factor / 1000, 0, ushort.MaxValue);
+					pressurePascals[index] = LocalPressure(physics.AtmospherePressurePascals, elevationMeters[index]);
+				}
+
+			RecalculateClimateSummaryAndHash();
+		}
+
+		void RecalculateClimateSummaryAndHash()
+		{
+			var minimumTemperature = int.MaxValue;
+			var maximumTemperature = int.MinValue;
+			var minimumPressure = int.MaxValue;
+			var maximumPressure = int.MinValue;
+			long temperatureTotal = 0;
+			long pressureTotal = 0;
+			long absorbedTotal = 0;
+			var hash = 2166136261u;
+			for (var i = 0; i < CellCount; i++)
+			{
+				minimumTemperature = Math.Min(minimumTemperature, temperatureDeciKelvin[i]);
+				maximumTemperature = Math.Max(maximumTemperature, temperatureDeciKelvin[i]);
+				minimumPressure = Math.Min(minimumPressure, pressurePascals[i]);
+				maximumPressure = Math.Max(maximumPressure, pressurePascals[i]);
+				temperatureTotal += temperatureDeciKelvin[i];
+				pressureTotal += pressurePascals[i];
+				absorbedTotal += absorbedSolarWattsPerSquareMeter[i];
+				hash = Mix(hash, temperatureDeciKelvin[i]);
+				hash = Mix32(hash, pressurePascals[i]);
+				hash = Mix(hash, absorbedSolarWattsPerSquareMeter[i]);
+			}
+
+			MinimumTemperatureMilliKelvin = minimumTemperature * 100;
+			MaximumTemperatureMilliKelvin = maximumTemperature * 100;
+			MeanTemperatureMilliKelvin = checked((int)(temperatureTotal * 100 / CellCount));
+			MinimumPressurePascals = minimumPressure;
+			MaximumPressurePascals = maximumPressure;
+			MeanPressurePascals = checked((int)(pressureTotal / CellCount));
+			MeanAbsorbedSolarWattsPerSquareMeter = checked((int)(absorbedTotal / CellCount));
+			climateHash = unchecked((int)hash);
+		}
+
+		static int BaseInsolationFactor(int latitude)
+		{
+			var distanceFromEquator = Math.Abs(latitude * 2 - (LatitudeCount - 1)) * 1000 /
+				(LatitudeCount - 1);
+			return 1750 - distanceFromEquator * 1500 / 1000;
+		}
+
+		static int LocalPressure(int globalPressure, int elevationMeters)
+		{
+			var factor = Math.Clamp(1000 - elevationMeters * 110 / 1000, 250, 2000);
+			return Math.Max(100, checked((int)((long)globalPressure * factor / 1000)));
+		}
+
 		void RecalculateDerivedState()
 		{
 			MinimumElevationMeters = int.MaxValue;
@@ -301,13 +498,13 @@ namespace OpenRA.Mods.HV.Traits
 				throw new ArgumentOutOfRangeException(nameof(longitudeIndex));
 		}
 
-		string CompressWaterDepth()
+		static string CompressUShorts(ushort[] values)
 		{
-			var raw = new byte[waterDepthMeters.Length * 2];
-			for (var i = 0; i < waterDepthMeters.Length; i++)
+			var raw = new byte[values.Length * 2];
+			for (var i = 0; i < values.Length; i++)
 			{
-				raw[i * 2] = (byte)waterDepthMeters[i];
-				raw[i * 2 + 1] = (byte)(waterDepthMeters[i] >> 8);
+				raw[i * 2] = (byte)values[i];
+				raw[i * 2 + 1] = (byte)(values[i] >> 8);
 			}
 
 			using var output = new MemoryStream();
@@ -317,7 +514,23 @@ namespace OpenRA.Mods.HV.Traits
 			return Convert.ToBase64String(output.ToArray());
 		}
 
-		void RestoreWaterDepth(string encoded)
+		static string CompressDeltaUShorts(ushort[] values)
+		{
+			var deltas = new ushort[values.Length];
+			if (values.Length > 0)
+				deltas[0] = values[0];
+			for (var i = 1; i < values.Length; i++)
+				deltas[i] = unchecked((ushort)(short)(values[i] - values[i - 1]));
+
+			var raw = EncodeUShorts(deltas);
+			using var output = new MemoryStream();
+			using (var compressor = new BrotliStream(output, CompressionLevel.Optimal, true))
+				compressor.Write(raw, 0, raw.Length);
+
+			return Convert.ToBase64String(output.ToArray());
+		}
+
+		static void RestoreUShorts(string encoded, ushort[] destination, string fieldName)
 		{
 			byte[] compressed;
 			try
@@ -326,7 +539,7 @@ namespace OpenRA.Mods.HV.Traits
 			}
 			catch (FormatException e)
 			{
-				throw new InvalidOperationException("Saved planet hydrology is not valid base64.", e);
+				throw new InvalidOperationException($"Saved planet {fieldName} is not valid base64.", e);
 			}
 
 			using var input = new MemoryStream(compressed);
@@ -334,12 +547,62 @@ namespace OpenRA.Mods.HV.Traits
 			using var output = new MemoryStream();
 			decompressor.CopyTo(output);
 			var raw = output.ToArray();
-			if (raw.Length != waterDepthMeters.Length * 2)
+			if (raw.Length != destination.Length * 2)
 				throw new InvalidOperationException(
-					$"Saved planet hydrology contains {raw.Length} bytes; expected {waterDepthMeters.Length * 2}.");
+					$"Saved planet {fieldName} contains {raw.Length} bytes; expected {destination.Length * 2}.");
 
-			for (var i = 0; i < waterDepthMeters.Length; i++)
-				waterDepthMeters[i] = (ushort)(raw[i * 2] | raw[i * 2 + 1] << 8);
+			for (var i = 0; i < destination.Length; i++)
+				destination[i] = (ushort)(raw[i * 2] | raw[i * 2 + 1] << 8);
+		}
+
+		static void RestoreDeltaUShorts(string encoded, ushort[] destination, string fieldName)
+		{
+			byte[] compressed;
+			try
+			{
+				compressed = Convert.FromBase64String(encoded);
+			}
+			catch (FormatException e)
+			{
+				throw new InvalidOperationException($"Saved planet {fieldName} is not valid base64.", e);
+			}
+
+			using var input = new MemoryStream(compressed);
+			using var decompressor = new BrotliStream(input, CompressionMode.Decompress);
+			using var output = new MemoryStream();
+			decompressor.CopyTo(output);
+			var raw = output.ToArray();
+			if (raw.Length != destination.Length * 2)
+				throw new InvalidOperationException(
+					$"Saved planet {fieldName} contains {raw.Length} bytes; expected {destination.Length * 2}.");
+
+			var deltas = DecodeUShorts(raw, destination.Length);
+			if (destination.Length == 0)
+				return;
+
+			destination[0] = deltas[0];
+			for (var i = 1; i < destination.Length; i++)
+				destination[i] = unchecked((ushort)(destination[i - 1] + (short)deltas[i]));
+		}
+
+		static byte[] EncodeUShorts(ushort[] values)
+		{
+			var raw = new byte[values.Length * 2];
+			for (var i = 0; i < values.Length; i++)
+			{
+				raw[i * 2] = (byte)values[i];
+				raw[i * 2 + 1] = (byte)(values[i] >> 8);
+			}
+
+			return raw;
+		}
+
+		static ushort[] DecodeUShorts(byte[] raw, int count)
+		{
+			var result = new ushort[count];
+			for (var i = 0; i < count; i++)
+				result[i] = (ushort)(raw[i * 2] | raw[i * 2 + 1] << 8);
+			return result;
 		}
 
 		static int Positive(int value)
@@ -366,6 +629,17 @@ namespace OpenRA.Mods.HV.Traits
 			{
 				hash = (hash ^ (byte)value) * 16777619u;
 				hash = (hash ^ (byte)(value >> 8)) * 16777619u;
+				return hash;
+			}
+		}
+
+		static uint Mix32(uint hash, int value)
+		{
+			unchecked
+			{
+				hash = Mix(hash, value);
+				hash = (hash ^ (byte)(value >> 16)) * 16777619u;
+				hash = (hash ^ (byte)(value >> 24)) * 16777619u;
 				return hash;
 			}
 		}
