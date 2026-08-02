@@ -16,37 +16,46 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Widgets;
+using OpenRA.Mods.HV.Traits;
 using OpenRA.Primitives;
 using OpenRA.Support;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.Widgets
 {
-	public enum PlanetOverlay { Biome, Biomass, Population, Faction }
+	public enum PlanetOverlay
+	{
+		Terrain,
+		Temperature,
+		Pressure,
+		Wind,
+		Precipitation,
+		VerticalMotion,
+		Biomass,
+		Population,
+		Faction
+	}
 
 	/// <summary>
-	/// Draws one planet-state-v1 frame as a grid of cells.
-	///
-	/// The campaign is floating-point Python and the battle is integer lockstep,
-	/// so the planet cannot be simulated in here. It is fetched over HTTP and
-	/// drawn - a widget showing data, not a world being stepped. Nothing served
-	/// over this channel enters a match, which is why it can never desynchronise
-	/// anything.
-	///
+	/// Draws the authoritative native PlanetSurfaceState as a grid of cells.
+	/// The old planet-state-v1 HTTP reader remains a migration fallback for
+	/// biosphere/faction layers that have not joined the native runtime yet.
+	/// <para>
 	/// Built like RadarWidget rather than as ten thousand filled rectangles: one
 	/// BGRA sheet written per fetch and drawn as a single scaled sprite. At
 	/// 144x72 the per-rectangle version would issue a draw call per cell every
 	/// frame for a picture that changes about once a second.
+	/// </para>
 	/// </summary>
 	public class PlanetMapWidget : Widget
 	{
 		public string Url = "http://localhost:8791/api/planet";
-		public PlanetOverlay Overlay = PlanetOverlay.Biome;
+		public PlanetOverlay Overlay = PlanetOverlay.Terrain;
 
 		// planet-state-v1 biome codes. Index is the code the schema defines;
 		// the colours are read-at-a-glance, not the tileset's.
 		static readonly Color[] BiomeColors =
-		{
+		[
 			Color.FromArgb(0xE8, 0xF4, 0xFF),   // 0 ice
 			Color.FromArgb(0x9F, 0xB0, 0xA8),   // 1 tundra
 			Color.FromArgb(0xB9, 0xA1, 0x7E),   // 2 barrens
@@ -54,7 +63,17 @@ namespace OpenRA.Mods.HV.Widgets
 			Color.FromArgb(0x3E, 0x7A, 0x3C),   // 4 growth
 			Color.FromArgb(0x1C, 0x4A, 0x2E),   // 5 deep-growth
 			Color.FromArgb(0x5A, 0x33, 0x28),   // 6 scorched
-		};
+		];
+
+		static readonly Color[] TerrainColors =
+		[
+			Color.FromArgb(0x08, 0x1C, 0x3A),   // deep basin
+			Color.FromArgb(0x24, 0x60, 0x80),   // shelf
+			Color.FromArgb(0x42, 0x7A, 0x3C),   // lowland
+			Color.FromArgb(0x9B, 0x83, 0x52),   // highland
+			Color.FromArgb(0xB2, 0xB2, 0xB5),   // mountain
+			Color.FromArgb(0x9A, 0x37, 0x28),   // volcanic
+		];
 
 		public int LatitudeCells { get; private set; }
 		public int LongitudeCells { get; private set; }
@@ -69,7 +88,13 @@ namespace OpenRA.Mods.HV.Widgets
 		public int[] PopulationDensity { get; private set; }
 		public int[] Faction { get; private set; }
 		public int[] TemperatureK { get; private set; }
-		public readonly List<(int Index, string Name, Color Colour)> Factions = new();
+		public int[] PressurePascals { get; private set; }
+		public int[] EastWindCentimetersPerSecond { get; private set; }
+		public int[] NorthWindCentimetersPerSecond { get; private set; }
+		public int[] PrecipitationTenthsMillimetersPerDay { get; private set; }
+		public int[] VerticalVelocityMillimetersPerSecond { get; private set; }
+		public List<(int Index, string Name, Color Colour)> Factions { get; } = [];
+		public bool IsNative => nativePlanet != null;
 
 		public int2? SelectedCell { get; private set; }
 		public Action OnFetched;
@@ -79,6 +104,7 @@ namespace OpenRA.Mods.HV.Widgets
 		Sprite sprite;
 		byte[] data;
 		bool dirty;
+		PlanetState nativePlanet;
 
 		public override void Draw()
 		{
@@ -160,10 +186,102 @@ namespace OpenRA.Mods.HV.Widgets
 			dirty = true;
 		}
 
+		public void Bind(PlanetState planet)
+		{
+			nativePlanet = planet ?? throw new ArgumentNullException(nameof(planet));
+			RefreshNative();
+		}
+
+		public override void Tick()
+		{
+			base.Tick();
+			if (nativePlanet != null && nativePlanet.Surface.ClimatePulseSequence != Step)
+				RefreshNative();
+		}
+
+		public void RefreshNative()
+		{
+			if (nativePlanet == null)
+				return;
+
+			var surface = nativePlanet.Surface;
+			LatitudeCells = surface.LatitudeCells;
+			LongitudeCells = surface.LongitudeCells;
+			Step = surface.ClimatePulseSequence;
+			PlanetId = nativePlanet.Definition.PlanetId;
+			PlanetName = nativePlanet.Definition.Name;
+			var count = surface.CellCount;
+			Biome = new int[count];
+			Biomass = new int[count];
+			PopulationDensity = new int[count];
+			Faction = new int[count];
+			TemperatureK = new int[count];
+			PressurePascals = new int[count];
+			EastWindCentimetersPerSecond = new int[count];
+			NorthWindCentimetersPerSecond = new int[count];
+			PrecipitationTenthsMillimetersPerDay = new int[count];
+			VerticalVelocityMillimetersPerSecond = new int[count];
+			for (var latitude = 0; latitude < LatitudeCells; latitude++)
+				for (var longitude = 0; longitude < LongitudeCells; longitude++)
+				{
+					var index = latitude * LongitudeCells + longitude;
+					Biome[index] = (int)surface.TerrainAt(latitude, longitude);
+					Faction[index] = -1;
+					TemperatureK[index] = surface.TemperatureMilliKelvinAt(latitude, longitude) / 1000;
+					PressurePascals[index] = surface.PressurePascalsAt(latitude, longitude);
+					EastWindCentimetersPerSecond[index] =
+						surface.EastWindCentimetersPerSecondAt(latitude, longitude);
+					NorthWindCentimetersPerSecond[index] =
+						surface.NorthWindCentimetersPerSecondAt(latitude, longitude);
+					PrecipitationTenthsMillimetersPerDay[index] =
+						surface.PrecipitationTenthsMillimetersPerDayAt(latitude, longitude);
+					VerticalVelocityMillimetersPerSecond[index] =
+						surface.VerticalVelocityMillimetersPerSecondAt(latitude, longitude);
+				}
+
+			Error = null;
+			dirty = true;
+			OnFetched?.Invoke();
+		}
+
 		Color ColorFor(int i)
 		{
 			switch (Overlay)
 			{
+				case PlanetOverlay.Temperature:
+				{
+					var v = Math.Clamp((TemperatureK[i] - 140) / 760f, 0f, 1f);
+					return HeatColor(v);
+				}
+
+				case PlanetOverlay.Pressure:
+				{
+					var v = Math.Clamp(PressurePascals[i] / 2_500_000f, 0f, 1f);
+					return Color.FromArgb(255, (int)(20 + 100 * v), (int)(45 + 180 * v), (int)(80 + 175 * v));
+				}
+
+				case PlanetOverlay.Wind:
+				{
+					var speed = ApproximateSpeed(
+						EastWindCentimetersPerSecond[i], NorthWindCentimetersPerSecond[i]);
+					return HeatColor(Math.Clamp(speed / 15_000f, 0f, 1f));
+				}
+
+				case PlanetOverlay.Precipitation:
+				{
+					var v = Math.Clamp(PrecipitationTenthsMillimetersPerDay[i] / 5000f, 0f, 1f);
+					return Color.FromArgb(255, (int)(18 + 110 * v), (int)(25 + 180 * v), (int)(50 + 205 * v));
+				}
+
+				case PlanetOverlay.VerticalMotion:
+				{
+					var velocity = VerticalVelocityMillimetersPerSecond[i];
+					var strength = Math.Clamp(Math.Abs(velocity) / 900f, 0f, 1f);
+					return velocity >= 0
+						? Color.FromArgb(255, (int)(30 + 225 * strength), (int)(40 + 170 * strength), 50)
+						: Color.FromArgb(255, 35, (int)(50 + 100 * strength), (int)(70 + 185 * strength));
+				}
+
 				case PlanetOverlay.Biomass:
 				{
 					// Against standing capacity, so a stripped cell reads as
@@ -193,9 +311,25 @@ namespace OpenRA.Mods.HV.Widgets
 				default:
 				{
 					var b = Biome[i];
-					return b >= 0 && b < BiomeColors.Length ? BiomeColors[b] : Color.FromArgb(255, 255, 0, 255);
+					var colors = IsNative ? TerrainColors : BiomeColors;
+					return b >= 0 && b < colors.Length ? colors[b] : Color.FromArgb(255, 255, 0, 255);
 				}
 			}
+		}
+
+		static int ApproximateSpeed(int x, int y)
+		{
+			var absoluteX = Math.Abs(x);
+			var absoluteY = Math.Abs(y);
+			return Math.Max(absoluteX, absoluteY) + Math.Min(absoluteX, absoluteY) / 2;
+		}
+
+		static Color HeatColor(float value)
+		{
+			var v = Math.Clamp(value, 0f, 1f);
+			return v < 0.5f
+				? Color.FromArgb(255, (int)(20 + 120 * v), (int)(50 + 340 * v), (int)(120 + 270 * v))
+				: Color.FromArgb(255, (int)(-115 + 370 * v), (int)(300 - 260 * v), (int)(300 - 270 * v));
 		}
 
 		void Repaint()
@@ -237,6 +371,12 @@ namespace OpenRA.Mods.HV.Widgets
 		/// message rather than a freeze.</summary>
 		public void Fetch()
 		{
+			if (nativePlanet != null)
+			{
+				RefreshNative();
+				return;
+			}
+
 			if (Fetching)
 				return;
 
@@ -298,7 +438,7 @@ namespace OpenRA.Mods.HV.Widgets
 			public int[] Population;
 			public int[] Faction;
 			public int[] TemperatureK;
-			public List<(int, string, Color)> Factions = new();
+			public List<(int, string, Color)> Factions = [];
 		}
 
 		static int[] ReadInts(JsonElement parent, string name, int expected)
@@ -363,9 +503,9 @@ namespace OpenRA.Mods.HV.Widgets
 				var hex = f.GetProperty("colour").GetString();
 				var colour = Color.FromArgb(
 					255,
-					Convert.ToInt32(hex.Substring(0, 2), 16),
-					Convert.ToInt32(hex.Substring(2, 2), 16),
-					Convert.ToInt32(hex.Substring(4, 2), 16));
+					Convert.ToInt32(hex[..2], 16),
+					Convert.ToInt32(hex[2..4], 16),
+					Convert.ToInt32(hex[4..6], 16));
 				frame.Factions.Add((f.GetProperty("index").GetInt32(), f.GetProperty("name").GetString(), colour));
 			}
 
@@ -386,8 +526,7 @@ namespace OpenRA.Mods.HV.Widgets
 			TemperatureK = f.TemperatureK;
 
 			Factions.Clear();
-			foreach (var entry in f.Factions)
-				Factions.Add(entry);
+			Factions.AddRange(f.Factions);
 
 			if (SelectedCell.HasValue &&
 				(SelectedCell.Value.X >= LongitudeCells || SelectedCell.Value.Y >= LatitudeCells))

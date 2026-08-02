@@ -22,6 +22,11 @@ sources:
   - ../../OpenRA.Mods.HV/Traits/World/UniverseState.cs
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceState.cs
   - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceAtmosphereState.cs
+  - ../../OpenRA.Mods.HV/Traits/World/PlanetSurfaceColumnState.cs
+  - ../../OpenRA.Mods.HV/Widgets/PlanetMapWidget.cs
+  - ../../OpenRA.Mods.HV/Widgets/Logic/PlanetLogic.cs
+  - ../../OpenRA.Mods.HV/Widgets/Logic/CustomMainMenuLogic.cs
+  - ../../mods/hv/chrome/planet.yaml
   - ../../OpenRA.Mods.HV/Simulation/SimulationDiplomacySnapshotBuilder.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationTradeSnapshotBuilder.cs
   - ../../schemas/simulation-result-v1.schema.json
@@ -69,14 +74,20 @@ zero-state lifecycle replace it.
 ordinary visual speed, a disabled wall-clock watchdog, and an effectively
 unbounded synchronized horizon. `PanelLoadScreen` creates the local server,
 places every bot, switches the local client to spectator, and starts the world
-without any faction, cell, or battle selection.
+without any faction, cell, or battle selection. The native planet panel opens
+automatically and reads the same synchronized `PlanetSurfaceState` that the
+simulation advances; closing or changing the observer view does not pause or
+mutate the world.
 
-Civil settlements, population, needs, research, trade, diplomacy, production,
-units, and combat therefore advance in the same synchronized OpenHV `World`.
-The Python/Web planet and `fight-cell.sh` are observer/bridge tools, not parts
-of the canonical product runtime. If OpenHV reports a natural victory or total
-civil collapse, the wrapper starts a new deterministic epoch; closing the
-window produces no result and stops the wrapper.
+Planet physics, civil settlements, population, needs, research, trade,
+diplomacy, production, units, and combat therefore advance in the same
+synchronized OpenHV `World`. The Python/Web planet and `fight-cell.sh` are
+legacy observer/bridge tools, not parts of the canonical product runtime. The
+native panel may temporarily read their HTTP export only for biological and
+social layers that have not yet migrated; all physical overlays bind directly
+to C# state. If OpenHV reports a natural victory or total civil collapse, the
+wrapper starts a new deterministic epoch; closing the window produces no
+result and stops the wrapper.
 
 ## Runtime flow
 
@@ -136,6 +147,9 @@ window produces no result and stops the wrapper.
 | `UniverseState.cs` | Owns synchronized Universe/system identity, three planet slots, lifecycle stage, activation, and macro time |
 | `PlanetSurfaceState.cs` | Owns the 180×360 geology, hydrology, spatial radiation, temperature, and pressure fields for each planet |
 | `PlanetSurfaceAtmosphereState.cs` | Advances fixed-point wind, vapor, cloud, precipitation, surface water, and runoff on the same cells |
+| `PlanetSurfaceColumnState.cs` | Advances the eight-level temperature, humidity, wind, stability, vertical-motion, and latent-energy column on every cell |
+| `PlanetMapWidget.cs` / `PlanetLogic.cs` | Renders and inspects native terrain, temperature, pressure, wind, precipitation, and vertical-motion overlays from the authoritative planet state |
+| `CustomMainMenuLogic.cs` | Opens the passive native planet observer automatically while the RTS world continues underneath |
 | `SimulationUniverseSnapshotBuilder.cs` | Projects the synchronized Universe root into result and telemetry contracts |
 | `SimulationCheckpointManifestWriter.cs` | Atomically writes the versioned JSON companion for native OpenRA game saves |
 | `CivilizationState.cs` | Defines synchronized civilization, settlement, and civil-infrastructure traits |
@@ -256,21 +270,44 @@ silently applying a water fixer. Area-weighted wind, cloud, precipitation,
 water-stock, CFL-step, and independent atmosphere/hydrology digests are
 published in result, telemetry, and checkpoint snapshots.
 
+Every cell also owns one authoritative eight-level atmospheric column. The
+fixed pressure levels span 980–110 per mille of surface pressure and carry
+temperature, relative humidity, east/north wind, vertical velocity, and bulk
+Richardson stability. Deterministic lapse, vertical moisture decay,
+stability-limited mixing, convective adjustment, and thermal-wind shaping
+produce lower/upper temperature and humidity, shear, jet, Hadley, stability,
+and vertical-motion diagnostics. All levels evolve through complete buffers;
+they are not a visual reconstruction of the surface fields.
+
+Evaporated and condensed mass accumulated by the water cycle drives one exact
+latent-energy ledger. Evaporation cools the surface and condensation heats the
+lower atmosphere, with a bounded physical flux and a synchronized residual
+that must remain zero. The area-weighted spatial surface temperature is then
+the global `PlanetPhysicalState` temperature, so the coarse energy summary can
+no longer diverge from the grid that biology and rendering will consume.
+
 The large cell arrays are not traversed by the normal 50 Hz RTS sync hash.
 Instead, every mutation closes by recomputing a synchronized domain digest.
 Immutable geology is regenerated from its seed during load and must match the
 saved topology digest. Mutable water depth is Deflate-compressed; evolved
-temperature, two wind components, vapor, cloud, surface water, and
-precipitation are delta-encoded and Brotli-compressed; every restored domain
-must match its saved digest and total-water invariant. Inactive initial fields
-are regenerated from the same day-zero orbital state and need no array
-payload. The native `.orasav` is currently 916 KiB. A dedicated 16 MiB local
-trait-data read ceiling accommodates future compressed planet domains without
-changing OpenRA's 128 KiB network-order ceiling.
+temperature, two near-surface wind components, vapor, cloud, surface water,
+precipitation, and all vertical-column fields are delta-encoded and
+Brotli-compressed; every restored domain must match its saved digest and the
+water/latent invariants. Inactive initial fields are regenerated from the same
+day-zero orbital state and need no array payload. The native `.orasav` is
+currently about 4.3 MiB. A dedicated 16 MiB local trait-data read ceiling
+accommodates future compressed planet domains without changing OpenRA's
+128 KiB network-order ceiling.
 
-This is still not the finished Phase 2 model. Vertical atmosphere/latent-energy
-closure, evolving geology, golden forcing calibration, native overlays, and
-measured chunk LOD budgets remain required.
+The normal graphical world advances `UniverseState` under the same tick path
+as headless execution. Its auto-opened planet observer reads cell arrays
+directly and exposes six passive layers: terrain, temperature, pressure, wind,
+precipitation, and vertical motion. The old local HTTP endpoint remains only a
+compatibility source for not-yet-native biosphere/faction overlays; it is not a
+second physics engine and is not required for the native physical view.
+
+This is still not the finished Phase 2 model. Evolving geology, golden forcing
+calibration, and measured chunk LOD/time/memory budgets remain required.
 
 ## Universe checkpoints
 
@@ -286,9 +323,10 @@ payload, then starts the observer and continues to the configured horizon.
 The checkpoint contract includes the dedicated BotRandom position, pending bot
 decisions, BaseBuilder queue state, production progress, player resources,
 periodic cash state, civilization decisions, and settlement stocks and timers.
-Universe trait-save schema 5 additionally persists physical state and compressed
-mutable surface/climate/atmosphere/hydrology layers while validating
-regenerated geology, every restored domain digest, and exact water mass.
+Universe trait-save schema 6 additionally persists physical state and compressed
+mutable surface/climate/atmosphere/hydrology/vertical-column layers while
+validating regenerated geology, every restored domain digest, exact water
+mass, and latent-energy closure.
 The barrier drains in-flight network orders without advancing the world, then
 commits the native save and manifest on one macro boundary.
 
@@ -298,7 +336,7 @@ requires identical normalized result JSON, full `World.SyncHash`, BotRandom
 count, faction metrics, and Universe snapshot, then validates all three JSON
 artifacts. The current seed-112 four-bot acceptance run, including global
 physics and all three 64,800-cell surfaces, passed at tick 500 with hash
-`A62F8667` and BotRandom count `578`.
+`63547996` and BotRandom count `578`.
 
 The current composite score is:
 

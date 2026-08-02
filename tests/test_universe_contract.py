@@ -29,35 +29,53 @@ def read_json(path: Path):
 
 def planet_physics(
     *,
+    planet_id: str,
     active: bool,
     mass: int,
     radius: int,
     atmospheric_water: int,
     surface_water: int,
 ):
+    calibrated = {
+        "planet-0001": (
+            9762, 1020, 151_000, 380, 23_500, 18_000, 1340,
+            380, 204, 390_547, 422_479, -127_728, 420_010,
+            120_000, 0, 12, 920,
+        ),
+        "planet-0002": (
+            9469, 1800, 210_000, 590, 12_000, 40_000, 750,
+            380, 111, 258_440, 310_000, -206_240, 90_000,
+            20_000, 0, 8, 500,
+        ),
+        "planet-0003": (
+            9985, 780, 100_000, 210, 5000, 10_000, 2300,
+            380, 352, 560_510, 700_000, -557_960, 1_500_000,
+            450_000, 0, 15, 800,
+        ),
+    }[planet_id]
     return {
         "geologicalAgeYears": 2_000_000 if active else 0,
         "massEarthMillionths": mass,
         "radiusKilometers": radius,
-        "surfaceGravityMilliMetersPerSecondSquared": 9810,
-        "rotationPeriodMinutes": 1020,
-        "orbitalDistanceMillionKilometers": 151_000,
-        "orbitalPeriodDays": 380,
-        "axialTiltMilliDegrees": 23_500,
-        "orbitalEccentricityMillionths": 18_000,
-        "stellarFluxWattsPerSquareMeter": 1340,
-        "bondAlbedoPerMille": 380,
-        "absorbedSolarWattsPerSquareMeter": 204,
-        "radiativeEquilibriumMilliKelvin": 395_000,
-        "meanSurfaceTemperatureMilliKelvin": 414_000,
-        "energyImbalanceMilliWattsPerSquareMeter": -76_000,
-        "atmospherePressurePascals": 420_018,
-        "carbonDioxidePartsPerMillion": 120_000,
+        "surfaceGravityMilliMetersPerSecondSquared": calibrated[0],
+        "rotationPeriodMinutes": calibrated[1],
+        "orbitalDistanceMillionKilometers": calibrated[2],
+        "orbitalPeriodDays": calibrated[3],
+        "axialTiltMilliDegrees": calibrated[4],
+        "orbitalEccentricityMillionths": calibrated[5],
+        "stellarFluxWattsPerSquareMeter": calibrated[6],
+        "bondAlbedoPerMille": calibrated[7],
+        "absorbedSolarWattsPerSquareMeter": calibrated[8],
+        "radiativeEquilibriumMilliKelvin": calibrated[9],
+        "meanSurfaceTemperatureMilliKelvin": calibrated[10],
+        "energyImbalanceMilliWattsPerSquareMeter": calibrated[11],
+        "atmospherePressurePascals": calibrated[12],
+        "carbonDioxidePartsPerMillion": calibrated[13],
         "atmosphericWaterPartsPerMillion": atmospheric_water,
         "surfaceWaterCubicKilometers": surface_water,
-        "oceanCoveragePerMille": 0,
-        "tectonicPlateCount": 12,
-        "tectonicActivityPerMille": 920,
+        "oceanCoveragePerMille": calibrated[14],
+        "tectonicPlateCount": calibrated[15],
+        "tectonicActivityPerMille": calibrated[16],
         "climatePulseSequence": 2 if active else 0,
     }
 
@@ -67,7 +85,7 @@ def planet_surface(
 ):
     climate = {
         "planet-0001": (
-            2, "09922C25", 361_500, 480_600, 422_493,
+            2, "8483713A", 361_000, 480_600, 422_479,
             249_485, 682_936, 472_205, 203,
         ),
         "planet-0002": (
@@ -91,6 +109,20 @@ def planet_surface(
         "planet-0003": (
             "5FF2509B", "3F8018AF", 0, 0, 6348, 8238,
             300_000, 0, 0, 0, 300_000_000_000,
+        ),
+    }[planet_id]
+    column = {
+        "planet-0001": (
+            "12366216", 432_832, 391_607, 645, 58, 11_941,
+            6521, 22_315, 246, 437_555, 23_000, 206_245, 58,
+        ),
+        "planet-0002": (
+            "2F4B3EB3", 321_656, 283_856, 192, 16, 2480,
+            4161, 9885, 161, 772_800, 20_300, 0, 0,
+        ),
+        "planet-0003": (
+            "86A5D4D8", 714_470, 676_670, 331, 29, 4537,
+            7617, 9885, 285, 322_897, 43_600, 0, 0,
         ),
     }[planet_id]
     return {
@@ -129,6 +161,21 @@ def planet_surface(
         "spatialSurfaceWaterCubicKilometers": hydrology[9],
         "totalWaterMassUnits": hydrology[10],
         "waterBalanceErrorUnits": 0,
+        "verticalLevels": 8,
+        "verticalAtmosphereHash": column[0],
+        "meanLowerAtmosphereTemperatureMilliKelvin": column[1],
+        "meanUpperAtmosphereTemperatureMilliKelvin": column[2],
+        "meanLowerRelativeHumidityPerMille": column[3],
+        "meanUpperRelativeHumidityPerMille": column[4],
+        "meanVerticalShearMicrosPerSecond": column[5],
+        "meanJetSpeedCentimetersPerSecond": column[6],
+        "maximumJetSpeedCentimetersPerSecond": column[7],
+        "meanVerticalVelocityMillimetersPerSecond": column[8],
+        "meanBulkRichardsonMillionths": column[9],
+        "hadleyTemperatureIndexMilliKelvin": column[10],
+        "meanLatentFluxMilliWattsPerSquareMeter": column[11],
+        "latentEnergyResidualMilliWattsPerSquareMeter": 0,
+        "cumulativeLatentEnergyMegaJoulesPerSquareMeter": column[12],
         "firstCellId": f"{planet_id}:cell:000:000",
         "lastCellId": f"{planet_id}:cell:179:359",
         "firstChunkId": f"{planet_id}:chunk:00:00",
@@ -153,6 +200,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(
+                    planet_id="planet-0001",
                     active=True,
                     mass=1_020_000,
                     radius=6450,
@@ -169,6 +217,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(
+                    planet_id="planet-0002",
                     active=False,
                     mass=800_000,
                     radius=5800,
@@ -185,6 +234,7 @@ def universe_snapshot():
                 "lifecycleStage": "lifeless",
                 "nativeRaceId": None,
                 "physics": planet_physics(
+                    planet_id="planet-0003",
                     active=False,
                     mass=1_300_000,
                     radius=7200,
@@ -288,6 +338,34 @@ class UniverseContractTests(unittest.TestCase):
         self.assertEqual(
             surface["spatialSurfaceWaterCubicKilometers"],
             active["physics"]["surfaceWaterCubicKilometers"],
+        )
+
+    def test_vertical_atmosphere_is_stratified_and_bounded(self) -> None:
+        surface = universe_snapshot()["planets"][0]["surface"]
+        self.assertEqual(surface["verticalLevels"], 8)
+        self.assertLess(
+            surface["meanUpperAtmosphereTemperatureMilliKelvin"],
+            surface["meanLowerAtmosphereTemperatureMilliKelvin"],
+        )
+        self.assertLess(
+            surface["meanUpperRelativeHumidityPerMille"],
+            surface["meanLowerRelativeHumidityPerMille"],
+        )
+        self.assertGreater(surface["meanVerticalShearMicrosPerSecond"], 0)
+        self.assertGreater(surface["meanJetSpeedCentimetersPerSecond"], 0)
+        self.assertLessEqual(surface["maximumJetSpeedCentimetersPerSecond"], 27_000)
+        self.assertLessEqual(surface["meanVerticalVelocityMillimetersPerSecond"], 900)
+        self.assertGreaterEqual(surface["meanBulkRichardsonMillionths"], -2_000_000)
+        self.assertLessEqual(surface["meanBulkRichardsonMillionths"], 12_000_000)
+
+    def test_latent_heat_closes_and_spatial_temperature_drives_global_physics(self) -> None:
+        active = universe_snapshot()["planets"][0]
+        surface = active["surface"]
+        self.assertEqual(surface["latentEnergyResidualMilliWattsPerSquareMeter"], 0)
+        self.assertNotEqual(surface["meanLatentFluxMilliWattsPerSquareMeter"], 0)
+        self.assertEqual(
+            surface["meanTemperatureMilliKelvin"],
+            active["physics"]["meanSurfaceTemperatureMilliKelvin"],
         )
 
     def test_only_one_planet_is_active_in_the_initial_contract(self) -> None:

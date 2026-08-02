@@ -847,3 +847,42 @@ surface water, and exactly `650000000000` total fixed-point water units with
 zero balance error. Vertical atmosphere, latent-energy closure, evolving
 geology, and native whole-planet overlays remain explicitly assigned to
 UNI-003E.
+
+## [2026-08-02] change | Unify the vertical planet and native observer (UNI-003E)
+
+Added one authoritative eight-level atmospheric column to every cell of all
+three 180×360 planet surfaces. Fixed-point temperature, relative humidity,
+east/north wind, stability-limited mixing, convective adjustment, thermal-wind
+jets, vertical velocity, bulk Richardson stability, and Hadley contrast now
+evolve alongside the existing surface atmosphere. Evaporated and condensed
+mass feed a bounded latent-heat pump: evaporation cools the surface,
+condensation heats the lower atmosphere, the cumulative transfer is persisted,
+and any non-zero ledger residual aborts the simulation. The spatial mean
+surface temperature now reconciles the global physical state after every
+climate pulse.
+
+Removed the graphical simulation guard from `UniverseState`, so ordinary
+OpenHV, headless runs, replays, and resumed saves all advance the same state
+graph. The native planet panel now opens automatically and reads
+`PlanetSurfaceState` directly. Its terrain, temperature, pressure, wind,
+precipitation, and vertical-motion layers are passive views over the live C#
+cells; the RTS world continues behind the panel and no player selection or
+order is required. Local HTTP remains only as a temporary read-only fallback
+for biological and social overlays that have not yet migrated.
+
+Universe trait-save schema 6 delta/Brotli-compresses all column temperature,
+humidity, wind, and vertical-velocity arrays, verifies the vertical digest,
+and preserves latent history. The seed-112 checkpoint fork matched continuous
+and resumed branches at tick 500 with full hash `63547996`, BotRandom count
+`578`, and an approximately 4.3 MiB save. Two independent headless runs and
+the graphical/headless pair matched at tick 500 with hash `99C4EF7D`.
+
+The 2,500-tick soak completed ten climate pulses with vertical hash
+`9E2097AA`, 424.665 K lower-atmosphere and 383.082 K upper-atmosphere means,
+95.55 m/s mean jet speed, 0.316 m/s mean vertical velocity, Richardson value
+`389244` millionths, 103.543 W/m² latent flux, 139 MJ/m² cumulative latent
+transfer, and exactly zero water and latent-energy balance error. All 37
+simulation tests passed, release compilation completed with zero warnings and
+errors, MiniYAML validation retained only its 96 pre-existing unused-attribute
+warnings, and a live graphical smoke test visibly advanced the native panel
+from climate step 0 to step 2 without leaving the running RTS world.

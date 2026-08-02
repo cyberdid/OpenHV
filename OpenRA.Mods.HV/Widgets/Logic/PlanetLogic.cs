@@ -15,6 +15,7 @@ using System.IO;
 using System.Text.Json;
 using OpenRA.Mods.Common.Widgets;
 using OpenRA.Mods.HV.Campaign;
+using OpenRA.Mods.HV.Traits;
 using OpenRA.Widgets;
 
 namespace OpenRA.Mods.HV.Widgets.Logic
@@ -22,21 +23,33 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 	/// <summary>
 	/// The campaign screen: one planet frame, an overlay picker and a cell
 	/// inspector.
-	///
-	/// This is the half of the bridge the player can see. The other half - the
-	/// simulation - runs as a separate process on a clock 4,320,000 times slower
-	/// than a battle tick, which is why the planet is fetched rather than
-	/// stepped in here.
+	/// <para>
+	/// Native observer for the same UniverseState that the OpenHV world advances.
+	/// The panel never issues simulation orders: the world lives autonomously.
+	/// </para>
 	/// </summary>
 	public class PlanetLogic : ChromeLogic
 	{
 		readonly PlanetMapWidget map;
 
 		[ObjectCreator.UseCtor]
-		public PlanetLogic(Widget widget, Action onExit)
+		public PlanetLogic(Widget widget, World world, Action onExit)
 		{
 			map = widget.Get<PlanetMapWidget>("PLANET_MAP");
 			map.OnSelectionChanged = () => lastAction = null;
+			var universe = world.WorldActor.TraitOrDefault<UniverseState>();
+			if (universe != null)
+			{
+				PlanetState activePlanet = null;
+				foreach (var planet in universe.StarSystem.Planets)
+					if (planet.Active)
+					{
+						activePlanet = planet;
+						break;
+					}
+
+				map.Bind(activePlanet ?? universe.StarSystem.Planets[0]);
+			}
 
 			var status = widget.GetOrNull<LabelWidget>("PLANET_STATUS");
 			var title = widget.GetOrNull<LabelWidget>("PLANET_TITLE");
@@ -56,7 +69,9 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 						return map.Error;
 					if (map.Biome == null)
 						return "Start the campaign with: python3 sim_server.py";
-					return $"{map.LongitudeCells} x {map.LatitudeCells} cells";
+					return map.IsNative
+						? $"LIVE · native .NET · {map.LongitudeCells} x {map.LatitudeCells} cells"
+						: $"legacy frame · {map.LongitudeCells} x {map.LatitudeCells} cells";
 				};
 
 			if (cellInfo != null)
@@ -71,10 +86,12 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 
 			foreach (var (button, overlay) in new (string, PlanetOverlay)[]
 			{
-				("BIOME_BUTTON", PlanetOverlay.Biome),
-				("BIOMASS_BUTTON", PlanetOverlay.Biomass),
-				("POPULATION_BUTTON", PlanetOverlay.Population),
-				("FACTION_BUTTON", PlanetOverlay.Faction),
+				("TERRAIN_BUTTON", PlanetOverlay.Terrain),
+				("TEMPERATURE_BUTTON", PlanetOverlay.Temperature),
+				("PRESSURE_BUTTON", PlanetOverlay.Pressure),
+				("WIND_BUTTON", PlanetOverlay.Wind),
+				("PRECIPITATION_BUTTON", PlanetOverlay.Precipitation),
+				("VERTICAL_BUTTON", PlanetOverlay.VerticalMotion),
 			})
 			{
 				var b = widget.GetOrNull<ButtonWidget>(button);
@@ -90,6 +107,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			if (fight != null)
 			{
 				fight.OnClick = WriteBattleRequest;
+				fight.IsVisible = () => !map.IsNative;
 				fight.IsDisabled = () => map.Biome == null || !map.SelectedCell.HasValue ||
 					!SelectedDefender().HasValue;
 			}
@@ -98,7 +116,8 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			if (back != null)
 				back.OnClick = () => { Ui.CloseWindow(); onExit(); };
 
-			map.Fetch();
+			if (!map.IsNative)
+				map.Fetch();
 		}
 
 		/// <summary>
@@ -113,7 +132,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 				return;
 
 			var cell = map.SelectedCell.Value;
-			var i = (cell.Y * map.LongitudeCells) + cell.X;
+			var i = cell.Y * map.LongitudeCells + cell.X;
 			var holder = map.Faction[i];
 			var holderName = FactionName(holder);
 			var defender = SelectedDefender();
@@ -187,15 +206,34 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 
 			var cell = map.SelectedCell.Value;
 			var i = cell.Y * map.LongitudeCells + cell.X;
+			if (map.IsNative)
+			{
+				var wind = ApproximateSpeed(
+					map.EastWindCentimetersPerSecond[i], map.NorthWindCentimetersPerSecond[i]);
+				string[] nativeLines =
+				[
+					$"cell ({cell.X}, {cell.Y})",
+					$"terrain    {(PlanetTerrainKind)map.Biome[i]}",
+					$"temperature {map.TemperatureK[i]} K",
+					$"pressure   {map.PressurePascals[i] / 1000f:0.0} kPa",
+					$"wind       {wind / 100f:0.0} m/s",
+					$"rain       {map.PrecipitationTenthsMillimetersPerDay[i] / 10f:0.0} mm/day",
+					$"vertical   {map.VerticalVelocityMillimetersPerSecond[i] / 1000f:+0.000;-0.000;0.000} m/s",
+					"",
+					"Autonomous world",
+					"No player orders"
+				];
+				return string.Join("\n", nativeLines);
+			}
 
 			var biome = map.Biome[i];
-			var lines = new List<string>
-			{
+			List<string> lines =
+			[
 				$"cell ({cell.X}, {cell.Y})",
 				$"terrain    {BattleRequestBuilder.BiomeName(biome)}",
 				$"biomass    {map.Biomass[i] / 255f:0.00} of capacity",
 				$"population {map.PopulationDensity[i] / 255f:0.00} (log scale)",
-			};
+			];
 
 			var faction = map.Faction[i];
 			if (faction < 0)
@@ -211,6 +249,13 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 			}
 
 			return string.Join("\n", lines);
+		}
+
+		static int ApproximateSpeed(int x, int y)
+		{
+			var absoluteX = Math.Abs(x);
+			var absoluteY = Math.Abs(y);
+			return Math.Max(absoluteX, absoluteY) + Math.Min(absoluteX, absoluteY) / 2;
 		}
 	}
 }

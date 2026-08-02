@@ -300,6 +300,20 @@ namespace OpenRA.Mods.HV.Traits
 			UpdateEnergyState(macroDay);
 		}
 
+		internal void ApplySpatialClimate(
+			int spatialMeanSurfaceTemperatureMilliKelvin,
+			int meanLatentFluxMilliWattsPerSquareMeter,
+			int macroDay)
+		{
+			meanSurfaceTemperatureMilliKelvin = Math.Clamp(
+				spatialMeanSurfaceTemperatureMilliKelvin, 100_000, 900_000);
+			UpdateEnergyState(macroDay);
+			energyImbalanceMilliWattsPerSquareMeter = Math.Clamp(
+				energyImbalanceMilliWattsPerSquareMeter + meanLatentFluxMilliWattsPerSquareMeter,
+				-2_000_000,
+				2_000_000);
+		}
+
 		internal PlanetPhysicsSaveData CreateSaveData() => new()
 		{
 			GeologicalAgeYears = GeologicalAgeYears,
@@ -452,7 +466,7 @@ namespace OpenRA.Mods.HV.Traits
 	public sealed class UniverseState : IWorldLoaded, INotifyGameLoaded, ITick, ISync, IGameSaveTraitData
 	{
 		public const int CheckpointSchemaVersion = 1;
-		const int TraitSaveSchemaVersion = 5;
+		const int TraitSaveSchemaVersion = 6;
 		public const string UniverseId = "universe-0001";
 		public const string StarSystemId = "tyranthos-system";
 
@@ -533,9 +547,6 @@ namespace OpenRA.Mods.HV.Traits
 
 		void ITick.Tick(Actor self)
 		{
-			if (!Game.IsDeterministicSimulation)
-				return;
-
 			AdvanceTicks(1);
 		}
 
@@ -640,7 +651,7 @@ namespace OpenRA.Mods.HV.Traits
 				if (schemaVersion >= 2)
 					planet.Physics.Restore(FieldLoader.Load<PlanetPhysicsSaveData>(
 						RequiredNode(data, $"{prefix}Physics").Value));
-				if (schemaVersion >= 5)
+				if (schemaVersion >= 6)
 					planet.Surface.Restore(
 						FieldLoader.Load<PlanetSurfaceSaveData>(RequiredNode(data, $"{prefix}Surface").Value),
 						planet.Physics,

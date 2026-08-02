@@ -26,11 +26,11 @@ runtime retirement.
 | ID | Capability and source | C# destination | Gate | Status |
 |---|---|---|---|---|
 | PHY-01 | Canonical planet configuration and calibration (`config.py`) | `Universe/Planet/PlanetDefinition` | config snapshot + validation | native foundation: three immutable physical seeds exported under a closed contract |
-| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicalState/System` | temperature range + energy residual golden suite | partial: synchronized global energy plus 180×360 radiation/temperature fields native; golden calibration pending |
-| PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | partial: native pressure-gradient/Coriolis near-surface wind, polar filter, and adaptive CFL stepping; vertical column/shear/jets pending |
+| PHY-02 | Radiation, greenhouse, surface/atmosphere energy (`planet_physics.py`) | `PlanetPhysicalState/System` | temperature range + energy residual golden suite | partial: synchronized global/grid energy, eight-level heat transport, and exact latent ledger native; golden calibration pending |
+| PHY-03 | Pressure, Coriolis, wind, CFL stepping | `AtmosphereSystem` | forcing response + stability invariants | partial: native pressure-gradient/Coriolis surface flow, adaptive CFL, eight-level temperature/humidity/wind, convective mixing, shear, jets, vertical velocity, Richardson, and Hadley diagnostics; golden forcing pending |
 | PHY-04 | Evaporation, clouds, condensation, precipitation, water fixer | `HydrologySystem` | water conservation + precipitation parity | partial: spatial vapor/cloud/surface reservoirs, advection, evaporation, condensation, precipitation, runoff, and exact mass invariant native; ice/groundwater/river networks pending |
-| PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | partial: climate/atmosphere/hydrology digests, CFL and area-weighted weather/water diagnostics exported; forcing sweeps/textures pending |
-| PHY-06 | Large 2:1 surface, topology, stable cells/chunks | `PlanetSurfaceState` | deterministic topology + save/hash/LOD budget | partial: 180×360 native geology, climate, atmosphere and water fields, 450 chunks, and exact compressed restore verified; LOD pending |
+| PHY-05 | Diagnostics, calibration, sweeps, texture fields | native telemetry + headless scenario tools | reproducible diagnostic export | partial: climate/atmosphere/hydrology/column digests, CFL, weather, water, stability, circulation, and latent diagnostics exported and six physical overlays native; forcing sweeps/LOD textures pending |
+| PHY-06 | Large 2:1 surface, topology, stable cells/chunks | `PlanetSurfaceState` | deterministic topology + save/hash/LOD budget | partial: 180×360 native geology, climate, hydrology, near-surface and eight-level atmosphere, 450 chunks, exact compressed restore, and direct native rendering verified; LOD budget pending |
 | BIO-01 | Habitability, biomass, complexity (`biosphere.py`) | `BiosphereState/System` | barren/no-life + growth/carrying-capacity tests | reference |
 | BIO-02 | Food web, species competition, mutation, migration | `EcosystemState/System` | deterministic diversity and extinction invariants | new |
 | EMR-01 | Race emergence and inherited traits (`emergence.py`) | `SapienceEmergenceSystem` | different planets produce different traits | reference |
@@ -56,14 +56,14 @@ runtime retirement.
 | WAR-01 | Construction, units, pathfinding, combat, bases | OpenHV actors/world | existing MiniYAML/build/simulation suites | native |
 | WAR-02 | Mobilization and civilian cost of losses | `CivilizationState` + planner | workforce/population/stability consequences | native |
 | AI-01 | Aggressor/economist/technologist/fortress/steward profiles | modular bots + Civilization AI | statistically distinguishable strategies | native |
-| VIS-01 | Scientific globe and climate/data overlays (`index.html`) | native planet/system renderer | all layers visible at planet zoom | reference |
+| VIS-01 | Scientific globe and climate/data overlays (`index.html`) | native planet/system renderer | all layers visible at planet zoom | partial: auto-opened passive native planet map renders terrain, temperature, pressure, wind, precipitation, and vertical motion from authoritative C# cells; biosphere/social layers and globe projection pending |
 | VIS-02 | Whole-world command map (`city.html`) | semantic planet renderer | borders, cities, routes, events, inspection | reference |
 | VIS-03 | Living RTS diorama (`kingdoms.html`) | actual OpenHV surface | no proxy actors; same authoritative entities | partial |
 | VIS-04 | Chronicle and characters (`chronicle.html`) | native chronicle UI | filterable eras/events/characters | reference |
 | VIS-05 | Vertical city/planet strata (`city_levels.html`) | native strata/underground view | five layer classes or explicit superseding model | reference |
 | OBS-01 | Results, telemetry, events, batch, headless, hashes | existing simulation toolchain | full suite + schema validation | native |
-| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | native foundation: schema 5 restores physics, geology, climate, wind, all water reservoirs, and precipitation with full branch parity; every future domain trait must join the contract |
-| BRG-01 | Planet/battle contracts and deterministic request replay | developer import/replay tools | schema tests retained; no product click dependency | native |
+| SAV-01 | Persistent save/load across geological-to-space history | Universe save schema + replay checkpoints | save/reload hash equality | native foundation: schema 6 restores physics, geology, climate, near-surface and eight-level atmosphere, all water reservoirs, precipitation, and latent history with full branch parity; every future domain trait must join the contract |
+| BRG-01 | Planet/battle contracts and deterministic request replay | developer import/replay tools | schema tests retained; no product click dependency | native product boundary; localhost HTTP survives only as temporary read-only fallback for not-yet-migrated bio/social overlays |
 
 ## Space and multi-planet scope
 

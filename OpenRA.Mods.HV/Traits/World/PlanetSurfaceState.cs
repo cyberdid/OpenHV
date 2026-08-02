@@ -90,6 +90,33 @@ namespace OpenRA.Mods.HV.Traits
 
 		[FieldLoader.Require]
 		public string PrecipitationBrotliBase64;
+
+		[FieldLoader.Require]
+		public int VerticalAtmosphereHash;
+
+		[FieldLoader.Require]
+		public int MeanLatentFluxMilliWattsPerSquareMeter;
+
+		[FieldLoader.Require]
+		public int LatentEnergyResidualMilliWattsPerSquareMeter;
+
+		[FieldLoader.Require]
+		public long CumulativeLatentEnergyMegaJoulesPerSquareMeter;
+
+		[FieldLoader.Require]
+		public string ColumnTemperatureBrotliBase64;
+
+		[FieldLoader.Require]
+		public string ColumnRelativeHumidityBrotliBase64;
+
+		[FieldLoader.Require]
+		public string ColumnEastWindBrotliBase64;
+
+		[FieldLoader.Require]
+		public string ColumnNorthWindBrotliBase64;
+
+		[FieldLoader.Require]
+		public string VerticalVelocityBrotliBase64;
 	}
 
 	/// <summary>
@@ -100,7 +127,7 @@ namespace OpenRA.Mods.HV.Traits
 	/// </summary>
 	public sealed partial class PlanetSurfaceState : IEffect, ISync
 	{
-		const int SaveSchemaVersion = 3;
+		const int SaveSchemaVersion = 4;
 		const int LatitudeCount = 180;
 		const int LongitudeCount = 360;
 		const int ChunkLatitudeCount = 12;
@@ -174,6 +201,7 @@ namespace OpenRA.Mods.HV.Traits
 			Generate();
 			InitializeClimate(physics);
 			InitializeAtmosphereAndHydrology(physics);
+			InitializeVerticalAtmosphere();
 		}
 
 		public string CellId(int latitudeIndex, int longitudeIndex)
@@ -253,7 +281,21 @@ namespace OpenRA.Mods.HV.Traits
 			CloudWaterBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressDeltaUInts(cloudWaterMassUnits),
 			SurfaceWaterBrotliBase64 = climatePulseSequence == 0 ? string.Empty : CompressDeltaUInts(surfaceWaterMassUnits),
 			PrecipitationBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
-				CompressDeltaUShorts(precipitationTenthsMillimetersPerDay)
+				CompressDeltaUShorts(precipitationTenthsMillimetersPerDay),
+			VerticalAtmosphereHash = verticalAtmosphereHash,
+			MeanLatentFluxMilliWattsPerSquareMeter = MeanLatentFluxMilliWattsPerSquareMeter,
+			LatentEnergyResidualMilliWattsPerSquareMeter = LatentEnergyResidualMilliWattsPerSquareMeter,
+			CumulativeLatentEnergyMegaJoulesPerSquareMeter = CumulativeLatentEnergyMegaJoulesPerSquareMeter,
+			ColumnTemperatureBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(columnTemperatureDeciKelvin),
+			ColumnRelativeHumidityBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressDeltaUShorts(columnRelativeHumidityPerMille),
+			ColumnEastWindBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressShorts(columnEastWindCentimetersPerSecond),
+			ColumnNorthWindBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressShorts(columnNorthWindCentimetersPerSecond),
+			VerticalVelocityBrotliBase64 = climatePulseSequence == 0 ? string.Empty :
+				CompressShorts(verticalVelocityMillimetersPerSecond)
 		};
 
 		internal void Restore(PlanetSurfaceSaveData data, PlanetPhysicalState physics, int macroDay)
@@ -273,6 +315,7 @@ namespace OpenRA.Mods.HV.Traits
 			{
 				RestoreDeltaUShorts(data.TemperatureBrotliBase64, temperatureDeciKelvin, "temperature");
 				RestoreAtmosphereAndHydrology(data);
+				RestoreVerticalAtmosphere(data);
 			}
 
 			RecalculateClimateDerivedState(physics, climatePulseSequence == 0 ? 0 : macroDay);
@@ -285,6 +328,9 @@ namespace OpenRA.Mods.HV.Traits
 			if (atmosphereHash != data.AtmosphereHash)
 				throw new InvalidOperationException(
 					$"Planet atmosphere digest {unchecked((uint)atmosphereHash):X8} does not match saved {unchecked((uint)data.AtmosphereHash):X8}.");
+			if (verticalAtmosphereHash != data.VerticalAtmosphereHash)
+				throw new InvalidOperationException(
+					$"Planet vertical-atmosphere digest {unchecked((uint)verticalAtmosphereHash):X8} does not match saved {unchecked((uint)data.VerticalAtmosphereHash):X8}.");
 			if (TotalWaterMassUnits != data.TotalWaterMassUnits)
 				throw new InvalidOperationException(
 					$"Planet water mass {TotalWaterMassUnits} does not match saved {data.TotalWaterMassUnits}.");
@@ -533,6 +579,7 @@ namespace OpenRA.Mods.HV.Traits
 
 			topologyHash = unchecked((int)topology);
 			RecalculateHydrologyAndAtmosphereSummary();
+			RecalculateVerticalAtmosphereSummary();
 		}
 
 		static int CellIndex(int latitudeIndex, int longitudeIndex)

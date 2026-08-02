@@ -81,6 +81,7 @@ namespace OpenRA.Mods.HV.Widgets.Logic
 
 			mainMenu.Get<ButtonWidget>("ENCYCLOPEDIA_BUTTON").OnClick = OpenEncyclopediaPanel;
 			mainMenu.Get<ButtonWidget>("PLANET_BUTTON").OnClick = OpenPlanetPanel;
+			Game.RunAfterTick(OpenPlanetPanel);
 
 			mainMenu.Get<ButtonWidget>("QUIT_BUTTON").OnClick = Game.Exit;
 

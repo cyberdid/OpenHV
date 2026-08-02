@@ -206,7 +206,7 @@ an equilibrium temperature, temperature approaches it through a bounded
 energy imbalance, water vapor can condense into a conserved ocean stock,
 ocean coverage changes albedo and weathering, and tectonics drive bounded
 outgassing. Every field is exported in result/telemetry, participates in the
-full sync hash, and is restored by Universe trait-save schema 5.
+full sync hash, and is restored by Universe trait-save schema 6.
 
 The second slice adds a 180×360 native surface to every planet: 64,800 stable
 cells grouped into 450 chunks. Deterministic generation creates distinct plate
@@ -233,12 +233,22 @@ basins. Global and spatial water stocks reconcile after each pulse, while an
 exact fixed-point invariant aborts on any created or destroyed water. Schema 5
 persists all evolved wind and water fields; continuous/resumed branches match.
 
+The fifth slice adds an authoritative eight-level atmosphere to every one of
+the 64,800 cells. Temperature, humidity, east/north flow, convective mixing,
+thermal-wind jets, stability, and vertical motion now evolve in the same fixed-
+point state as the surface. Evaporation and condensation feed an exact latent-
+energy ledger, the global temperature is reconciled from the spatial grid, and
+schema 6 restores the compressed column with digest verification. The normal
+graphical OpenHV world now advances this same `UniverseState`; an auto-opened
+passive planet panel renders terrain, temperature, pressure, wind,
+precipitation, and vertical motion directly from C# state while the RTS world
+continues behind it. No faction, cell, battle, or planet choice is required.
+
 Remaining UNI-003 work:
 
-1. port vertical atmosphere, shear/jet diagnostics, and latent-energy closure
-   from the Python oracle;
-2. connect tectonic activity to evolving uplift, erosion, volcanism, and local
+1. connect tectonic activity to evolving uplift, erosion, volcanism, and local
    material transport instead of generation-time terrain only;
-3. add native whole-planet physical/climate overlays and diagnostics;
-4. validate golden forcing scenarios, conservation, deterministic/checkpoint
-   equality, and the grid's time/memory budget before beginning biosphere work.
+2. validate golden forcing scenarios and the grid's long-horizon time/memory
+   and LOD budgets before beginning biosphere work;
+3. remove the remaining localhost compatibility fallback after biosphere,
+   faction, chronicle, and strata layers have native state/renderers.

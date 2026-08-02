@@ -95,6 +95,21 @@ namespace OpenRA.Mods.HV
 		public long SpatialSurfaceWaterCubicKilometers { get; init; }
 		public long TotalWaterMassUnits { get; init; }
 		public long WaterBalanceErrorUnits { get; init; }
+		public int VerticalLevels { get; init; }
+		public string VerticalAtmosphereHash { get; init; }
+		public int MeanLowerAtmosphereTemperatureMilliKelvin { get; init; }
+		public int MeanUpperAtmosphereTemperatureMilliKelvin { get; init; }
+		public int MeanLowerRelativeHumidityPerMille { get; init; }
+		public int MeanUpperRelativeHumidityPerMille { get; init; }
+		public int MeanVerticalShearMicrosPerSecond { get; init; }
+		public int MeanJetSpeedCentimetersPerSecond { get; init; }
+		public int MaximumJetSpeedCentimetersPerSecond { get; init; }
+		public int MeanVerticalVelocityMillimetersPerSecond { get; init; }
+		public int MeanBulkRichardsonMillionths { get; init; }
+		public int HadleyTemperatureIndexMilliKelvin { get; init; }
+		public int MeanLatentFluxMilliWattsPerSquareMeter { get; init; }
+		public int LatentEnergyResidualMilliWattsPerSquareMeter { get; init; }
+		public long CumulativeLatentEnergyMegaJoulesPerSquareMeter { get; init; }
 		public string FirstCellId { get; init; }
 		public string LastCellId { get; init; }
 		public string FirstChunkId { get; init; }

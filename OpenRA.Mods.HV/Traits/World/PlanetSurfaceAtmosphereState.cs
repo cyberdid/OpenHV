@@ -35,6 +35,8 @@ namespace OpenRA.Mods.HV.Traits
 		readonly uint[] cloudWaterMassUnits = new uint[LatitudeCount * LongitudeCount];
 		readonly uint[] surfaceWaterMassUnits = new uint[LatitudeCount * LongitudeCount];
 		readonly uint[] precipitationMassUnits = new uint[LatitudeCount * LongitudeCount];
+		readonly uint[] dailyEvaporatedMassUnits = new uint[LatitudeCount * LongitudeCount];
+		readonly uint[] dailyCondensedMassUnits = new uint[LatitudeCount * LongitudeCount];
 		readonly ushort[] precipitationTenthsMillimetersPerDay = new ushort[LatitudeCount * LongitudeCount];
 		readonly long[] transportDelta = new long[LatitudeCount * LongitudeCount];
 
@@ -106,6 +108,8 @@ namespace OpenRA.Mods.HV.Traits
 			var waterBefore = TotalWaterMassUnits;
 			Array.Clear(precipitationMassUnits);
 			Array.Clear(precipitationTenthsMillimetersPerDay);
+			Array.Clear(dailyEvaporatedMassUnits);
+			Array.Clear(dailyCondensedMassUnits);
 
 			var elapsedSeconds = 0;
 			atmosphereSubsteps = 0;
@@ -125,6 +129,7 @@ namespace OpenRA.Mods.HV.Traits
 			for (var pass = 0; pass < 4; pass++)
 				AdvanceRunoff();
 
+			AdvanceVerticalAtmosphereAndLatentEnergy(physics, macroDay);
 			UpdateWaterDepthsAndPrecipitation();
 			var waterAfter = SumWaterMass();
 			WaterBalanceErrorUnits = waterAfter - waterBefore;
@@ -405,6 +410,7 @@ namespace OpenRA.Mods.HV.Traits
 						checked((uint)Math.Max(1, excess * stepSeconds / (SecondsPerDay * 180L))));
 					vaporWaterMassUnits[i] -= condensed;
 					cloudWaterMassUnits[i] = checked(cloudWaterMassUnits[i] + condensed);
+					dailyCondensedMassUnits[i] = checked(dailyCondensedMassUnits[i] + condensed);
 				}
 
 				var cloudThreshold = Math.Max(1u, saturation / 20);
@@ -429,6 +435,7 @@ namespace OpenRA.Mods.HV.Traits
 					deficit * stepSeconds * (1000 + windSpeed) / (SecondsPerDay * 4000L)));
 				surfaceWaterMassUnits[i] -= evaporated;
 				vaporWaterMassUnits[i] = checked(vaporWaterMassUnits[i] + evaporated);
+				dailyEvaporatedMassUnits[i] = checked(dailyEvaporatedMassUnits[i] + evaporated);
 			}
 		}
 

@@ -98,6 +98,16 @@ dropdownbutton-news-bg-button = Subspace Transmissions
 label-update-notice-a = You are running an outdated version of OpenHV.
 label-update-notice-b = Download the latest version from www.openhv.net
 
+## planet.yaml
+button-planet-terrain = Terrain
+button-planet-temperature = Temp
+button-planet-pressure = Pressure
+button-planet-wind = Wind
+button-planet-rain = Rain
+button-planet-vertical = Vertical
+button-planet-refresh = Refresh
+button-planet-legacy-battle-export = Legacy battle export
+
 ## mainmenu-prompts.yaml
 label-mainmenu-introduction-prompt-title = Incoming subspace transmission
 
