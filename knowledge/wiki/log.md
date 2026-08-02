@@ -633,3 +633,41 @@ seconds, contained all four requested profiles, and wrote synchronized hash
 `44D8C4B5`. A second run after unique session-ID handling produced the same
 hash. `sh -n run-universe.sh` passed, and `make test-simulation` passed all
 23 tests in 8.693 seconds.
+
+## [2026-08-02] ingest | Authoritative autonomous three-planet vision
+
+Recorded the user's product direction as an immutable raw source and inspected
+the supplied Super WorldBox page. The reference contributes the readable
+pixel-world idea—watch life prosper, civilizations build and fight in one
+visible sandbox—but not manual god powers, small maps, shallow civil logic, or
+its implementation. The authoritative goal requires observer-only operation,
+one runtime, start from lifeless zero, physical influence on ecology, emergent
+native races, detailed real-time civilization from prehistory to Imperium,
+same-world RTS, and eventual three-planet space travel, trade, diplomacy,
+fleets, colonization, war, and Tyranid invasion.
+
+Compiled the direction into [Universe North Star](universe-north-star.md), a
+nine-phase [Universe execution plan](universe-execution-plan.md), and a
+[capability migration ledger](capability-migration-ledger.md) that names every
+existing Python/Web/OpenHV system and its parity gate. CoruscantSim remains the
+migration oracle; no source feature may be retired before its ledger row is
+verified.
+
+## [2026-08-02] decision | Select one .NET/OpenHV authoritative runtime
+
+Accepted [Decision 0006](decisions/0006-single-dotnet-universe-runtime.md).
+A Web-only product would require rebuilding the mature RTS foundation:
+pathfinding, actors, production, combat, maps, AI, replay, and determinism. The
+chosen direction keeps those systems and ports planet physics, biosphere,
+emergence, society, policy, characters, storyteller, chronicle, and observer
+views into synchronized C#. The current `run-universe.sh` remains a
+transitional one-process proof because it starts with civilizations; UNI-001
+will introduce Universe/System/three-Planet identity, macro time, lifeless
+planet-zero state, and telemetry as the first executable North Star slice.
+
+## [2026-08-02] lint | Validate North Star wiki topology
+
+Checked 44 compiled wiki pages: all relative links resolve. Frontmatter lint
+found one pre-existing unstructured page, `swarm-art-prompts.md`; added the
+required title/status/date/sources/tags block without changing its content.
+After correction every normal wiki page passes the frontmatter contract.

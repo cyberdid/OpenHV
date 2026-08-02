@@ -1,8 +1,11 @@
 ---
 title: Roadmap
 status: current
-updated: 2026-08-01
+updated: 2026-08-02
 sources:
+  - universe-north-star.md
+  - universe-execution-plan.md
+  - capability-migration-ledger.md
   - overview.md
   - architecture.md
   - ../../run-universe.sh
@@ -28,17 +31,33 @@ This page is the compact priority view. See the
 [detailed execution plan](execution-plan.md) for implementation tasks,
 dependency gates, metrics, experiment design, and delivery estimates.
 
+## Active North Star program
+
+The authoritative program is now the
+[Universe execution plan](universe-execution-plan.md): one .NET/OpenHV state
+graph, one complete planet first, three planets by final acceptance, autonomous
+zero→life→race→civilization→space→interplanetary history, and same-world RTS.
+
+Current phase: **Phase 0 — program lock and inventory**. The next executable
+work package is **UNI-001**, which introduces Universe/System/three-Planet IDs,
+the synchronized macro clock, lifeless planet-zero state, and result/telemetry
+export without changing existing matches.
+
 ## Completed foundation
 
-### P0 — One-engine autonomous product runtime
+### P0 — Transitional one-engine runtime foundation
 
-`run-universe.sh` is now the canonical visual entry point. It launches one
+`run-universe.sh` is the current visual entry point. It launches one
 OpenHV spectator process containing four autonomous civilizations and all
 economic, civil, diplomatic, research, production, and combat systems. It has
 no Web battle selection and no experiment watchdog. Natural victory or total
 civil collapse begins the next deterministic epoch; manually closing the
 window stops the launcher. The older Web→per-cell battle bridge remains a
 compatibility experiment, not the product loop.
+
+This proves observer-only single-process operation, but it begins with
+pre-spawned civilizations. It is therefore a transitional foundation, not the
+North Star's required zero-state planet history.
 
 Simulation contract v1 and its deterministic graphical lifecycle are complete:
 

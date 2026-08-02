@@ -1,8 +1,9 @@
 ---
 title: Project Overview
 status: current
-updated: 2026-08-01
+updated: 2026-08-02
 sources:
+  - universe-north-star.md
   - ../../README.md
   - ../../run-universe.sh
   - ../../run-simulation.sh
@@ -27,10 +28,11 @@ tags:
 
 ## Mission
 
-Build an observable autonomous real-time world in which factions live rather
-than merely fight. They grow populations, build settlements, satisfy needs,
-develop technology and institutions, trade, negotiate, migrate, recover from
-crises, and may scout, defend, or wage war without human players.
+Build an observable autonomous real-time history that begins with lifeless
+planetary physics, produces ecosystems and a native race, grows civilizations
+from prehistory to a technological Imperium, and ultimately connects three
+independently evolved planets through trade, diplomacy, fleets, colonization,
+and war—without human players.
 
 The StarCraft-like RTS layer provides visible geography, logistics,
 construction, units, and combat. A civilization layer adds long-term societal
@@ -46,6 +48,9 @@ and mechanics prototype, not a second game engine.
 - `run-universe.sh` starts the canonical hands-off world: four AI
   civilizations on one persistent rendered map, normal speed, trade enabled,
   no wall-clock watchdog, and no cell or battle selection.
+- This launcher is an interim single-process proof: it still begins with
+  civilizations. The North Star requires a zero-state physical planet and will
+  replace that start through the ordered migration plan.
 - A local observer can automatically start a free-for-all match with no human
   participant.
 - Five AI profiles are selectable: aggressor, economist, technologist,

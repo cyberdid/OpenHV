@@ -1,8 +1,10 @@
 ---
 title: Simulation Architecture
 status: current
-updated: 2026-08-01
+updated: 2026-08-02
 sources:
+  - universe-north-star.md
+  - decisions/0006-single-dotnet-universe-runtime.md
   - ../../run-universe.sh
   - ../../OpenRA.Mods.HV/LoadScreens/PanelLoadScreen.cs
   - ../../OpenRA.Mods.HV/Simulation/SimulationConfig.cs
@@ -48,6 +50,12 @@ tags:
 # Simulation Architecture
 
 ## Product runtime boundary
+
+The target boundary is defined by [Decision 0006](decisions/0006-single-dotnet-universe-runtime.md):
+one C# state graph owns three planet slots, orbital space, civilization, and
+RTS. `run-universe.sh` proves one-process observer operation today, but its
+pre-spawned match is transitional until the Universe/Planet kernel and
+zero-state lifecycle replace it.
 
 `run-universe.sh` is the canonical visual runtime. It configures a graphical
 `living-world` match with four Civilization AI profiles, trade enabled,

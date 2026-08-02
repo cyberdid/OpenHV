@@ -1,9 +1,10 @@
 ---
 title: Universe RTS Project Wiki
 status: current
-updated: 2026-08-01
+updated: 2026-08-02
 sources:
   - ../raw/karpathy-llm-wiki-2026-07-29.md
+  - ../raw/user-vision-2026-08-02.md
 tags:
   - index
   - project
@@ -15,6 +16,12 @@ This is the maintained entry point for the autonomous RTS simulation project.
 
 ## Project
 
+- [Universe North Star](universe-north-star.md) — authoritative autonomous
+  three-planet product goal, invariants, stages, visual contract, and done gate.
+- [Universe execution plan](universe-execution-plan.md) — ordered zero-to-life,
+  civilization, RTS, space, multi-planet, and invasion delivery phases.
+- [Capability migration ledger](capability-migration-ledger.md) — every current
+  Python/Web/OpenHV function, its C# owner, parity gate, and migration status.
 - [Overview](overview.md) — mission, present capabilities, constraints, and
   success criteria.
 - [Architecture](architecture.md) — runtime components and data flow.
@@ -28,6 +35,8 @@ This is the maintained entry point for the autonomous RTS simulation project.
 - [Roadmap](roadmap.md) — ordered next milestones and acceptance criteria.
 - [Detailed execution plan](execution-plan.md) — phased implementation,
   experiments, gates, risks, backlog, and delivery sequence.
+- [Decision 0006](decisions/0006-single-dotnet-universe-runtime.md) — why the
+  one authoritative product runtime is .NET/OpenHV rather than Web.
 
 ## Experiments
 

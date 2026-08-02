@@ -1,3 +1,17 @@
+---
+title: Hive Swarm Art Prompts
+status: current
+updated: 2026-08-02
+sources:
+  - ../../generate-sprite.py
+  - ../../import-sprite.py
+  - ../../mods/hv/rules/structures.yi.yaml
+tags:
+  - art
+  - swarm
+  - assets
+---
+
 # Hive Swarm art: what to generate where
 
 The swarm is a re-skin, so it needs one image per actor the Yuruki line can
